@@ -12,7 +12,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		log: console.log,
 		error: console.error,
 		warning: console.warn,
-		vec2: function (x, y) {
+		vec2: function (x = 0, y = 0) {
 			return {
 				x: x,
 				y: y
