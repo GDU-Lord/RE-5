@@ -1163,13 +1163,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 
 	this.Family.prototype.isset = function (o) {
-		for(var i in o.families) {
-			if(o.families[i].id == this.id) {
-				return true;
-				break;
-			}
-		}
-		return false;
+		return (o.id in this.objects);
 	};
 	
 	this.Family.prototype.for = function (fnc) {
