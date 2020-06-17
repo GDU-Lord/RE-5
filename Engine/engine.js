@@ -1,11 +1,12 @@
-const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine/') {
+const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine/', pluginSource = 'Plugins/') {
 	
 
 
 	var rjs = this;
 
-	rjs.engineSource = engineSource;
-	rjs.sourceHOST = sourceHOST;
+	this.engineSource = engineSource;
+	this.sourceHOST = sourceHOST;
+	this.pluginSource = pluginSource;
 	
 	//global methods
 	this._GLOBAL = {
@@ -81,12 +82,33 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	//Plugins
 	
 	
-	this.Plugin = function (src, params) {
-		this.code = require(src, 'text');
+	// this.Plugin = function (src, params) {
+	// 	this.code = require(src, 'text');
+	// 	this.fnc = eval(this.code);
+	// 	this.proto = this.fnc(rjs, params);
+	// 	this.name = this.proto.name;
+	// 	this.proto.main(rjs, params);
+	// };
+
+	this.plugins = {};
+
+	this.Plugin = function (name, ...params) {
+		var pack = require(rjs.pluginSource+name+'.rjs/package.json', 'json');
+		var code = require(rjs.pluginSource+name+'.rjs/'+pack.main);
+		this.params = params;
+		this.exports = undefined;
+		this.global = {};
+		this.pack = pack;
+		this.code = code;
+		this.engine = rjs;
 		this.fnc = eval(this.code);
-		this.proto = this.fnc(rjs, params);
-		this.name = this.proto.name;
-		this.proto.main(rjs, params);
+		var res = this.fnc(this);
+		this.res = typeof res != 'undefined' ? res : null;
+		rjs.plugins[this.pack.name] = this;
+		for(let i in this.global) {
+			window[i] = this.global[i];
+		}
+		return this.exports;
 	};
 	
 	//Canvas
