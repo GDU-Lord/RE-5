@@ -311,6 +311,8 @@
 	tools.staticTex = {};
 	tools.staticTexSize = rjs.gl.getParameter(rjs.gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
 	tools.staticTexIds = new Array(tools.staticTexSize);
+
+	tools.staticTexUsed = {};
 	
 	//loading texture to WebGL TEXTURE_2D buffer
 	tools.setTexture = function (t, buffer = 0) {
@@ -332,20 +334,27 @@
 		else if(t.src in tools.staticTex) {
 			buffer = tools.staticTex[t.src].index;
 			gl.activeTexture(gl[`TEXTURE${buffer}`]);
+			tools.staticTexUsed[t.src] = t;
 			return buffer;
 		}
 		else {
-			let i;
-			for(i = 1; i < tools.staticTexSize-1; i ++) {
-				if(typeof(tools.staticTexIds[i]) == 'undefined')
+			let coll = 0;
+			for(let i = 1; i < tools.staticTexSize-1; i ++) {
+				if(typeof(tools.staticTexIds[i]) == 'undefined') {
+					coll = i;
 					break;
+				}
 			}
-			tools.staticTex[t.src] = tools.staticTexIds[i] = {
-				name: t.src,
-				index: i,
-				tex: t
-			};
-			buffer = tools.staticTex[t.src].index;
+			if(coll != 0) {
+				let id = coll;
+				tools.staticTex[t.src] = tools.staticTexIds[id] = {
+					name: t.src,
+					index: id,
+					tex: t
+				};
+				buffer = tools.staticTex[t.src].index;
+			}
+			tools.staticTexUsed[t.src] = t;
 			gl.activeTexture(gl[`TEXTURE${buffer}`]);
 			gl.bindTexture(gl.TEXTURE_2D, tools.STANDART_TEXTURE);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
@@ -553,11 +562,7 @@
 						var texcoord = tools.getTexcoordArray(pattern, vertices, texture);
 
 						tools.bufferData('texcoord', texcoord);
-						
-						tools.setTexture(texture);
 					}
-					else
-						tools.setTexture(texture);
 				}
 				for(let j in textures[k]) {
 					let o = textures[k][j];
@@ -578,41 +583,47 @@
 				let tex_buffer;
 				if(k == 'default' || k in rjs.textures) {
 
-					let texture = k != 'default' ? rjs.textures[k] : null;
+					if(count(pattern.textures[k]) > 0) {
+						let texture = k != 'default' ? rjs.textures[k] : null;
 
-					if(texcoordChanged) {
-						if(pattern.type == 'sprite') {
-							if(tools.texBuffer != 'sprite_texcoord') {
-								tools.bindBuffer('sprite_texcoord', 'texcoord');
+						if(texcoordChanged) {
+							if(pattern.type == 'sprite') {
+								if(tools.texBuffer != 'sprite_texcoord') {
+									tools.bindBuffer('sprite_texcoord', 'texcoord');
+								}
+								texcoordChanged = false;
 							}
-							texcoordChanged = false;
+							else if(pattern.type == 'polygon') {
+								if(tools.texBuffer != 'texcoord')
+									tools.bindBuffer('texcoord', 'texcoord');
+								var texcoord = tools.getTexcoordArray(pattern, vertices);
+								tools.bufferData('texcoord', texcoord);
+								texcoordChanged = false;
+							}
 						}
-						else if(pattern.type == 'polygon') {
+						
+						if(texture != null && texture.type == 'animation') {
+							texture = texture.frames[texture.currentIndex];
+
+						}
+						if(texture != null && (texture.type == 'tiled' || texture.type == 'croped')) {
 							if(tools.texBuffer != 'texcoord')
 								tools.bindBuffer('texcoord', 'texcoord');
-							var texcoord = tools.getTexcoordArray(pattern, vertices);
+							
+							var texcoord = tools.getTexcoordArray(pattern, vertices, texture);
+
 							tools.bufferData('texcoord', texcoord);
-							texcoordChanged = false;
+							
+							tex_buffer = tools.setTexture(texture);
+							texcoordChanged = true;
 						}
+						else
+							tex_buffer = tools.setTexture(texture);
+					}
+					else {
+						delete pattern.textures[k];
 					}
 					
-					if(texture != null && texture.type == 'animation') {
-						texture = texture.frames[texture.currentIndex];
-
-					}
-					if(texture != null && (texture.type == 'tiled' || texture.type == 'croped')) {
-						if(tools.texBuffer != 'texcoord')
-							tools.bindBuffer('texcoord', 'texcoord');
-						
-						var texcoord = tools.getTexcoordArray(pattern, vertices, texture);
-
-						tools.bufferData('texcoord', texcoord);
-						
-						tex_buffer = tools.setTexture(texture);
-						texcoordChanged = true;
-					}
-					else
-						tex_buffer = tools.setTexture(texture);
 				}
 				for(let l in pattern.textures[k]) {
 					let o = pattern.textures[k][l];
@@ -1088,6 +1099,8 @@
 		PATTERN_MODE: false,
 		CHUNKS_MODE: false,
 
+		DEBUG_MODE: false,
+
 		AUTO_CHUNKS_VIEWPORT_UPDATE: false,
 		CHUNKS_VIEWPORT_MODIFER: vec2(3, 2),
 		
@@ -1309,8 +1322,18 @@
 				}
 			}
 
+			for(let i in tools.staticTex) {
+				if(!(i in tools.staticTexUsed)) {
+					delete tools.staticTex[i];
+				}
+			}
+
+			tools.staticTexUsed = {};
+
 			tools.posBuffer = null;
 			tools.texBuffer = null;
+			if(rjs.renderer.DEBUG_MODE)
+				debugger;
 		}
 	}
 
