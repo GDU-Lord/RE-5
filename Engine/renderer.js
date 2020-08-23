@@ -303,6 +303,22 @@
 		return true;
 	};
 
+	tools.compareArrays = function (arr1, arr2) {
+		for(let i in arr1) {
+			if(typeof arr1[i] != 'function' && arr1[i] != arr2[i])
+				return false;
+		}
+		return true;
+	};
+
+	tools.compare2dArrays = function (arr1, arr2) {
+		for(let i in arr1) {
+			if(!tools.compareArrays(arr1[i], arr2[i]))
+				return false;
+		}
+		return true;
+	};
+
 	tools.clearTextureBuffer = function () {
 		tools.staticTex = {};
 		tools.staticTexIds = [];
@@ -385,8 +401,8 @@
 			var ctx = rjs.ctx;
 
 			var prop = rjs.canvas_width / rjs.client.w;
-			var x = (t.pos.x * t.layer.scale.x + rjs.client.w/2 - rjs.currentCamera.pos.x * t.layer.scale.x * t.layer.parallax.x/100) * prop;
-			var y = (t.pos.y * t.layer.scale.y + rjs.client.h/2 - rjs.currentCamera.pos.y * t.layer.scale.y * t.layer.parallax.y/100) * prop;
+			var x = ((t.pos.x+t.offset.x*t.scale.x) * t.layer.scale.x + rjs.client.w/2 - rjs.currentCamera.pos.x * t.layer.scale.x * t.layer.parallax.x/100) * prop;
+			var y = ((t.pos.y+t.offset.y*t.scale.y) * t.layer.scale.y + rjs.client.h/2 - rjs.currentCamera.pos.y * t.layer.scale.y * t.layer.parallax.y/100) * prop;
 			var size = t.size * prop;
 			var ox = t.origin.split('-')[0].trim();
 			var oy = t.origin.split('-')[1].trim();
@@ -417,7 +433,6 @@
 				}
 
 				ctx.save();
-				
 				ctx.translate(x, y);
 				ctx.scale(t.layer.scale.x, t.layer.scale.y);
 				ctx.rotate(angle);
@@ -521,7 +536,22 @@
 			tools.bufferData('position', vertices);
 		}
 
-		
+		var colors = [];
+
+		for(let k in pattern.colors) {
+			let c = pattern.colors[k];
+			let r = c.r/255;
+			let g = c.g/255;
+			let b = c.b/255;
+			let a = (typeof c.a != 'undefined' ? c.a : 255)/255;
+			colors[k*4] = r;
+			colors[k*4+1] = g;
+			colors[k*4+2] = b;
+			colors[k*4+3] = a;
+		}
+
+		tools.bindBuffer('color', 'color', 4);
+		tools.bufferData('color', colors);
 
 		if(rjs.renderer.CHUNKS_MODE) {
 			var textures = {};
@@ -551,30 +581,61 @@
 				textures[k] = [...textures[k], ...pattern.no_chunks[k]];
 			}
 			for(let k in textures) {
+				let tex_buffer;
 				if(k == 'default' || k in rjs.textures) {
-					let texture = k != 'default' ? rjs.textures[k] : null;
-					if(texture != null && texture.type == 'animation')
-						texture = texture.frames[texture.currentIndex];
-					if(texture != null && (texture.type == 'tiled' || texture.type == 'croped')) {
-						if(tools.texBuffer != 'texcoord')
-							tools.bindBuffer('texcoord', 'texcoord');
-						
-						var texcoord = tools.getTexcoordArray(pattern, vertices, texture);
+					if(count(textures[k]) > 0) {
+						let texture = k != 'default' ? rjs.textures[k] : null;
 
-						tools.bufferData('texcoord', texcoord);
+						if(texcoordChanged) {
+							if(pattern.type == 'sprite') {
+								if(tools.texBuffer != 'sprite_texcoord') {
+									tools.bindBuffer('sprite_texcoord', 'texcoord');
+								}
+								texcoordChanged = false;
+							}
+							else if(pattern.type == 'polygon') {
+								if(tools.texBuffer != 'texcoord')
+									tools.bindBuffer('texcoord', 'texcoord');
+								var texcoord = tools.getTexcoordArray(pattern, vertices);
+								tools.bufferData('texcoord', texcoord);
+								texcoordChanged = false;
+							}
+						}
+						
+						if(texture != null && texture.type == 'animation') {
+							texture = texture.frames[texture.currentIndex];
+
+						}
+						if(texture != null && (texture.type == 'tiled' || texture.type == 'croped')) {
+							if(tools.texBuffer != 'texcoord')
+								tools.bindBuffer('texcoord', 'texcoord');
+							
+							var texcoord = tools.getTexcoordArray(pattern, vertices, texture);
+
+							tools.bufferData('texcoord', texcoord);
+							
+							tex_buffer = tools.setTexture(texture);
+							texcoordChanged = true;
+						}
+						else
+							tex_buffer = tools.setTexture(texture);
+					}
+					else {
+						delete pattern.textures[k];
 					}
 				}
-				for(let j in textures[k]) {
-					let o = textures[k][j];
+				for(let l in textures[k]) {
+					let o = textures[k][l];
 					if(typeof o != 'undefined') {
 						if(o.type == 'sprite' || o.type == 'polygon')
-							tools.drawPatternObject(o, vertices);
+							tools.drawPatternObject(o, vertices, tex_buffer);
 						else if(o.type == 'text')
 							if(rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL')
 								tools.textBuffer[o.id] = o;
 							else
 								tools.drawText(o);
 					}
+					
 				}
 			}
 		}
@@ -677,6 +738,8 @@
 		matrix = tools.multiplyMatrix(matrix, rm);
 		matrix = tools.multiplyMatrix(matrix, sm);
 		matrix = tools.multiplyMatrix(matrix, om);
+
+		
 		
 		gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
 		gl.uniform1i(tools.uniforms.texture, tex_buffer);
@@ -884,14 +947,15 @@
 		pattern.type = o.type;
 		pattern.size = o.size || null;
 		pattern.vertices = o.type == 'polygon' ? o.vertices : [];
+		pattern.colors = o.colors;
 		pattern.layerID = o.layer.id;
 		pattern.chunks = [];
 		pattern.no_chunks = [];
 		pattern.belong = function (o) {
 			if(pattern.type == o.type) {
-				if(pattern.type == 'sprite' && (o.texture == null || o.texture.type != 'tiled' || tools.compareVectors(o.size, pattern.size)))
+				if(pattern.type == 'sprite' && (o.texture == null || o.texture.type != 'tiled' || tools.compareVectors(o.size, pattern.size)) && tools.compare2dArrays(o.colors, pattern.colors))
 					return true;
-				if(pattern.type == 'polygon' && tools.compareVectorArrays(o.vertices, pattern.vertices))
+				if(pattern.type == 'polygon' && tools.compareVectorArrays(o.vertices, pattern.vertices) && tools.compare2dArrays(o.colors, pattern.colors))
 					return true;
 				if(pattern.type == 'text')
 					return true;
@@ -1011,7 +1075,7 @@
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
 	}
 
-	tools.bindBuffer = function (buffer, attrib) {
+	tools.bindBuffer = function (buffer, attrib, p = 2) {
 		var gl = rjs.gl;
 		if(attrib == 'position')
 			tools.posBuffer = buffer;
@@ -1019,7 +1083,7 @@
 			tools.texBuffer = buffer;
 		gl.enableVertexAttribArray(tools.attribs[attrib]);
 		gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers[buffer]);
-		gl.vertexAttribPointer(tools.attribs[attrib], 2, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(tools.attribs[attrib], p, gl.FLOAT, false, 0, 0);
 	};
 	
 	//buffers and WebGL shader variables locations
@@ -1054,16 +1118,18 @@
 
 			tools.attribs.position = gl.getAttribLocation(tools.programs.def, 'a_position');
 			tools.attribs.texcoord = gl.getAttribLocation(tools.programs.def, 'a_texcoord');
+			tools.attribs.color = gl.getAttribLocation(tools.programs.def, 'a_color');
 			
 			tools.uniforms.matrix = gl.getUniformLocation(tools.programs.def, 'u_matrix');
 			tools.uniforms.texture = gl.getUniformLocation(tools.programs.def, 'u_texture');
 			tools.uniforms.opacity = gl.getUniformLocation(tools.programs.def, 'u_opacity');
 			tools.uniforms.filter = gl.getUniformLocation(tools.programs.def, 'u_filter');
-			
+
 			tools.buffers.position = gl.createBuffer();
 			tools.buffers.sprite_position = gl.createBuffer();
 			tools.buffers.texcoord = gl.createBuffer();
 			tools.buffers.sprite_texcoord = gl.createBuffer();
+			tools.buffers.color = gl.createBuffer();
 
 			//gl.enableVertexAttribArray(tools.attribs.position);
 
