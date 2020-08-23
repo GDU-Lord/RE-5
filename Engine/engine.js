@@ -483,6 +483,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		texture = null,
 		color = rgb(255, 255, 255),
 		filters = [],
+		colors = [],
 		opacity = 100,
 		enable_chunks = true,
 		scene = undefined,
@@ -520,6 +521,14 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.textOverlap = textOverlap;
 		this.destroyed = false;
 
+		this.colors = colors;
+		var verts = rjs.renderTools.getVerticesArray(this);
+		if(this.colors.length < verts.length/2) {
+			for(let i = 0; i < verts.length/2; i ++) {
+				this.colors[i] = typeof this.color[i] == 'undefined'? rgb(255, 255, 255) : this.color[i];
+			}
+		}
+
 		for(var i in families) {
 			families[i].add(this);
 		}
@@ -547,6 +556,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		texture = null,
 		color = rgb(255, 255, 255),
 		filters = [],
+		colors = [],
 		opacity = 100,
 		enable_chunks = true,
 		scene = undefined,
@@ -574,6 +584,12 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.texture = texture;
 		this.color = color;
 		this.filters = filters;
+		this.colors = colors;
+		if(this.colors.length < 6) {
+			for(let i = 0; i < 6; i ++) {
+				this.colors[i] = typeof this.color[i] == 'undefined'? rgb(255, 255, 255) : this.color[i];
+			}
+		}
 		this.scene = (scene || layer.scene);
 		this.id = id;
 		this.layer = layer;
@@ -606,6 +622,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		scale = vec2(1, 1),
 		angle = 0,
 		origin = 'center-middle',
+		offset = vec2(0, 0),
 		points = [],
 		text = null,
 		font = null,
@@ -630,6 +647,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.scale = scale;
 		this.angle = angle;
 		this.origin = origin;
+		this.offset = offset;
 		this.points = points;
 		this.opacity = opacity;
 		this.font = font;
@@ -700,6 +718,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			rjs.renderer.updateObject(this);
 		}
 	};
+
+	this.ObjectsPrototype.update = function () {
+		return rjs.renderer.updateObject(this);
+	};
 	
 	this.Polygon.prototype = rjs.ObjectsPrototype;
 	this.Sprite.prototype = rjs.ObjectsPrototype;
@@ -715,8 +737,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		angle = undefined,
 		opacity = undefined,
 		origin = undefined,
+		offset = undefined,
 		color = undefined,
 		filters = undefined,
+		colors = undefined,
 		points = undefined,
 		texture = undefined,
 		scene = undefined,
@@ -753,8 +777,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				angle: typeof p.angle != 'undefined' ? p.angle : angle,
 				opacity: typeof p.opacity != 'undefined' ? p.opacity : opacity,
 				origin: typeof p.origin != 'undefined' ? p.origin : origin,
+				offset: typeof p.offset != 'undefined' ? p.offset : offset,
 				color: typeof p.color != 'undefined' ? p.color : color,
 				filters: typeof p.filters != 'undefined' ? p.filters : filters,
+				colors: typeof p.colors != 'undefined' ? p.colors : colors,
 				points: typeof p.points != 'undefined' ? p.points : points,
 				texture: typeof p.texture != 'undefined' ? p.texture : texture,
 				scene: typeof p.scene != 'undefined' ? p.scene : scene,
@@ -1105,9 +1131,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		x: 0,
 		y: 0,
 		touchID: 0,
-		get: function (layer) {
-			var m = vec2(rjs._mouse.x / layer.scale.x, rjs._mouse.y / layer.scale.y);
-			return vec2(m.x + rjs.currentCamera.pos.x * layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * layer.parallax.y / 100);
+		get: function (layer, scale = false, parallax = false) {
+			scale = scale || layer.scale;
+			parallax = parallax || layer.parallax;
+			var m = vec2(rjs._mouse.x / scale.x, rjs._mouse.y / scale.y);
+			return vec2(m.x + rjs.currentCamera.pos.x * parallax.x / 100, m.y + rjs.currentCamera.pos.y * parallax.y / 100);
 		}
 	};
 	
@@ -1172,17 +1200,44 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		}
 	};
 	
-	this.Family.prototype.forNearTo = function (_pos, fnc) {
+	this.Family.prototype.forNearTo = function (_pos, fnc, dist = vec2(2, 2)) {
 		var family = this;
 		for(var l in rjs.currentScene.layers) {
 			var patterns = rjs.currentScene.layers[l].patterns;
 			for(var m in patterns) {
-				var pattern = patterns[m];
-				var scale = rjs.currentScene.layers[pattern.layerID].scale;
-				var parallax = rjs.currentScene.layers[pattern.layerID].parallax;
-				var pos = vec2(Math.floor(_pos.x/scale.x/rjs.renderer.CHUNKS_SIZE.x), Math.floor(_pos.y/scale.y/rjs.renderer.CHUNKS_SIZE.y));
-				for(var i = pos.x - 2; i <= pos.x + 2; i ++) {
-					for(var j = pos.y - 2; j <= pos.y + 2; j ++) {
+				// var pattern = patterns[m];
+				// var scale = rjs.currentScene.layers[pattern.layerID].scale;
+				// var parallax = rjs.currentScene.layers[pattern.layerID].parallax;
+				// var pos = vec2(Math.floor(_pos.x/scale.x/rjs.renderer.CHUNKS_SIZE.x), Math.floor(_pos.y/scale.y/rjs.renderer.CHUNKS_SIZE.y));
+				// for(var i = pos.x - dist.x; i <= pos.x + dist.x; i ++) {
+				// 	for(var j = pos.y - dist.y; j <= pos.y + dist.y; j ++) {
+				// 		try {
+				// 			var chunk = pattern.chunks[i][j];
+				// 			for(var k in chunk.textures) {
+				// 				var objects = chunk.textures[k];
+				// 				objects.forEach((o) => {
+				// 					if(o.id in family.objects) fnc(o);
+				// 				});
+				// 			}
+				// 		} catch (err) {
+								
+				// 		}
+				// 	}
+				// }
+				let pattern = patterns[m];
+				let scale = rjs.currentScene.layers[pattern.layerID].scale;
+				let cam = rjs.currentCamera;
+				let pos = vec2();
+				pos.x = _pos.x/scale.x+cam.pos.x;
+				pos.y = _pos.y/scale.y+cam.pos.y;
+				let start = rjs.renderTools.getChunkPos(pos);
+				start.x = Math.floor(start.x-dist.x);
+				start.y = Math.floor(start.y-dist.y);
+				let end = rjs.renderTools.getChunkPos(pos);
+				end.x = Math.floor(end.x+dist.x);
+				end.y = Math.floor(end.y+dist.y);
+				for(let i = start.x; i < end.x + 1; i ++) {
+					for(let j = start.y; j < end.y + 1; j ++) {
 						try {
 							var chunk = pattern.chunks[i][j];
 							for(var k in chunk.textures) {
