@@ -7,6 +7,57 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.engineSource = engineSource;
 	this.sourceHOST = sourceHOST;
 	this.pluginSource = pluginSource;
+
+	this.Vector2 = function (x, y) {
+		if(typeof x == 'string') {
+			let expression = x;
+			let plus = expression.split('+');
+			let minus = expression.split('-');
+			let multiply = expression.split('*');
+			let divide = expression.split('/');
+			let power = expression.split('^');
+			if(plus.length > 1) {
+				let a = this.fromString(plus[0]);
+				let b = this.fromString(plus[1]);
+				return new rjs.Vector2(a.x+b.x, a.y+b.y);
+			}
+			else if(minus.length > 1) {
+				let a = this.fromString(minus[0]);
+				let b = this.fromString(minus[1]);
+				return new rjs.Vector2(a.x-b.x, a.y-b.y);
+			}
+			else if(multiply.length > 1) {
+				let a = this.fromString(multiply[0]);
+				let b = this.fromString(multiply[1]);
+				return new rjs.Vector2(a.x*b.x, a.y*b.y);
+			}
+			else if(divide.length > 1) {
+				let a = this.fromString(divide[0]);
+				let b = this.fromString(divide[1]);
+				return new rjs.Vector2(a.x/b.x, a.y/b.y);
+			}
+			else if(power.length > 1) {
+				let a = this.fromString(power[0]);
+				let b = this.fromString(power[1]);
+				return new rjs.Vector2(Math.pow(a.x, b.x), Math.pow(a.y, b.y));
+			}
+		}
+		else {
+			this.x = x;
+			this.y = y;
+		}
+	};
+
+	this.Vector2.prototype.toString = function () {
+		return this.x+";"+this.y;
+	};
+
+	this.Vector2.prototype.fromString = function (v) {
+		var arr = v.split(';');
+		var x = parseFloat(arr[0]);
+		var y = parseFloat(arr[1]);
+		return new rjs.Vector2(x, y);
+	};
 	
 	//global methods
 	this._GLOBAL = {
@@ -14,10 +65,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		error: console.error,
 		warning: console.warn,
 		vec2: function (x = 0, y = 0) {
-			return {
-				x: x,
-				y: y
-			}
+			return new rjs.Vector2(x, y);
 		},
 		rgb: function (r, g, b) {
 			return {
@@ -322,7 +370,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.tiledCounter = 0;
 	this.cropedCounter = 0;
 	
-	this.Texture = function (src, scale = vec2(1, 1)) {
+	this.Texture = function (src, scale = vec2(1, 1), custom_size = vec2(0, 0)) {
 		
 		var t = this;
 		
@@ -332,6 +380,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.image.loaded = false;
 		this.image.funcs = [];
 		this.size = vec2(0, 0);
+		this.custom_size = custom_size;
 		this.scale = scale;
 		
 		this.canvas = document.createElement('canvas');
@@ -347,10 +396,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.image.addEventListener('load', (e) => {
 			t.image.loaded = true;
 			var ctx = t.canvas.getContext('2d');
-			t.size.x = Math.abs(t.image.width * t.scale.x);
-			t.size.y = Math.abs(t.image.height * t.scale.y);
-			t.canvas.width = t.size.x;
-			t.canvas.height = t.size.y;
+			t.size.x = t.custom_size.x || Math.abs(t.image.width * t.scale.x);
+			t.size.y = t.custom_size.y || Math.abs(t.image.height * t.scale.y);
+			t.canvas.width = t.size.x * t.scale.x;
+			t.canvas.height = t.size.y * t.scale.y;
 			var tx = 0;
 			var ty = 0;
 			var sx = 1;
@@ -365,7 +414,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			}
 			ctx.translate(tx, ty);
 			ctx.scale(sx, sy);
-			ctx.drawImage(t.image, 0, 0, t.size.x, t.size.y);
+			ctx.drawImage(t.image, 0, 0, t.size.x*t.scale.x, t.size.y*t.scale.y);
 			for(var i in t.image.funcs) {
 				t.image.funcs[i](e);
 			}
@@ -381,7 +430,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			this.size = size;
 			this.id = this.src;
 			this.type = 'tiled';
-			rjs.images[this.src] = this;
+			// rjs.images[this.src] = this;
 			rjs.textures[this.src] = this;
 			rjs.tiledCounter ++;
 
@@ -395,13 +444,96 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			this.size = size;
 			this.id = this.src;
 			this.type = 'croped';
-			rjs.images[this.src] = this;
+			// rjs.images[this.src] = this;
 			rjs.textures[this.src] = this;
 			rjs.tiledCounter ++;
 
 		};
 
 		
+		
+	};
+
+	this.TextureDOM = function (dom, scale = vec2(1, 1), custom_size = vec2(0, 0)) {
+		
+		var t = this;
+		
+		this.image = dom;
+		this.src = `${dom.src}_${scale.x}x${scale.y}`;
+		this.image.funcs = [];
+		this.size = vec2(0, 0);
+		this.custom_size = custom_size;
+		this.scale = scale;
+		
+		this.canvas = document.createElement('canvas');
+
+		this.texture = rjs.renderer.createTexture();
+
+		rjs.textures[this.src] = this;
+
+		rjs.checkSourceLoaded();
+		if(this.image.loaded) {
+			t.canvas = this.image;
+			rjs.checkSourceLoaded();
+		}
+		else {
+			this.image.addEventListener('load', (e) => {
+				t.image.loaded = true;
+				var ctx = t.canvas.getContext('2d');
+				t.size.x = t.custom_size.x || Math.abs(t.image.width * t.scale.x);
+				t.size.y = t.custom_size.y || Math.abs(t.image.height * t.scale.y);
+				t.canvas.width = t.size.x;
+				t.canvas.height = t.size.y;
+				var tx = 0;
+				var ty = 0;
+				var sx = 1;
+				var sy = 1;
+				if(t.scale.x < 0) {
+					tx = t.size.x;
+					sx = -1;
+				}
+				if(t.scale.y < 0) {
+					ty = t.size.y;
+					sy = -1;
+				}
+				ctx.translate(tx, ty);
+				ctx.scale(sx, sy);
+				ctx.drawImage(t.image, 0, 0, t.size.x, t.size.y);
+				for(var i in t.image.funcs) {
+					t.image.funcs[i](e);
+				}
+				rjs.checkSourceLoaded();
+			});
+		}
+
+		var RectJS = rjs;
+
+		RectJS.Texture.prototype.tiled = function (size) {
+
+			this.tex = t;
+			this.src = this.tex.src+'_'+rjs.tiledCounter;
+			this.size = size;
+			this.id = this.src;
+			this.type = 'tiled';
+			// rjs.images[this.src] = this;
+			rjs.textures[this.src] = this;
+			rjs.tiledCounter ++;
+
+		};
+
+		RectJS.Texture.prototype.crop = function (pos, size) {
+
+			this.tex = t;
+			this.src = this.tex.src+'_'+rjs.cropedCounter;
+			this.pos = pos;
+			this.size = size;
+			this.id = this.src;
+			this.type = 'croped';
+			// rjs.images[this.src] = this;
+			rjs.textures[this.src] = this;
+			rjs.tiledCounter ++;
+
+		};
 		
 	};
 
