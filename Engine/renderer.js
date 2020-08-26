@@ -150,8 +150,6 @@
 		var mx = 1;
 		var my = 1;
 
-		
-
 		if(texture == null) {
 			for(var i = 0; i < vertices.length; i += 2) {
 				var x = (vertices[i] - bb.minX) / bb.w;
@@ -187,8 +185,8 @@
 
 		else if(texture.type == 'croped') {
 			for(var i = 0; i < vertices.length; i += 2) {
-				var x = ((vertices[i]*0.98 - bb.minX) / bb.w + texture.pos.x / (texture.size.x)) / (texture.tex.image.width/texture.size.x);// + texture.pos.x / (texture.tex.image.width/texture.size.x)) / (texture.tex.image.width/texture.size.x);
-				var y = ((vertices[i+1]*0.98 - bb.minY) / bb.h) / (texture.tex.image.height/texture.size.y);// + texture.pos.y / (texture.tex.image.width/texture.size.x))  / (texture.tex.image.height/texture.size.y);
+				var x = ((vertices[i] - bb.minX) / bb.w + texture.pos.x / (texture.size.x)) / (texture.tex.canvas.width/texture.size.x);// + texture.pos.x / (texture.tex.image.width/texture.size.x)) / (texture.tex.image.width/texture.size.x);
+				var y = ((vertices[i+1] - bb.minY) / bb.h + texture.pos.y / (texture.size.y)) / (texture.tex.canvas.height/texture.size.y);// + texture.pos.y / (texture.tex.image.width/texture.size.x))  / (texture.tex.image.height/texture.size.y);
 				texcoord[i] = x;
 				texcoord[i+1] = y;
 			}
@@ -1101,6 +1099,122 @@
 	for(var i in tools) {
 		eval(`var ${i} = tools['${i}']`);
 	}
+
+	tools.tilemaps = [];
+	tools.tilemapCount = 0;
+
+	tools.Tilemap = function (images) {
+		this.images = images;
+		this.coords = {};
+		this.sizes = {};
+		this.counter = 0;
+		this.canvas = document.createElement('canvas');
+		this.canvas.width = 16384;
+		this.canvas.height = 16384;
+		this.canvas.style.background = 'white';
+		this.context = this.canvas.getContext('2d');
+		//document.body.appendChild(this.canvas);
+		this.id = tools.tilemapCount;
+		tools.tilemaps[this.id] = this;
+		var dir = -1;
+		for(let i in this.images) {
+			let image = this.images[i];
+			let size = vec2(`${image.size}*${image.scale}`);
+			let coord = tools.getImageCoords(image, this, dir);
+			this.coords[this.counter] = coord;
+			this.sizes[this.counter] = size;
+			this.context.drawImage(image.image, coord.x, coord.y, size.x, size.y);
+			this.counter ++;
+			image.tilemapPosA = copy(coord);
+			image.tilemapPosB = vec2(`${coord}+${size}`);
+			image.pos = coord;
+			image.size = size;
+			image.type = 'croped';
+		}
+		this.canvas.loaded = true;
+		this.canvas.src = 'TILEMAP_'+tools.tilemapCount;
+		var dom = new rjs.TextureDOM(this.canvas, vec2(1, 1), vec2(this.canvas.width, this.canvas.height));
+		for(let i in this.images) {
+			this.images[i].tex = dom;
+		}
+		tools.tilemapCount ++;
+	};
+
+	tools.getImageCoords = function (image, map, dir) {
+
+		var coords = copy(map.coords);
+		var sizes = copy(map.sizes);
+		var size = vec2(`${image.size}*${image.scale}`);
+
+		if(dir < 0) {
+
+			let pos = vec2(map.canvas.width, 0);
+			let cnt = 0;
+
+			let coordsList = {};
+			let sizesList = {};
+			let dxList = {};
+
+			while(true) {
+
+				let done = false;
+				let D = map.canvas.width;				
+
+				while(!done) {
+
+					let min_dx = map.canvas.width;
+					let min_dx_i = null;
+
+					for(let i in coords) {
+						let dx = pos.x-(coords[i].x+sizes[i].x);
+
+						if(dx <= min_dx) {
+							min_dx = dx;
+							min_dx_i = i;
+						}
+					}
+
+					if(typeof coords[min_dx_i] != 'undefined') {
+
+						coordsList[cnt] = coords[min_dx_i];
+						sizesList[cnt] = sizes[min_dx_i];
+						dxList[cnt] = min_dx;
+						delete coords[min_dx_i];
+						cnt ++;
+
+					}
+					else
+						done = true;
+
+				}
+
+				for(var i in coordsList) {
+
+					let coord = coordsList[i];
+					let sz = sizesList[i];
+					let dx = dxList[i];
+
+					let yColl = pos.y < coord.y + sz.y && pos.y + size.y > coord.y;
+
+					if(yColl) {
+						D = dx;
+						break;
+					}
+				
+				}
+
+				if(D < size.x) {
+					pos.y += sizesList[i].y;
+				}
+				else {
+					pos.x -= D;
+					return pos;
+				}
+			}
+
+		}
+
+	};
 	
 	var RENDERER =  {
 		
@@ -1182,6 +1296,16 @@
 		//linear
 		//pixel
 		//mipmap
+
+		ACTIVE: true,
+		//true
+		//false
+
+		updateTilemaps: function () {
+
+			new tools.Tilemap(rjs.images);
+
+		},
 		
 		updatePatterns: function (scene = rjs.currentScene) {
 
@@ -1296,6 +1420,9 @@
 		},
 		
 		render: function () {
+
+			if(!rjs.renderer.ACTIVE)
+				return false;
 			
 			var scene = rjs.currentScene;
 
