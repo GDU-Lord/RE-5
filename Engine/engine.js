@@ -9,7 +9,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.pluginSource = pluginSource;
 
 	this.Vector2 = function (x, y) {
-		if(typeof x == 'string') {
+
+		if(typeof x == 'string' && parseFloat(x).toString() == NaN.toString()) {
 			let expression = x;
 			let plus = expression.split('+');
 			let minus = expression.split('-');
@@ -41,6 +42,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				let b = this.fromString(power[1]);
 				return new rjs.Vector2(Math.pow(a.x, b.x), Math.pow(a.y, b.y));
 			}
+			else {
+				return this.fromString(expression);
+			}
 		}
 		else {
 			this.x = x;
@@ -49,11 +53,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 
 	this.Vector2.prototype.toString = function () {
-		return this.x+";"+this.y;
+		return "v"+this.x+";"+this.y;
 	};
 
 	this.Vector2.prototype.fromString = function (v) {
-		var arr = v.split(';');
+		var arr = v.split('v')[1].split(';');
 		var x = parseFloat(arr[0]);
 		var y = parseFloat(arr[1]);
 		return new rjs.Vector2(x, y);
@@ -66,6 +70,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		warning: console.warn,
 		vec2: function (x = 0, y = 0) {
 			return new rjs.Vector2(x, y);
+			/*return {
+				x: x,
+				y: y
+			}*/
 		},
 		rgb: function (r, g, b) {
 			return {
