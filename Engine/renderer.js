@@ -701,7 +701,7 @@
 
 	tools.drawPatternObject = function (o, vertices, tex_buffer) {
 
-		if(typeof o == 'undefined' || o == null)
+		if(typeof o == 'undefined' || o == null || !o.render)
 			return;
 		
 		var gl = rjs.gl;
@@ -786,7 +786,7 @@
 
 	tools.drawObject = function (o) {
 
-		if(typeof o == 'undefined' || o == null)
+		if(typeof o == 'undefined' || o == null || !o.render)
 			return;
 
 		var gl = rjs.gl;
