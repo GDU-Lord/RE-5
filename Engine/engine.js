@@ -13,7 +13,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		if(typeof x == 'string' && parseFloat(x).toString() == NaN.toString()) {
 			let expression = x;
 			let plus = expression.split('+');
-			let minus = expression.split('-');
+			let minus = expression.split('--');
 			let multiply = expression.split('*');
 			let divide = expression.split('/');
 			let power = expression.split('^');
@@ -127,6 +127,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			return cnt;
 		},
 		copy: function (arr) {
+			if(arr instanceof rjs.Vector2)
+				return new rjs.Vector2(arr.x, arr.y);
 			var arr2 = {};
 			for(var i in arr) {
 				arr2[i] = arr[i];
@@ -625,6 +627,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		filters = [],
 		colors = [],
 		opacity = 100,
+		render = true,
 		enable_chunks = true,
 		scene = undefined,
 		layer = null,
@@ -649,6 +652,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.origin = origin;
 		this.points = points;
 		this.opacity = opacity;
+		this.render = render;
 		this.texture = texture;
 		this.color = color;
 		this.filters = filters;
@@ -698,6 +702,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		filters = [],
 		colors = [],
 		opacity = 100,
+		render = true,
 		enable_chunks = true,
 		scene = undefined,
 		layer = null,
@@ -721,6 +726,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.origin = origin;
 		this.points = points;
 		this.opacity = opacity;
+		this.render = render;
 		this.texture = texture;
 		this.color = color;
 		this.filters = filters;
@@ -769,6 +775,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		color = rgb(0, 0, 0),
 		filters = [],
 		opacity = 100,
+		render = true,
 		enable_chunks = true,
 		CSS = "",
 		scene = undefined,
@@ -790,6 +797,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.offset = offset;
 		this.points = points;
 		this.opacity = opacity;
+		this.render = render;
 		this.font = font;
 		this.text = text;
 		this.color = color;
@@ -876,6 +884,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		scale = undefined,
 		angle = undefined,
 		opacity = undefined,
+		render = undefined,
 		origin = undefined,
 		offset = undefined,
 		color = undefined,
@@ -910,12 +919,15 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 					}
 				}
 			}
+			var _origin = copy(p.origin);
+			p.origin = origin;
 			return new rjs[type]({
 				pos: typeof p.pos != 'undefined' ? p.pos : pos,
 				size: typeof p.size != 'undefined' ? p.size : size,
 				scale: typeof p.scale != 'undefined' ? p.scale : scale,
 				angle: typeof p.angle != 'undefined' ? p.angle : angle,
 				opacity: typeof p.opacity != 'undefined' ? p.opacity : opacity,
+				render: typeof p.render != 'undefined' ? p.render : render,
 				origin: typeof p.origin != 'undefined' ? p.origin : origin,
 				offset: typeof p.offset != 'undefined' ? p.offset : offset,
 				color: typeof p.color != 'undefined' ? p.color : color,
@@ -972,6 +984,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.active = active;
 		this.scene = scene;
 		this.absl = absl;
+		this.index = rjs.gameLoops.length;
 
 		/* absl --> Active Before Source Loaded */
 		
@@ -1051,10 +1064,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		var click = this;
 		this.pos = vec2(0, 0);
 		this.correction = 5;
-		this.md = rjs.MouseDown((e) => {
+		this.md = new rjs.MouseDown((e) => {
 			click.pos = vec2(rjs._mouse.x, rjs._mouse.y);
 		});
-		this.mu = rjs.MouseUp((e) => {
+		this.mu = new rjs.MouseUp((e) => {
 			if(Math.abs(click.pos.x-rjs._mouse.x) < click.correction && Math.abs(click.pos.y-rjs._mouse.y) < click.correction)
 				fnc(e);
 		});
