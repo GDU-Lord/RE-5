@@ -393,7 +393,7 @@
 
 	tools.drawText = function (t) {
 
-		if(typeof t == 'undefined')
+		if(typeof t == 'undefined' || !t.render)
 			return false;
 		if(rjs.renderer.TEXT_RENDER_MODE == '2D' || rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL') {
 			var ctx = rjs.ctx;
@@ -1314,8 +1314,6 @@
 				return;
 			}
 
-			
-
 			var layers = scene.layers;
 
 			for(let i in layers) {
@@ -1357,7 +1355,8 @@
 			if(!rjs.renderer.PATTERN_MODE)
 				return;
 
-			rjs.renderer.deleteObject(o);
+			if(rjs.renderer.deleteObject(o) == "ERROR")
+				return;
 
 			var layer = o.layer;
 			var patterns = layer.patterns;
@@ -1404,7 +1403,7 @@
 			var chunkY = o.patternLoc.chunkY;
 			var chunkObjectIndex = o.patternLoc.chunkObjectIndex;
 
-
+			try {
 
 			delete o.scene.layers[layerID].patterns[patternID].textures[textureID][objectIndex];
 
@@ -1414,6 +1413,29 @@
 				}
 				else {
 					delete o.scene.layers[layerID].patterns[patternID].no_chunks[textureID][chunkObjectIndex];
+				}
+			}
+
+			} catch (err) {
+				log("Error in RectJS.Object.update() !!! Fixed automatically");
+				for(let i in rjs.currentScene.layers) {
+					let layer = rjs.currentScene.layers[i];
+					for(let j in layer.patterns) {
+						let pattern = layer.patterns[j];
+						for(let k in pattern.textures) {
+							let texture = pattern.textures[k]
+							for(let l in texture) {
+								let obj = texture[l];
+								if(obj.id == o.id) {
+									o.patternLoc.layerID = i;
+									o.patternLoc.patternID = j;
+									o.patternLoc.textureID = k;
+									o.patternLoc.objectIndex = l;
+									rjs.renderer.deleteObject(o);
+								}
+							}
+						}
+					}
 				}
 			}
 
