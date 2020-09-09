@@ -841,6 +841,15 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			rjs.renderer.deleteObject(this);
 		this.destroyed = true;
 	};
+
+	this.ObjectsPrototype.setLayer = function (layer) {
+
+		delete this.layer.objects[this.id];
+		this.layer = layer;
+		layer.objects[id] = this;
+		this.update();
+
+	};
 	
 	this.ObjectsPrototype.getPoint = function (id) {
 		if(typeof this.points[id] == 'undefined')
@@ -975,8 +984,26 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	
-	//Loops
+	//Loops & timeouts
+	this.waits = [];
 	this.gameLoops = [];
+
+	this.Wait = function (fnc = () => {}, delay = 1, type = "ticks", active =  true, scene = null, absl = false) {
+
+		this.fnc = fnc;
+		this.delay = delay;
+		this.type = type;
+		this.active = active;
+		this.scene = scene;
+		this.absl = absl;
+		this.ticks = 0;
+		this.index = rjs.waits.length;
+
+		/* absl --> Active Before Source Loaded */
+		
+		this.waits.push(this); 
+
+	};
 	
 	this.GameLoop = function (fnc = () => {}, active =  true, scene = null, absl = false) {
 		
@@ -1000,6 +1027,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	this.globalGameLoop = function () {
+
 		rjs.gameLoops.forEach((loop) => {
 			if(rjs.timeStep == 0 && loop.active && (loop.scene == rjs.currentScene || loop.scene == null) && loop.absl)
 				loop.fnc();
@@ -1010,6 +1038,32 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				}
 			}
 		});
+
+		rjs.waits.forEach(wait => {
+
+			if(wait.type == 'tick') {
+				if(rjs.timeStep == 0 && wait.active && (wait.scene == rjs.currentScene || wait.scene == null) && wait.absl) {
+					if(wait.ticks == wait.delay) {
+						wait.fnc();
+						delete rjs.waits[wait.index];
+					}
+					wait.ticks ++;
+				}
+				else if(rjs.timeStep > 0) {
+					for(let i = 0; i < rjs.timeStep; i ++) {
+						if(wait.active && (wait.scene == rjs.currentScene || wait.scene == null)) {
+							if(wait.ticks == wait.delay) {
+								wait.fnc();
+								delete rjs.waits[wait.index];
+							}
+							wait.ticks ++;
+						}
+					}
+				}
+			}
+
+		});
+
 	}
 	
 	this.Interval = function (fnc, timeout, active = true, scene = null) {
