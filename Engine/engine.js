@@ -354,9 +354,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.layers = {};
 	this.layerCounter = 0;
 	
-	this.Layer = function (scene, parallax = vec2(100, 100), scale = vec2(1, 1), { visible = true, blend = [], mode = 0 } = {}) {
+	this.Layer = function (scene, parallax = vec2(100, 100), scale = vec2(1, 1), id = null, { visible = true, blend = [], mode = 0 } = {}) {
 		
-		this.id = `layer_${rjs.layerCounter}`;
+		this.id = id != null ? id : `layer_${rjs.layerCounter}`;
 		this.objects = {};
 		this.scene = scene;
 		this.parallax = parallax;
@@ -877,7 +877,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 
 	this.ObjectsPrototype.update = function () {
-		return rjs.renderer.updateObject(this);
+		this.boundingBox = rjs.getBoundingBox(this);
+		if(rjs.renderer.PATTERN_MODE && rjs.currentScene == this.scene) {
+			rjs.renderer.updateObject(this);
+		}
 	};
 	
 	this.Polygon.prototype = rjs.ObjectsPrototype;
@@ -1135,12 +1138,50 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	this.MouseDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
-		this.event = new rjs.Event('mousedown', fnc, active, scene, target);
+		this.event = new rjs.Event('mousedown', function (e) {
+			if(e.button === 0)
+				fnc(e);
+		}, active, scene, target);
 		return this.event;
 	};
 	
 	this.MouseUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
-		this.event = new rjs.Event('mouseup', fnc, active, scene, target);
+		this.event = new rjs.Event('mouseup', function (e) {
+			if(e.button === 0)
+				fnc(e);
+		}, active, scene, target);
+		return this.event;
+	};
+
+	this.MouseRightDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+		this.event = new rjs.Event('mousedown', function (e) {
+			if(e.button === 2)
+				fnc(e);
+		}, active, scene, target);
+		return this.event;
+	};
+	
+	this.MouseRightUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+		this.event = new rjs.Event('mouseup', function (e) {
+			if(e.button === 2)
+				fnc(e);
+		}, active, scene, target);
+		return this.event;
+	};
+
+	this.MouseWheelDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+		this.event = new rjs.Event('mousedown', function (e) {
+			if(e.button === 1)
+				fnc(e);
+		}, active, scene, target);
+		return this.event;
+	};
+	
+	this.MouseWheelUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+		this.event = new rjs.Event('mouseup', function (e) {
+			if(e.button === 1)
+				fnc(e);
+		}, active, scene, target);
 		return this.event;
 	};
 	
@@ -1301,6 +1342,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.mousepresses = [];
 	
 	this.MousePressed = false;
+	this.RightMousePressed = false;
 	
 	
 	this.MousePress = function (fnc, active = true, scene = null) {
@@ -1407,59 +1449,73 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		}
 	};
 	
-	this.Family.prototype.forNearTo = function (_pos, fnc, dist = vec2(2, 2)) {
+	this.Family.prototype.forNearTo = function (_pos, fnc, dist = 100, chunk_mode = false, chank_dist = vec2(2, 2)) {
 		var family = this;
-		for(var l in rjs.currentScene.layers) {
-			var patterns = rjs.currentScene.layers[l].patterns;
-			for(var m in patterns) {
-				// var pattern = patterns[m];
-				// var scale = rjs.currentScene.layers[pattern.layerID].scale;
-				// var parallax = rjs.currentScene.layers[pattern.layerID].parallax;
-				// var pos = vec2(Math.floor(_pos.x/scale.x/rjs.renderer.CHUNKS_SIZE.x), Math.floor(_pos.y/scale.y/rjs.renderer.CHUNKS_SIZE.y));
-				// for(var i = pos.x - dist.x; i <= pos.x + dist.x; i ++) {
-				// 	for(var j = pos.y - dist.y; j <= pos.y + dist.y; j ++) {
-				// 		try {
-				// 			var chunk = pattern.chunks[i][j];
-				// 			for(var k in chunk.textures) {
-				// 				var objects = chunk.textures[k];
-				// 				objects.forEach((o) => {
-				// 					if(o.id in family.objects) fnc(o);
-				// 				});
-				// 			}
-				// 		} catch (err) {
-								
-				// 		}
-				// 	}
-				// }
-				let pattern = patterns[m];
-				let scale = rjs.currentScene.layers[pattern.layerID].scale;
+		if(!chunk_mode) {
+			family.for(o => {
+				let scale = rjs.currentScene.layers[o.layer.id].scale;
 				let cam = rjs.currentCamera;
 				let pos = vec2();
 				pos.x = _pos.x/scale.x+cam.pos.x;
 				pos.y = _pos.y/scale.y+cam.pos.y;
-				let start = rjs.renderTools.getChunkPos(pos);
-				start.x = Math.floor(start.x-dist.x);
-				start.y = Math.floor(start.y-dist.y);
-				let end = rjs.renderTools.getChunkPos(pos);
-				end.x = Math.floor(end.x+dist.x);
-				end.y = Math.floor(end.y+dist.y);
-				for(let i = start.x; i < end.x + 1; i ++) {
-					for(let j = start.y; j < end.y + 1; j ++) {
-						try {
-							var chunk = pattern.chunks[i][j];
-							for(var k in chunk.textures) {
-								var objects = chunk.textures[k];
-								objects.forEach((o) => {
-									if(o.id in family.objects) fnc(o);
-								});
+				if(Math.sqrt(Math.pow(pos.x-o.pos.x, 2) + Math.pow(pos.y-o.pos.y, 2)) <= dist)
+					fnc(o);
+			});
+		}
+		else {
+			for(var l in rjs.currentScene.layers) {
+				var patterns = rjs.currentScene.layers[l].patterns;
+				for(var m in patterns) {
+					// var pattern = patterns[m];
+					// var scale = rjs.currentScene.layers[pattern.layerID].scale;
+					// var parallax = rjs.currentScene.layers[pattern.layerID].parallax;
+					// var pos = vec2(Math.floor(_pos.x/scale.x/rjs.renderer.CHUNKS_SIZE.x), Math.floor(_pos.y/scale.y/rjs.renderer.CHUNKS_SIZE.y));
+					// for(var i = pos.x - dist.x; i <= pos.x + dist.x; i ++) {
+					// 	for(var j = pos.y - dist.y; j <= pos.y + dist.y; j ++) {
+					// 		try {
+					// 			var chunk = pattern.chunks[i][j];
+					// 			for(var k in chunk.textures) {
+					// 				var objects = chunk.textures[k];
+					// 				objects.forEach((o) => {
+					// 					if(o.id in family.objects) fnc(o);
+					// 				});
+					// 			}
+					// 		} catch (err) {
+									
+					// 		}
+					// 	}
+					// }
+					let pattern = patterns[m];
+					let scale = rjs.currentScene.layers[pattern.layerID].scale;
+					let cam = rjs.currentCamera;
+					let pos = vec2();
+					pos.x = _pos.x/scale.x+cam.pos.x;
+					pos.y = _pos.y/scale.y+cam.pos.y;
+					let start = rjs.renderTools.getChunkPos(pos);
+					start.x = Math.floor(start.x-dist.x);
+					start.y = Math.floor(start.y-dist.y);
+					let end = rjs.renderTools.getChunkPos(pos);
+					end.x = Math.floor(end.x+dist.x);
+					end.y = Math.floor(end.y+dist.y);
+					for(let i = start.x; i < end.x + 1; i ++) {
+						for(let j = start.y; j < end.y + 1; j ++) {
+							try {
+								var chunk = pattern.chunks[i][j];
+								for(var k in chunk.textures) {
+									var objects = chunk.textures[k];
+									objects.forEach((o) => {
+										if(o.id in family.objects) fnc(o);
+									});
+								}
+							} catch (err) {
+									
 							}
-						} catch (err) {
-								
 						}
 					}
 				}
 			}
 		}
+		
 	};
 	
 	this.Family.prototype.count = function () {
@@ -1660,6 +1716,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		new rjs.RightClick((e) => {
 			e.preventDefault();
+			rjs.RightMousePressed = true;
 		}, true, null, window);
 		
 		rjs.mosueLoop = new rjs.MouseMove((e) => {

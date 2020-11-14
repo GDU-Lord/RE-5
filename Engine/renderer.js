@@ -706,18 +706,18 @@
 		
 		var gl = rjs.gl;
 		
-		var o_bb = rjs.getBoundingBox(o);
-		var c_p = rjs.currentCamera.pos;
-		var c_pos = vec2(c_p.x * o.layer.parallax.x / 100, c_p.y * o.layer.parallax.y / 100);
-		var c_bb = {
-			x1: c_pos.x - rjs.client.w / 1.8 / o.layer.scale.x,
-			y1: c_pos.y - rjs.client.h / 1.8 / o.layer.scale.y,
-			x2: c_pos.x + rjs.client.w / 1.8 / o.layer.scale.x,
-			y2: c_pos.y + rjs.client.h / 1.8 / o.layer.scale.y
-		};
+		// var o_bb = rjs.getBoundingBox(o);
+		// var c_p = rjs.currentCamera.pos;
+		// var c_pos = vec2(c_p.x * o.layer.parallax.x / 100, c_p.y * o.layer.parallax.y / 100);
+		// var c_bb = {
+		// 	x1: c_pos.x - rjs.client.w / 1.8 / o.layer.scale.x,
+		// 	y1: c_pos.y - rjs.client.h / 1.8 / o.layer.scale.y,
+		// 	x2: c_pos.x + rjs.client.w / 1.8 / o.layer.scale.x,
+		// 	y2: c_pos.y + rjs.client.h / 1.8 / o.layer.scale.y
+		// };
 		
-		if(!rjs.AABB(c_bb, o_bb))
-			return;
+		// if(!rjs.AABB(c_bb, o_bb))
+		// 	return;
 
 		var sx = o.type == 'sprite' ? o.size.x : 1;
 		var sy = o.type == 'sprite' ? o.size.y : 1;
@@ -790,7 +790,7 @@
 			return;
 
 		var gl = rjs.gl;
-		
+
 		var o_bb = rjs.getBoundingBox(o);
 		var c_p = rjs.currentCamera.pos;
 		var c_pos = vec2(c_p.x * o.layer.parallax.x / 100, c_p.y * o.layer.parallax.y / 100);
