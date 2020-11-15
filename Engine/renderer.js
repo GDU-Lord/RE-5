@@ -247,9 +247,14 @@
 	};
 	
 	tools.rotationMatrix = function (angle) {
-		var a = -angle * Math.PI / 180;
-		var sin = Math.sin(a);
-		var cos = Math.cos(a);
+		var a = angle;
+		var sin = 0;
+		var cos = 1;
+		if(a != 0) {
+			a = -angle * Math.PI / 180;
+			sin = Math.sin(a);
+			cos = Math.cos(a);
+		}
 		return [
 			cos, -sin, 0,
 			sin, cos, 0,
@@ -556,11 +561,11 @@
 			let chunks = pattern.chunks;
 			let cam = rjs.currentCamera;
 			let start = tools.getChunkPos(cam.pos);
-			start.x = Math.floor(start.x-rjs.renderer.CHUNKS_VIEWPORT.x/2);
-			start.y = Math.floor(start.y-rjs.renderer.CHUNKS_VIEWPORT.y/2);
+			start.x = Math.round(start.x-rjs.renderer.CHUNKS_VIEWPORT.x/2);
+			start.y = Math.round(start.y-rjs.renderer.CHUNKS_VIEWPORT.y/2);
 			let end = tools.getChunkPos(cam.pos);
-			end.x = Math.floor(end.x+rjs.renderer.CHUNKS_VIEWPORT.x/2);
-			end.y = Math.floor(end.y+rjs.renderer.CHUNKS_VIEWPORT.y/2);
+			end.x = Math.round(end.x+rjs.renderer.CHUNKS_VIEWPORT.x/2);
+			end.y = Math.round(end.y+rjs.renderer.CHUNKS_VIEWPORT.y/2);
 			for(let i = start.x; i < end.x; i ++) {
 				for(let j = start.y; j < end.y; j ++) {
 					if(typeof chunks[i] != 'undefined' && typeof chunks[i][j] != 'undefined') {
@@ -579,124 +584,75 @@
 				textures[k] = [...textures[k], ...pattern.no_chunks[k]];
 			}
 			for(let k in textures) {
-				let tex_buffer;
-				if(k == 'default' || k in rjs.textures) {
-					if(count(textures[k]) > 0) {
-						let texture = k != 'default' ? rjs.textures[k] : null;
-
-						if(texcoordChanged) {
-							if(pattern.type == 'sprite') {
-								if(tools.texBuffer != 'sprite_texcoord') {
-									tools.bindBuffer('sprite_texcoord', 'texcoord');
-								}
-								texcoordChanged = false;
-							}
-							else if(pattern.type == 'polygon') {
-								if(tools.texBuffer != 'texcoord')
-									tools.bindBuffer('texcoord', 'texcoord');
-								var texcoord = tools.getTexcoordArray(pattern, vertices);
-								tools.bufferData('texcoord', texcoord);
-								texcoordChanged = false;
-							}
-						}
-						
-						if(texture != null && texture.type == 'animation') {
-							texture = texture.frames[texture.currentIndex];
-
-						}
-						if(texture != null && (texture.type == 'tiled' || texture.type == 'croped')) {
-							if(tools.texBuffer != 'texcoord')
-								tools.bindBuffer('texcoord', 'texcoord');
-							
-							var texcoord = tools.getTexcoordArray(pattern, vertices, texture);
-
-							tools.bufferData('texcoord', texcoord);
-							
-							tex_buffer = tools.setTexture(texture);
-							texcoordChanged = true;
-						}
-						else
-							tex_buffer = tools.setTexture(texture);
-					}
-					else {
-						delete pattern.textures[k];
-					}
-				}
-				for(let l in textures[k]) {
-					let o = textures[k][l];
-					if(typeof o != 'undefined') {
-						if(o.type == 'sprite' || o.type == 'polygon')
-							tools.drawPatternObject(o, vertices, tex_buffer);
-						else if(o.type == 'text')
-							if(rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL')
-								tools.textBuffer[o.id] = o;
-							else
-								tools.drawText(o);
-					}
-					
-				}
+				texcoordChanged = tools.drawPatternTexture(pattern, vertices, textures, k, texcoordChanged);
 			}
 		}
 		else {
 			for(let k in pattern.textures) {
-				let tex_buffer;
-				if(k == 'default' || k in rjs.textures) {
-
-					if(count(pattern.textures[k]) > 0) {
-						let texture = k != 'default' ? rjs.textures[k] : null;
-
-						if(texcoordChanged) {
-							if(pattern.type == 'sprite') {
-								if(tools.texBuffer != 'sprite_texcoord') {
-									tools.bindBuffer('sprite_texcoord', 'texcoord');
-								}
-								texcoordChanged = false;
-							}
-							else if(pattern.type == 'polygon') {
-								if(tools.texBuffer != 'texcoord')
-									tools.bindBuffer('texcoord', 'texcoord');
-								var texcoord = tools.getTexcoordArray(pattern, vertices);
-								tools.bufferData('texcoord', texcoord);
-								texcoordChanged = false;
-							}
-						}
-						
-						if(texture != null && texture.type == 'animation') {
-							texture = texture.frames[texture.currentIndex];
-
-						}
-						if(texture != null && (texture.type == 'tiled' || texture.type == 'croped')) {
-							if(tools.texBuffer != 'texcoord')
-								tools.bindBuffer('texcoord', 'texcoord');
-							
-							var texcoord = tools.getTexcoordArray(pattern, vertices, texture);
-
-							tools.bufferData('texcoord', texcoord);
-							
-							tex_buffer = tools.setTexture(texture);
-							texcoordChanged = true;
-						}
-						else
-							tex_buffer = tools.setTexture(texture);
-					}
-					else {
-						delete pattern.textures[k];
-					}
-					
-				}
-				for(let l in pattern.textures[k]) {
-					let o = pattern.textures[k][l];
-					if(o.type == 'sprite' || o.type == 'polygon')
-						tools.drawPatternObject(o, vertices, tex_buffer);
-					else if(o.type == 'text')
-						if(rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL')
-							tools.textBuffer[o.id] = o;
-						else
-							tools.drawText(o);
-				}
+				texcoordChanged = tools.drawPatternTexture(pattern, vertices, pattern.textures, k, texcoordChanged);
 			}
 		}
 
+	};
+
+	tools.drawPatternTexture = function (pattern, vertices, textures, k, texcoordChanged) {
+		let tex_buffer;
+		if(k == 'default' || k in rjs.textures) {
+			if(count(textures[k]) > 0) {
+				let texture = k != 'default' ? rjs.textures[k] : null;
+
+				if(texcoordChanged) {
+					if(pattern.type == 'sprite') {
+						if(tools.texBuffer != 'sprite_texcoord') {
+							tools.bindBuffer('sprite_texcoord', 'texcoord');
+						}
+						texcoordChanged = false;
+					}
+					else if(pattern.type == 'polygon') {
+						if(tools.texBuffer != 'texcoord')
+							tools.bindBuffer('texcoord', 'texcoord');
+						var texcoord = tools.getTexcoordArray(pattern, vertices);
+						tools.bufferData('texcoord', texcoord);
+						texcoordChanged = false;
+					}
+				}
+				
+				if(texture != null && texture.type == 'animation') {
+					texture = texture.frames[texture.currentIndex];
+
+				}
+				if(texture != null && (texture.type == 'tiled' || texture.type == 'croped')) {
+					if(tools.texBuffer != 'texcoord')
+						tools.bindBuffer('texcoord', 'texcoord');
+					
+					var texcoord = tools.getTexcoordArray(pattern, vertices, texture);
+
+					tools.bufferData('texcoord', texcoord);
+					
+					tex_buffer = tools.setTexture(texture);
+					texcoordChanged = true;
+				}
+				else
+					tex_buffer = tools.setTexture(texture);
+			}
+			else {
+				delete pattern.textures[k];
+			}
+		}
+		for(let l in textures[k]) {
+			let o = textures[k][l];
+			if(typeof o != 'undefined') {
+				if(o.type == 'sprite' || o.type == 'polygon')
+					tools.drawPatternObject(o, vertices, tex_buffer);
+				else if(o.type == 'text')
+					if(rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL')
+						tools.textBuffer[o.id] = o;
+					else
+						tools.drawText(o);
+			}
+			
+		}
+		return texcoordChanged;
 	};
 
 	tools.drawPatternObject = function (o, vertices, tex_buffer) {
@@ -724,20 +680,17 @@
 		
 		var lm = tools.scalingMatrix(o.layer.scale.x, o.layer.scale.y);
 		var pm = tools.projectionMatrix(rjs.client.w, rjs.client.h);
-		var cm = tools.translationMatrix(-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, -rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
-		var tm = tools.translationMatrix(o.pos.x, o.pos.y);
+		var cm = tools.translationMatrix(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
 		var rm = tools.rotationMatrix(o.angle);
 		var sm = tools.scalingMatrix(o.scale.x*sx, o.scale.y*sy);
 		var om = tools.translationMatrix(-o.origin.x/sx, -o.origin.y/sy);
 		
 		var matrix = tools.multiplyMatrix(lm, pm);
 		matrix = tools.multiplyMatrix(matrix, cm);
-		matrix = tools.multiplyMatrix(matrix, tm);
 		matrix = tools.multiplyMatrix(matrix, rm);
 		matrix = tools.multiplyMatrix(matrix, sm);
 		matrix = tools.multiplyMatrix(matrix, om);
 
-		
 		
 		gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
 		gl.uniform1i(tools.uniforms.texture, tex_buffer);
@@ -755,34 +708,38 @@
 
 		if(rjs.renderer.TEXT_RENDER_MODE == '2D' && o.textOverlap) {
 
-			var ctx = rjs.ctx;
-
-			var prop = rjs.canvas_width/rjs.client.w;
-			ctx.save();
-			
-			ctx.scale(o.layer.scale.x*prop, o.layer.scale.y*prop);
-			ctx.translate(rjs.client.w/2, rjs.client.h/2);
-			ctx.translate(-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, -rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
-			ctx.translate(o.pos.x, o.pos.y);
-			ctx.scale(o.scale.x*sx, o.scale.y*sy);
-			ctx.rotate(o.angle * Math.PI / 180);
-			ctx.translate(-o.origin.x, -o.origin.y);
-			ctx.beginPath();
-			ctx.moveTo(vertices[0], vertices[1]);
-			for(var i = 2; i < vertices.length; i += 2) {
-				var x = vertices[i];
-				var y = vertices[i+1];
-				ctx.lineTo(x, y);
-			}
-			ctx.closePath();
-			ctx.clip();
-			ctx.setTransform(1, 0, 0, 1, 0, 0);
-			ctx.clearRect(0, 0, rjs.canvas_width, rjs.canvas_height);
-			ctx.restore();
+			tools.clearTextObject(o, vertices, sx, sy);
 			
 		}
 
 	}
+
+	tools.clearTextObject = function (o, vertices, sx, sy) {
+		var ctx = rjs.ctx;
+
+		var prop = rjs.canvas_width/rjs.client.w;
+		ctx.save();
+		
+		ctx.scale(o.layer.scale.x*prop, o.layer.scale.y*prop);
+		ctx.translate(rjs.client.w/2, rjs.client.h/2);
+		ctx.translate(-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, -rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
+		ctx.translate(o.pos.x, o.pos.y);
+		ctx.scale(o.scale.x*sx, o.scale.y*sy);
+		ctx.rotate(o.angle * Math.PI / 180);
+		ctx.translate(-o.origin.x, -o.origin.y);
+		ctx.beginPath();
+		ctx.moveTo(vertices[0], vertices[1]);
+		for(var i = 2; i < vertices.length; i += 2) {
+			var x = vertices[i];
+			var y = vertices[i+1];
+			ctx.lineTo(x, y);
+		}
+		ctx.closePath();
+		ctx.clip();
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.clearRect(0, 0, rjs.canvas_width, rjs.canvas_height);
+		ctx.restore();
+	};
 
 	tools.drawObject = function (o) {
 

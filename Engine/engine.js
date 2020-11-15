@@ -8,6 +8,13 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.sourceHOST = sourceHOST;
 	this.pluginSource = pluginSource;
 
+	//Sources
+	this.src = function (src) {
+		return String(rjs.sourceHOST+src);
+	};
+
+	this.Worker = new Worker(rjs.src(rjs.engineSource+'renderer.js'));
+
 	this.Vector2 = function (x, y) {
 
 		if(typeof x == 'string' && parseFloat(x).toString() == NaN.toString()) {
@@ -203,83 +210,89 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 	this.CLEAR_COLOR = rjs._GLOBAL.rgba(150, 150, 150, 255);
 	this.BG_COLOR = rjs._GLOBAL.rgba(0, 0, 0, 255);
+
+	this.prevWindowSize = rjs._GLOBAL.vec2(0, 0);
 	
 	this.resizeCanvas = function () {
 		var prop = rjs.client.w / rjs.client.h;
 		var con = rjs.container;
-		document.body.style.backgroundColor = rjs.BG_COLOR.toStringCSS();
-		con.style.backgroundColor = rjs.CLEAR_COLOR.toStringCSS();
+		var bg_color = rjs.BG_COLOR.toStringCSS();
+		var clear_color = rjs.CLEAR_COLOR.toStringCSS();
+		if(document.body.style.backgroundColor != bg_color)
+			document.body.style.backgroundColor = bg_color;
+		if(con.style.backgroundColor != clear_color)
+			con.style.backgroundColor = clear_color;
 		rjs.ctx.clearRect(0, 0, rjs.canvas_width, rjs.canvas_height);
-		if(window.innerWidth > window.innerHeight * prop) {
+		if(rjs.prevWindowSize.x != window.innerWidth || rjs.prevWindowSize.y != window.innerHeight) {
+			rjs.prevWindowSize = vec2(window.innerWidth, window.innerHeight);
+			if(window.innerWidth > window.innerHeight * prop) {
 
-			var w = rjs.canvas_width = window.innerHeight * prop;
-			var h = rjs.canvas_height = window.innerHeight;
+				var w = rjs.canvas_width = window.innerHeight * prop;
+				var h = rjs.canvas_height = window.innerHeight;
 
-			con.style.width = w + 'px';
-			con.style.height = h + 'px';
-			con.style.position = 'absolute';
-			con.style.left = (window.innerWidth - w) / 2 + 'px';
-			con.style.top = 0 + 'px';
+				con.style.width = w + 'px';
+				con.style.height = h + 'px';
+				con.style.position = 'absolute';
+				con.style.left = (window.innerWidth - w) / 2 + 'px';
+				con.style.top = 0 + 'px';
 
-			var cvs = con.getElementsByTagName('canvas');
+				var cvs = con.getElementsByTagName('canvas');
 
-			for(let i = 0; i < cvs.length; i ++) {
-				cvs[i].width = w;
-				cvs[i].height = h;
-				cvs[i].style.position = 'absolute';
-				cvs[i].style.left = '0px';
-				cvs[i].style.top = '0px';
+				for(let i = 0; i < cvs.length; i ++) {
+					cvs[i].width = w;
+					cvs[i].height = h;
+					cvs[i].style.position = 'absolute';
+					cvs[i].style.left = '0px';
+					cvs[i].style.top = '0px';
+				}
+
+				var div = con.getElementsByTagName('div');
+
+				for(let i = 0; i < div.length; i ++) {
+					div[i].style.width = w + 'px';
+					div[i].style.height = h + 'px';
+					div[i].style.position = 'absolute';
+					div[i].style.left = '0px';
+					div[i].style.top = '0px';
+				}
+				
 			}
+			else {
 
-			var div = con.getElementsByTagName('div');
+				var w = rjs.canvas_width = window.innerWidth;
+				var h = rjs.canvas_height = window.innerWidth / prop;
+				
+				con.style.width = w + 'px';
+				con.style.height = h + 'px';
+				con.style.position = 'absolute';
+				con.style.left = 0 + 'px';
+				con.style.top = (window.innerHeight - h) / 2 + 'px';
 
-			for(let i = 0; i < div.length; i ++) {
-				div[i].style.width = w + 'px';
-				div[i].style.height = h + 'px';
-				div[i].style.position = 'absolute';
-				div[i].style.left = '0px';
-				div[i].style.top = '0px';
-			}
-			
-		}
-		else {
+				var cvs = con.getElementsByTagName('canvas');
 
-			var w = rjs.canvas_width = window.innerWidth;
-			var h = rjs.canvas_height = window.innerWidth / prop;
-			
-			con.style.width = w + 'px';
-			con.style.height = h + 'px';
-			con.style.position = 'absolute';
-			con.style.left = 0 + 'px';
-			con.style.top = (window.innerHeight - h) / 2 + 'px';
+				for(let i = 0; i < cvs.length; i ++) {
+					cvs[i].width = w;
+					cvs[i].height = h;
+					cvs[i].style.position = 'absolute';
+					cvs[i].style.left = '0px';
+					cvs[i].style.top = '0px';
+				}
 
-			var cvs = con.getElementsByTagName('canvas');
+				var div = con.getElementsByTagName('div');
 
-			for(let i = 0; i < cvs.length; i ++) {
-				cvs[i].width = w;
-				cvs[i].height = h;
-				cvs[i].style.position = 'absolute';
-				cvs[i].style.left = '0px';
-				cvs[i].style.top = '0px';
-			}
-
-			var div = con.getElementsByTagName('div');
-
-			for(let i = 0; i < div.length; i ++) {
-				div[i].style.width = w + 'px';
-				div[i].style.height = h + 'px';
-				div[i].style.position = 'absolute';
-				div[i].style.left = '0px';
-				div[i].style.top = '0px';
+				for(let i = 0; i < div.length; i ++) {
+					div[i].style.width = w + 'px';
+					div[i].style.height = h + 'px';
+					div[i].style.position = 'absolute';
+					div[i].style.left = '0px';
+					div[i].style.top = '0px';
+				}
 			}
 		}
 	}
 	
 	
-	//Sources
-	this.src = function (src) {
-		return String(rjs.sourceHOST+src);
-	};
+	
 	
 	
 	
@@ -1458,7 +1471,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				let pos = vec2();
 				pos.x = _pos.x/scale.x+cam.pos.x;
 				pos.y = _pos.y/scale.y+cam.pos.y;
-				if(Math.sqrt(Math.pow(pos.x-o.pos.x, 2) + Math.pow(pos.y-o.pos.y, 2)) <= dist)
+				if(Math.pow(pos.x-o.pos.x, 2) + Math.pow(pos.y-o.pos.y, 2) <= Math.pow(dist, 2))
 					fnc(o);
 			});
 		}
@@ -1768,23 +1781,23 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	
 	this.loadRenderer = function () {
 		rjs.renderer = require(rjs.engineSource+'renderer.js')(rjs);
-		rjs.initRenderer = rjs.renderer.init;
 		rjs.render = rjs.renderer.render;
 	};
 	
 	this.init = function (){
 		
 		rjs.initGLOBAL();
-		rjs.loadRenderer();
 		
 		fnc(rjs);
 		
+		rjs.loadRenderer();
+
 		rjs.loadCollisionDetector();
 		rjs.initMouse();
 		rjs.initKeyboard();
 		rjs.initTouch();
 		
-		rjs.initRenderer(rjs);
+		rjs.renderer.init(rjs);
 		rjs.engineLoop([
 			rjs.resizeCanvas, 
 			rjs.keypressLoop, 
