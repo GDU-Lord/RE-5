@@ -43,7 +43,8 @@ rjs
 
 # Инициализация движка
 
-```javascript "main.js"
+__main.js__
+```javascript
 rjs = new RectJS(rjs => {
 
 	// код выполняется перед запуском движка
