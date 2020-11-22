@@ -41,4 +41,6 @@ rjs
 
 # Инициализация движка
 
-| new RectJS(); |
+```javascript
+new RectJS();
+```
