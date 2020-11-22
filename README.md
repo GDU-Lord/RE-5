@@ -43,6 +43,6 @@ rjs
 
 ![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5architecture.png "Logo Title Text 1")
 
-# Инициализация и игровой цыкл
+# Инициализация и игровой цикл
 
 ![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5logic.png "Logo Title Text 1")
