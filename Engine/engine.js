@@ -7,13 +7,14 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.engineSource = engineSource;
 	this.sourceHOST = sourceHOST;
 	this.pluginSource = pluginSource;
+	this.MATRIX_MODE = true;
 
 	//Sources
 	this.src = function (src) {
 		return String(rjs.sourceHOST+src);
 	};
 
-	this.Worker = new Worker(rjs.src(rjs.engineSource+'renderer.js'));
+	
 
 	this.Vector2 = function (x, y) {
 
@@ -166,7 +167,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.pack = pack;
 		this.code = code;
 		this.engine = rjs;
-		this.fnc = eval(this.code);
+		this.fnc = this.code;
 		var res = this.fnc(this);
 		this.res = typeof res != 'undefined' ? res : null;
 		rjs.plugins[this.pack.name] = this;
@@ -640,6 +641,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		filters = [],
 		colors = [],
 		opacity = 100,
+		opacityGradient = vec2(),
 		render = true,
 		enable_chunks = true,
 		scene = undefined,
@@ -665,6 +667,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.origin = origin;
 		this.points = points;
 		this.opacity = opacity;
+		this.opacityGradient = opacityGradient;
 		this.render = render;
 		this.texture = texture;
 		this.color = color;
@@ -715,6 +718,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		filters = [],
 		colors = [],
 		opacity = 100,
+		opacityGradient = vec2(),
 		render = true,
 		enable_chunks = true,
 		scene = undefined,
@@ -739,6 +743,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.origin = origin;
 		this.points = points;
 		this.opacity = opacity;
+		this.opacityGradient = opacityGradient;
 		this.render = render;
 		this.texture = texture;
 		this.color = color;
@@ -909,6 +914,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		scale = undefined,
 		angle = undefined,
 		opacity = undefined,
+		opacityGradient = undefined,
 		render = undefined,
 		origin = undefined,
 		offset = undefined,
@@ -952,6 +958,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				scale: typeof p.scale != 'undefined' ? p.scale : scale,
 				angle: typeof p.angle != 'undefined' ? p.angle : angle,
 				opacity: typeof p.opacity != 'undefined' ? p.opacity : opacity,
+				opacityGradient: typeof p.opacityGradient != 'undefined' ? p.opacityGradient : opacityGradient,
 				render: typeof p.render != 'undefined' ? p.render : render,
 				origin: typeof p.origin != 'undefined' ? p.origin : origin,
 				offset: typeof p.offset != 'undefined' ? p.offset : offset,
@@ -1092,17 +1099,45 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				this.fnc();
 		}, this.timeout);
 	}
+
+	this.prevTime = Date.now();
+	this.CUT_FPS = false;
+	this.MAX_FPS = 60;
+	this.SFRM = true; //single frame request mode
 	
 	//Global Game Loop
 	this.engineLoop = function (funcs) {
+
+		if(rjs.SFRM) {
+			funcs.forEach((fnc) => {
+				fnc();
+			});
+		}
+
+		if(rjs.CUT_FPS) {
+			while(Date.now() - rjs.prevTime < 1000/rjs.MAX_FPS) {}
+			rjs.prevTime = Date.now();
+		}
+
+
+		if(!rjs.SFRM) {
+			requestAnimationFrame(() => {
+				rjs.resizeCanvas();
+				rjs.render();
+			});
+
+			for(let i = 1; i < funcs.length-2; i ++) {
+				funcs[i]();
+			}
+			funcs[funcs.length-1]();
+		}
 		
-		funcs.forEach((fnc) => {
-			fnc();
-		});
-		
+
 		requestAnimationFrame(function () {
 			rjs.engineLoop(funcs);
 		});
+
+		
 		
 	};
 	
@@ -1799,6 +1834,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		rjs.renderer.init(rjs);
 		rjs.engineLoop([
+
 			rjs.resizeCanvas, 
 			rjs.keypressLoop, 
 			rjs.mousepressLoop, 
@@ -1807,6 +1843,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			rjs.audioLoop,
 			rjs.render,
 			rjs.countFPS
+
 		]);
 		
 	};

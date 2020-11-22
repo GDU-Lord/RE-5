@@ -526,6 +526,12 @@
 		var gl = rjs.gl;
 
 		var vertices = pattern.type == 'sprite' ? [-0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5] : tools.getVerticesArray(pattern);
+
+		// if(pattern.type == 'polygon') {
+		// 	log(vertices);
+		// 	debugger;
+		// }
+		
 		var texcoordChanged = true;
 		if(pattern.type == 'sprite') {
 			if(tools.posBuffer != 'sprite_position') {
@@ -538,23 +544,6 @@
 				tools.bindBuffer('position', 'position');
 			tools.bufferData('position', vertices);
 		}
-
-		var colors = [];
-
-		for(let k in pattern.colors) {
-			let c = pattern.colors[k];
-			let r = c.r/255;
-			let g = c.g/255;
-			let b = c.b/255;
-			let a = (typeof c.a != 'undefined' ? c.a : 255)/255;
-			colors[k*4] = r;
-			colors[k*4+1] = g;
-			colors[k*4+2] = b;
-			colors[k*4+3] = a;
-		}
-
-		tools.bindBuffer('color', 'color', 4);
-		tools.bufferData('color', colors);
 
 		if(rjs.renderer.CHUNKS_MODE) {
 			var textures = {};
@@ -655,6 +644,15 @@
 		return texcoordChanged;
 	};
 
+	tools.uniform2f = function (name, v2) {
+		var gl = rjs.gl;
+		var uv = tools.uniform2f_values;
+		if(typeof uv[name] != 'object' || uv[name].x != v2.x || uv[name].y != v2.y) {
+			uv[name] = v2;
+			gl.uniform2f(tools.uniforms[name], v2.x, v2.y);
+		}
+	};
+
 	tools.drawPatternObject = function (o, vertices, tex_buffer) {
 
 		if(typeof o == 'undefined' || o == null || !o.render)
@@ -678,23 +676,35 @@
 		var sx = o.type == 'sprite' ? o.size.x : 1;
 		var sy = o.type == 'sprite' ? o.size.y : 1;
 		
-		var lm = tools.scalingMatrix(o.layer.scale.x, o.layer.scale.y);
-		var pm = tools.projectionMatrix(rjs.client.w, rjs.client.h);
-		var cm = tools.translationMatrix(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
-		var rm = tools.rotationMatrix(o.angle);
-		var sm = tools.scalingMatrix(o.scale.x*sx, o.scale.y*sy);
-		var om = tools.translationMatrix(-o.origin.x/sx, -o.origin.y/sy);
-		
-		var matrix = tools.multiplyMatrix(lm, pm);
-		matrix = tools.multiplyMatrix(matrix, cm);
-		matrix = tools.multiplyMatrix(matrix, rm);
-		matrix = tools.multiplyMatrix(matrix, sm);
-		matrix = tools.multiplyMatrix(matrix, om);
+		if(rjs.MATRIX_MODE) {
+			var lm = tools.scalingMatrix(2/rjs.client.w*o.layer.scale.x, -2/rjs.client.h*o.layer.scale.y);
+			
+			var cm = tools.translationMatrix(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
+			var rm = tools.rotationMatrix(o.angle);
+			var sm = tools.scalingMatrix(o.scale.x*sx, o.scale.y*sy);
+			var om = tools.translationMatrix(-o.origin.x/sx, -o.origin.y/sy);
+			
+			var matrix = tools.multiplyMatrix(lm, cm);
+			matrix = tools.multiplyMatrix(matrix, rm);
+			matrix = tools.multiplyMatrix(matrix, sm);
+			matrix = tools.multiplyMatrix(matrix, om);
 
+			gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
+		}
+		else {
+			tools.uniform2f("proj_layer", vec2(1/rjs.client.w*o.layer.scale.x, 1/rjs.client.h*o.layer.scale.y));
+			tools.uniform2f("pos", vec2(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100));
+			var _a = o.angle*Math.PI/180;
+			tools.uniform2f("angle", vec2(Math.sin(_a), Math.cos(_a)));
+			tools.uniform2f("scale", vec2(o.scale.x*sx, o.scale.y*sy));
+			tools.uniform2f("origin", vec2(-o.origin.x/sx, -o.origin.y/sy));
+		}
 		
-		gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
+		
+		
 		gl.uniform1i(tools.uniforms.texture, tex_buffer);
-		gl.uniform2f(tools.uniforms.opacity, o.opacity/100, 0);
+		var og = o.opacityGradient;
+		gl.uniform3f(tools.uniforms.opacity, o.opacity/100, og.x, og.y);
 		var color = rgba(o.color.r, o.color.g, o.color.b, (typeof o.color.a != 'undefined' ? o.color.a : 255));
 		for(var k in o.filters) {
 			color.r *= o.filters[k].r/255;
@@ -762,6 +772,9 @@
 			return;
 		
 		var vertices = o.type == 'sprite' ? [-0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5] : tools.getVerticesArray(o);
+
+		// log(vertices);
+		// debugger;
 		
 
 		if(o.type == 'sprite') {
@@ -797,34 +810,45 @@
 
 		}
 
-		var sx = o.type == 'sprite' ? o.size.x : 1;
-		var sy = o.type == 'sprite' ? o.size.y : 1;
-		
-		var lm = tools.scalingMatrix(o.layer.scale.x, o.layer.scale.y);
-		var pm = tools.projectionMatrix(rjs.client.w, rjs.client.h);
-		var cm = tools.translationMatrix(-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, -rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
-		var tm = tools.translationMatrix(o.pos.x, o.pos.y);
-		var rm = tools.rotationMatrix(o.angle);
-		var sm = tools.scalingMatrix(o.scale.x*sx, o.scale.y*sy);
-		var om = tools.translationMatrix(-o.origin.x/sx, -o.origin.y/sy);
-		
-		var matrix = tools.multiplyMatrix(lm, pm);
-		matrix = tools.multiplyMatrix(matrix, cm);
-		matrix = tools.multiplyMatrix(matrix, tm);
-		matrix = tools.multiplyMatrix(matrix, rm);
-		matrix = tools.multiplyMatrix(matrix, sm);
-		matrix = tools.multiplyMatrix(matrix, om);
-
 		var buffer;
-		
+
 		if(o.texture != null && o.texture.type == 'animation')
 			buffer = tools.setTexture(o.texture.frames[o.texture.currentIndex]);
 		else
 			buffer = tools.setTexture(o.texture);
+
+		var sx = o.type == 'sprite' ? o.size.x : 1;
+		var sy = o.type == 'sprite' ? o.size.y : 1;
 		
-		gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
+		if(rjs.MATRIX_MODE) {
+			var lm = tools.scalingMatrix(2/rjs.client.w*o.layer.scale.x, -2/rjs.client.h*o.layer.scale.y);
+			
+			var cm = tools.translationMatrix(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
+			var rm = tools.rotationMatrix(o.angle);
+			var sm = tools.scalingMatrix(o.scale.x*sx, o.scale.y*sy);
+			var om = tools.translationMatrix(-o.origin.x/sx, -o.origin.y/sy);
+			
+			var matrix = tools.multiplyMatrix(lm, cm);
+			matrix = tools.multiplyMatrix(matrix, rm);
+			matrix = tools.multiplyMatrix(matrix, sm);
+			matrix = tools.multiplyMatrix(matrix, om);
+
+			gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
+		}
+		else {
+			tools.uniform2f("proj_layer", vec2(1/rjs.client.w*o.layer.scale.x, 1/rjs.client.h*o.layer.scale.y));
+			tools.uniform2f("pos", vec2(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100));
+			var _a = o.angle*Math.PI/180;
+			tools.uniform2f("angle", vec2(Math.sin(_a), Math.cos(_a)));
+			tools.uniform2f("scale", vec2(o.scale.x*sx, o.scale.y*sy));
+			tools.uniform2f("origin", vec2(-o.origin.x/sx, -o.origin.y/sy));
+		}
+		
+		
+		
 		gl.uniform1i(tools.uniforms.texture, buffer);
-		gl.uniform2f(tools.uniforms.opacity, o.opacity/100, 0);
+		var og = o.opacityGradient;
+		gl.uniform3f(tools.uniforms.opacity, o.opacity/100, og.x, og.y);
 		var color = rgba(o.color.r, o.color.g, o.color.b, (typeof o.color.a != 'undefined' ? o.color.a : 255));
 		for(var k in o.filters) {
 			color.r *= o.filters[k].r/255;
@@ -838,32 +862,11 @@
 
 		if(rjs.renderer.TEXT_RENDER_MODE == '2D' && o.textOverlap) {
 
-			var ctx = rjs.ctx;
-
-			var prop = rjs.canvas_width/rjs.client.w;
-			ctx.save();
+			tools.clearTextObject(o, vertices, sx, sy);
 			
-			ctx.scale(o.layer.scale.x*prop, o.layer.scale.y*prop);
-			ctx.translate(rjs.client.w/2, rjs.client.h/2);
-			ctx.translate(-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, -rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
-			ctx.translate(o.pos.x, o.pos.y);
-			ctx.scale(o.scale.x, o.scale.y);
-			ctx.rotate(o.angle * Math.PI / 180);
-			ctx.translate(-o.origin.x, -o.origin.y);
-			ctx.beginPath();
-			ctx.moveTo(vertices[0], vertices[1]);
-			for(var i = 2; i < vertices.length; i += 2) {
-				var x = vertices[i];
-				var y = vertices[i+1];
-				ctx.lineTo(x, y);
-			}
-			ctx.closePath();
-			ctx.clip();
-			ctx.setTransform(1, 0, 0, 1, 0, 0);
-			ctx.clearRect(0, 0, rjs.canvas_width, rjs.canvas_height);
-			ctx.restore();
-
 		}
+
+
 
 	};
 
@@ -1051,6 +1054,8 @@
 	tools.uniforms = {};
 	tools.attribs = {};
 
+	tools.uniform2f_values = {};
+
 	tools.textBuffer = {};
 
 	for(var i in tools) {
@@ -1189,9 +1194,17 @@
 
 			tools.attribs.position = gl.getAttribLocation(tools.programs.def, 'a_position');
 			tools.attribs.texcoord = gl.getAttribLocation(tools.programs.def, 'a_texcoord');
-			tools.attribs.color = gl.getAttribLocation(tools.programs.def, 'a_color');
 			
-			tools.uniforms.matrix = gl.getUniformLocation(tools.programs.def, 'u_matrix');
+			if(rjs.MATRIX_MODE)
+				tools.uniforms.matrix = gl.getUniformLocation(tools.programs.def, 'u_matrix');
+			else {
+				tools.uniforms.proj_layer = gl.getUniformLocation(tools.programs.def, 'u_proj_layer');
+				tools.uniforms.pos = gl.getUniformLocation(tools.programs.def, 'u_pos');
+				tools.uniforms.angle = gl.getUniformLocation(tools.programs.def, 'u_angle');
+				tools.uniforms.scale = gl.getUniformLocation(tools.programs.def, 'u_scale');
+				tools.uniforms.origin = gl.getUniformLocation(tools.programs.def, 'u_origin');
+			}
+
 			tools.uniforms.texture = gl.getUniformLocation(tools.programs.def, 'u_texture');
 			tools.uniforms.opacity = gl.getUniformLocation(tools.programs.def, 'u_opacity');
 			tools.uniforms.filter = gl.getUniformLocation(tools.programs.def, 'u_filter');
@@ -1362,16 +1375,29 @@
 
 			try {
 
-			delete o.scene.layers[layerID].patterns[patternID].textures[textureID][objectIndex];
+				if(typeof o.scene.layers[layerID].patterns[patternID].textures[textureID] != 'undefined') {
+					delete o.scene.layers[layerID].patterns[patternID].textures[textureID][objectIndex];
 
-			if(rjs.renderer.CHUNKS_MODE) {
-				if(o.enable_chunks) {
-					delete o.scene.layers[layerID].patterns[patternID].chunks[chunkX][chunkY].textures[textureID][chunkObjectIndex];
+					if(count(o.scene.layers[layerID].patterns[patternID].textures[textureID]) == 0)
+						delete o.scene.layers[layerID].patterns[patternID].textures[textureID];
 				}
-				else {
-					delete o.scene.layers[layerID].patterns[patternID].no_chunks[textureID][chunkObjectIndex];
+
+				if(rjs.renderer.CHUNKS_MODE) {
+					if(o.enable_chunks) {
+						if(typeof o.scene.layers[layerID].patterns[patternID].chunks[chunkX][chunkY].textures[textureID] != 'undefined') {
+							delete o.scene.layers[layerID].patterns[patternID].chunks[chunkX][chunkY].textures[textureID][chunkObjectIndex];
+							if(count(o.scene.layers[layerID].patterns[patternID].chunks[chunkX][chunkY].textures[textureID]) == 0)
+								delete o.scene.layers[layerID].patterns[patternID].chunks[chunkX][chunkY].textures[textureID];
+						}
+					}
+					else {
+						if(typeof o.scene.layers[layerID].patterns[patternID].no_chunks[textureID] != 'undefined') {
+							delete o.scene.layers[layerID].patterns[patternID].no_chunks[textureID][chunkObjectIndex];
+							if(count(o.scene.layers[layerID].patterns[patternID].no_chunks[textureID]) == 0)
+								delete o.scene.layers[layerID].patterns[patternID].no_chunks[textureID];
+						}
+					}
 				}
-			}
 
 			} catch (err) {
 				log("Error in RectJS.Object.update() !!! Fixed automatically");
@@ -1437,6 +1463,8 @@
 			gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.texcoord);
 			
 			gl.vertexAttribPointer(tools.attribs.texcoord, 2, gl.FLOAT, false, 0, 0);
+
+			tools.uniform2f_values = {};
 				
 
 			if(rjs.renderer.PATTERN_MODE && rjs.renderer.AUTO_CHUNKS_VIEWPORT_UPDATE) {
