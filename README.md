@@ -41,4 +41,4 @@ rjs
 
 # Устройство и архитектура
 
-![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5architecture.png"Logo Title Text 1")
+![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5architecture.png" Logo Title Text 1")
