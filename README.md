@@ -43,6 +43,7 @@ rjs
 
 # Инициализация движка
 
+*__main.js__*
 ```javascript
 rjs = new RectJS(rjs => {
 
@@ -51,3 +52,8 @@ rjs = new RectJS(rjs => {
 });
 ```
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> baef06d1c02cb7a3d689bc320d84645deb58135d
