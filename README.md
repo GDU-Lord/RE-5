@@ -41,8 +41,8 @@ rjs
 
 # Архитектура
 
-![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5architecture.png "Logo Title Text 1")
+![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5architecture.png "Архитектура")
 
 # Инициализация и игровой цикл
 
-![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5logic.png "Logo Title Text 1")
+![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5logic.png "Инициализация и игровой цикл")
