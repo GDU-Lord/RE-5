@@ -39,21 +39,6 @@ rjs
 - __index.html__ (запускает main.js)
 - __main.js__ (инициализация движка, запуск всех скриптов)
 
-# Работа с движком
+# Устройство и архитектура
 
-# Инициализация движка
-
-*__main.js__*
-```javascript
-rjs = new RectJS(rjs => {
-
-	// код выполняется перед запуском движка
-
-});
-```
-
-<<<<<<< HEAD
-=======
-
-
->>>>>>> baef06d1c02cb7a3d689bc320d84645deb58135d
+![alt text](https://github.com/BSS-Lord/RE-5/re5architecture.png "Logo Title Text 1")
