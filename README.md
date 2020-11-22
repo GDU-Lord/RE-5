@@ -39,6 +39,10 @@ rjs
 - __index.html__ (запускает main.js)
 - __main.js__ (инициализация движка, запуск всех скриптов)
 
-# Устройство и архитектура
+# Архитектура
 
 ![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5architecture.png "Logo Title Text 1")
+
+# Инициализация и игровой цыкл
+
+![alt text](https://github.com/BSS-Lord/RE-5/blob/master/re5logic.png "Logo Title Text 1")
