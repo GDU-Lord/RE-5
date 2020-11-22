@@ -13,7 +13,7 @@ window.addEventListener('load', (e) => {
 	// including and executing additional scripts
 	require("Scripts/config.js")();
 	require("Scripts/families.js")();
-	require("Scripts/textures.js")();
+	require("Scripts/sources.js")();
 	require("Scripts/assets.js")();
 
 	// "new" scene initialization
