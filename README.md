@@ -182,6 +182,50 @@ Vector2.fromString("v1;3") = new rjs.Vector2(1; 3);
 
 Создание двухмерного вектора. Возвращает __new RectJS.Vector2(x, y)__.
 
+### rgb(r, g, b)
+
+- __r__ `<number>` - красный канал (0-255)
+- __g__ `<number>` - зелёный канал (0-255)
+- __b__ `<number>` - синий канал (0-255)
+
+Создание цвета. Возвращает объект цвета.
+
+### rgba(r, g, b[, a])
+
+- __r__ `<number>` - красный канал (0-255)
+- __g__ `<number>` - зелёный канал (0-255)
+- __b__ `<number>` - синий канал (0-255)
+- __a__ `<number>` __*Default:*__ `255` - альфа канал (0-255)
+
+Создание цвета. Возвращает объект цвета.
+
+### colorRGB.toString()
+### colorRGBA.toString()
+
+Возвращает цвет в виде строки.
+
+```javascript
+var color = rgb(255, 255, 255);
+console.log(color.toString());
+// получим в консоли "rgb(255, 255, 255)"
+```
+
+```javascript
+var color = rgba(255, 255, 255, 255);
+console.log(color.toString());
+// получим в консоли "rgba(255, 255, 255, 255)"
+```
+
+### colorRGBA.toStringCSS()
+
+Возвращает цвет в виде строки в формате CSS, где альфа канал в пределах от 0 до 1.
+
+```javascript
+var color = rgba(255, 255, 255, 255);
+console.log(color.toStringCSS());
+// получим в консоли "rgba(255, 255, 255, 1)"
+```
+
 ### new RectJS.Camera(options)
 
 - __options__ `<object>` - обязательный параметр!!!
@@ -296,3 +340,5 @@ console.log(object.test);
 		- __init__ `<function>` __*Default:*__ `undefined` - срабатывает после создания объекта
 		
 Создание текста. Возвращает игровой объект.
+
+
