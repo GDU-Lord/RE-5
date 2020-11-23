@@ -120,6 +120,8 @@ window.addEventListener('load', e => {
 	- __initOnload__ `<boolean>` __*Default:*__ `true`
 		- __true__ - скрипт инициализации сцены запускается сразу после её создания
 		- __false__ - скрипт инициализации сцены запускается перед сразу перед её первым запуском
+		
+Создание сцены
 
 Пример скрипта инициализации сцены:
 ```javascript
@@ -141,3 +143,7 @@ window.addEventListener('load', e => {
 	
 }
 ```
+
+### Scene.set([startParams[ ,endParams]])
+- __startParams__ `<object>` - параметры что передаются в скрипт запуска сцены
+- __endParams__ <<test>>
