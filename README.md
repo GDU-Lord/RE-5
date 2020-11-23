@@ -194,4 +194,11 @@ Vector2.fromString("v1;3") = new rjs.Vector2(1; 3);
 
 Переключение на кмеру.
 
+### new RectJS.Layer(scene[ ,parallax[ ,scale[ ,id[ ,options]]]])
 
+- __scene__ `<object>` (`RectJS.Scene`) - сцена слоя
+- __paralalx__ `<object>` (`RectJS.Vector2`) __*Default:*__ `new RectJS.Vector2(100, 100)` - проценты параллакса слоя по осям виде вектора
+- __scale__ `<object>` (`RectJS.Vector2`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг слоя по осям виде вектора
+- __id__ `<string>` __*Default:*__ `"layer_{номер слоя}"` - идентификатор слоя
+- __options__ `<object>` __*Default:*__ `new Object()`
+	- __visible__ `<boolean>` __*Default:*__ `true` - видимость слоя
