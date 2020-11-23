@@ -216,8 +216,8 @@ __ВНИМАНИЕ!__ Слои отрисовываются в порядке и
 	- __origin__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - смещение центра обекта
 	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - точки привязки
 	- __texture__ `<object>` (`RectJS.Texture`) __*Default:*__ `null` - текстура объекта
-	- __color__ `<object>` (`<rgb>`) __*Default:*__ `rgb(255, 255, 255)` - цвет объекта
-	- __filters__ `<array>` [`<rgb>`, ...] __*Default:*__ `new Array()` - массив с фильтрами цвета объекта в формате `rgb`
+	- __color__ `<object>` (`<rgb> | <rgba>`) __*Default:*__ `rgb(255, 255, 255)` - цвет объекта
+	- __filters__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `new Array()` - массив с фильтрами цвета объекта в формате `rgb` или `rgba`
 	- __opacity__ `<number>` __*Default:*__ `100` - проценты непрозрачности объекта
 	- __opacityGradient__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - направление градиента прозрачности
 	- __render__ `<boolean>` __*Default:*__ `true` - видимость объекта
@@ -254,12 +254,11 @@ console.log(object.test);
 	- __size__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - размеры спрайта
 	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг объекта
 	- __angle__ `<number>` __*Default:*__ `0` - поворот объекта в градусах
-	- __origin__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - смещени9
-	89е центра обекта
+	- __origin__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - смещение центра обекта
 	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - точки привязки
 	- __texture__ `<object>` (`RectJS.Texture`) __*Default:*__ `null` - текстура объекта
-	- __color__ `<object>` (`<rgb>`) __*Default:*__ `rgb(255, 255, 255)` - цвет объекта
-	- __filters__ `<array>` [`<rgb>`, ...] __*Default:*__ `new Array()` - массив с фильтрами цвета объекта в формате `rgb`
+	- __color__ `<object>` (`<rgb> | <rgba>`) __*Default:*__ `rgb(255, 255, 255)` - цвет объекта
+	- __filters__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `new Array()` - массив с фильтрами цвета объекта в формате `rgb`
 	- __opacity__ `<number>` __*Default:*__ `100` - проценты непрозрачности объекта
 	- __opacityGradient__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - направление градиента прозрачности
 	- __render__ `<boolean>` __*Default:*__ `true` - видимость объекта
@@ -272,3 +271,28 @@ console.log(object.test);
 		- __init__ `<function>` __*Default:*__ `undefined` - срабатывает после создания объекта
 		
 Создание прямоугольного объекта. Возвращает игровой объект.
+
+### new RectJS.Text(options)
+
+- __options__ `<object>`
+	- __pos__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - позиция объекта на сцене в виде вектора
+	- __size__ `<number>` - размер текста
+	- __font__ `<string> | <RectJS.Font>` - шрифт текста
+	- __text__ `<string>` - текст
+	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг объекта
+	- __angle__ `<number>` __*Default:*__ `0` - поворот объекта в градусах
+	- __origin__ `<string>` __*Default:*__ `"center-middle"` - выравнивание текста
+	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - точки привязки
+	- __color__ `<object>` (`<rgb> | <rgba>`) __*Default:*__ `rgb(255, 255, 255)` - цвет текста
+	- __filters__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `new Array()` - массив с фильтрами цвета текста в формате `rgb` или `rgba`
+	- __opacity__ `<number>` __*Default:*__ `100` - проценты непрозрачности объекта
+	- __opacityGradient__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - направление градиента прозрачности
+	- __render__ `<boolean>` __*Default:*__ `true` - видимость объекта
+	- __enable_chunks__ `<boolean>` __*Default:*__ `true` - привязка объекта к чанку в чанковом режиме
+	- __layer__ `<object>` (`<RectJS.Layer>`) - слой объекта
+	- __id__ `<string>` __*Default:*__ `"object_{номер объекта}"` - индентификатор объекта
+	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - семьи к которым принадлежит объект
+	- __private__ `<object>` __*Default:*__ `new Object()` - объект с дополнительными параметрами объекта и методами.
+		- __init__ `<function>` __*Default:*__ `undefined` - срабатывает после создания объекта
+		
+Создание текста. Возвращает игровой объект.
