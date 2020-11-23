@@ -70,7 +70,7 @@ rjs
 
 # Основные методы
 
-#### new RectJS(callback);
+`#### new RectJS(callback);`
 
 - __callback__ `<function>` - принимает объект экземпляра движка перед его инициализацией.
 
