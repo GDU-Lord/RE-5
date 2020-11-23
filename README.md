@@ -196,9 +196,51 @@ Vector2.fromString("v1;3") = new rjs.Vector2(1; 3);
 
 ### new RectJS.Layer(scene[ ,parallax[ ,scale[ ,id[ ,options]]]])
 
-- __scene__ `<object>` (`RectJS.Scene`) - сцена слоя
-- __paralalx__ `<object>` (`RectJS.Vector2`) __*Default:*__ `new RectJS.Vector2(100, 100)` - проценты параллакса слоя по осям виде вектора
-- __scale__ `<object>` (`RectJS.Vector2`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг слоя по осям виде вектора
+- __scene__ `<object>` (`<RectJS.Scene>`) - сцена слоя
+- __paralalx__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(100, 100)` - проценты параллакса слоя по осям виде вектора
+- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг слоя по осям виде вектора
 - __id__ `<string>` __*Default:*__ `"layer_{номер слоя}"` - идентификатор слоя
 - __options__ `<object>` __*Default:*__ `new Object()`
 	- __visible__ `<boolean>` __*Default:*__ `true` - видимость слоя
+	
+Создание слоя.
+__ВНИМАНИЕ!__ Слои отрисовываются в порядке инициализации.
+
+### new RectJS.Polygon(options)
+
+- __options__ `<object>`
+	- __pos__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - позиция объекта на сцене в виде вектора
+	- __vertices__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - массив с вершинами многоугольника в виде векторов
+	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг объекта
+	- __angle__ `<number>` __*Default:*__ `0` - поворот объекта в градусах
+	- __origin__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - смещение центра обекта
+	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - точки привязки
+	- __texture__ `<object>` (`RectJS.Texture`) __*Default:*__ `null` - текстура объекта
+	- __color__ `<object>` (`<rgb>`) __*Default:*__ `rgb(255, 255, 255)` - цвет объекта
+	- __filters__ `<array>` [`<rgb>`, ...] __*Default:*__ `new Array()` - массив с фильтрами цвета объекта в формате `rgb`
+	- __opacity__ `<number>` __*Default:*__ `100` - проценты непрозрачности объекта
+	- __opacityGradient__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - направление градиента прозрачности
+	- __render__ `<boolean>` __*Default:*__ `true` - видимость объекта
+	- __enable_chunks__ `<boolean>` __*Default:*__ `true` - привязка объекта к чанку в чанковом режиме
+	- __layer__ `<object>` (`<RectJS.Layer>`) - слой объекта
+	- __id__ `<string>` __*Default:*__ `"object_{номер объекта}"` - индентификатор объекта
+	- __textOverlap__ `<boolean>` __*Default:*__ `false` - перекрыте текстов объектом
+	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - семьи к которым принадлежит объект
+	- __private__ `<object>` __*Default:*__ `new Object()` - объект с дополнительными параметрами объекта и методами.
+		- __init__ `<function>` __*Default:*__ `undefined` - срабатывает после создания объекта
+
+```javascript
+var object = new rjs.Polygon({
+	...
+	private: {
+		test: 123,
+		init: function () {
+			console.log(this.text);
+			// в консоли получим "123"
+		}
+	}
+});
+
+console.log(object.test);
+// в консоли получим "123"
+```
