@@ -414,3 +414,29 @@ console.log(object.test);
 За скорость отрисовкм отвечает свойство `.speed`, изменяя его вы можете останавливать анимацию, менять скорость, запускать её.
 
 __ВНИМАНИЕ!__ Анимации в RE-5 ещё не доработаны. Все объекты с одной анимацией будут анимироваться синхронно.
+
+### new RectJS.Click(callback[, active[, scene[, target]]])
+Событие клика левой кнопой мишы
+### new RectJS.RightClick(callback[, active[, scene[, target]]])
+Событие клика правой кнопкой мишы
+### new RectJS.MouseDown(callback[, active[, scene[, target]]])
+Событие зажатия левой кнопки мыши
+### new RectJS.MouseUp(callback[, active[, scene[, target]]])
+Событие отпускания левой кнопки мыши
+### new RectJS.MouseRightDown(callback[, active[, scene[, target]]])
+Событие зажатия правой кнопки мыши
+### new RectJS.MouseRightUp(callback[, active[, scene[, target]]])
+Событие отпускания правой кнопки мыши
+### new RectJS.MouseWheelDown(callback[, active[, scene[, target]]])
+Событие зажатия колёсика мыши
+### new RectJS.MouseWheelUp(callback[, active[, scene[, target]]])
+Событие отпускания колёсика мыши
+### new RectJS.MouseMove(callback[, active[, scene[, target]]])
+Событие движения мыши
+### new RectJS.Wheel(callback[, active[, scene[, target]]])
+Событие прокручивания колёсика мыши
+### new RectJS.WheelUp(callback[, active[, scene[, target]]])
+Событие прокручивания колёсика мыши вверх
+### new RectJS.WheelDown(callback[, active[, scene[, target]]])
+Событие прокручивания колёсика мыши вниз
+
