@@ -1,8 +1,7 @@
-(scene, params) => {
+(scene) => {
 
 	// this script executes after scene initialization
 	// scene takes value of this scene object
-	// params tages value from RectJS.Scene.set([option])
 	
 	// creating camera
 	new_cam = new rjs.Camera({});

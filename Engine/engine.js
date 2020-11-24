@@ -859,15 +859,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			rjs.renderer.deleteObject(this);
 		this.destroyed = true;
 	};
-
-	this.ObjectsPrototype.setLayer = function (layer) {
-
-		delete this.layer.objects[this.id];
-		this.layer = layer;
-		layer.objects[id] = this;
-		this.update();
-
-	};
 	
 	this.ObjectsPrototype.getPoint = function (id) {
 		if(typeof this.points[id] == 'undefined')
@@ -1011,7 +1002,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.waits = [];
 	this.gameLoops = [];
 
-	this.Wait = function (fnc = () => {}, delay = 1, type = "ticks", active =  true, scene = null, absl = false) {
+	this.Wait = function (fnc = () => {}, delay = 1, type = "tick", active =  true, scene = null, absl = false) {
 
 		this.fnc = fnc;
 		this.delay = delay;
