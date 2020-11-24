@@ -238,7 +238,7 @@ console.log(color.toStringCSS());
 
 Переключение на кмеру.
 
-### new RectJS.Layer(scene[ ,parallax[ ,scale[ ,id[ ,options]]]])
+### new RectJS.Layer(scene[, parallax[, scale[, id[, options]]]])
 
 - __scene__ `<object>` (`<RectJS.Scene>`) - сцена слоя
 - __paralalx__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(100, 100)` - проценты параллакса слоя по осям виде вектора
@@ -321,7 +321,7 @@ console.log(object.test);
 - __options__ `<object>`
 	- __pos__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - позиция объекта на сцене в виде вектора
 	- __size__ `<number>` - размер текста
-	- __font__ `<string> | <RectJS.Font>` - шрифт текста
+	- __font__ `<string>` - шрифт текста
 	- __text__ `<string>` - текст
 	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг объекта
 	- __angle__ `<number>` __*Default:*__ `0` - поворот объекта в градусах
@@ -341,4 +341,24 @@ console.log(object.test);
 		
 Создание текста. Возвращает игровой объект.
 
+### new RectJS.Texture(src[, scale[, custom_size]])
+
+- __src__ `<string>` - относительный путь к файлу изображения
+- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг исходной текстуры, влияет на разрешение текстуры
+- __custom_size__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - размер исходной текстуры в пикселях, влияет на разрешение текстуры. Если равен нулю - размер подстроится под размер загруженого изображения
+
+Загрузка текстуры. Возвращает объект текстуры.
+
+### new Texture.tiled(size)
+
+- __size__ `<object>` (`<RectJS.Vector2>`) - размер одного тайла на сцене
+
+Создание зацикленного изображения из тайлов заданных размеров. Возвращает объект текстуры.
+
+### new Texture.crop(pos, size)
+
+- __pos__ `<object>` (`<RectJS.Vector2>`) - начальная позиция обрезания текстуры (левый верхний угол)
+- __size__ `<object>` (`<RectJS.Vector2>`) - размер обрезоной текстуры в пикселях
+
+Обрезка текстуры, например тайла из тайлмапа. Возвращает объект текстуры.
 
