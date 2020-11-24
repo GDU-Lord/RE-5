@@ -9,4 +9,7 @@
 	rjs.renderer.PATTERN_MODE = true;
 	rjs.renderer.CHUNKS_MODE = false;
 
+	Mouse = new rjs.Mouse();
+	Touch = new rjs.Touch();
+
 }
