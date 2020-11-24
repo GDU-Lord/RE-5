@@ -440,3 +440,51 @@ __ВНИМАНИЕ!__ Анимации в RE-5 ещё не доработаны.
 ### new RectJS.WheelDown(callback[, active[, scene[, target]]])
 Событие прокручивания колёсика мыши вниз
 
+- __callback__ `<function>` - функция обработчик события, принимает  объект __event__ в качестве аргумента
+- __active__ `<boolean>` __*Defaut:*__ `true` - состояние оработчика события
+- __scene__ `<object>` (`<RectJS.Scene>`) __*Defaut:*__ `null` - сцена на которой обработчик события работает. Если = `null` - обработчик работает на всех сценах.
+- __target__ `<DOM>` __*Defaut:*__ `RectJS.eventDetector` - DOM-элеммент, к которому привязан обработчик события
+
+### new RectJS.MousePress(callback[, active[, scene]])
+Событие удерживания левой кнопки мыши в зажатом положении.
+
+- __callback__ `<function>` - функция обработчик события, принимает  объект __event__ в качестве аргумента
+- __active__ `<boolean>` __*Defaut:*__ `true` - состояние оработчика события
+- __scene__ `<object>` (`<RectJS.Scene>`) __*Defaut:*__ `null` - сцена на которой обработчик события работает. Если = `null` - обработчик работает на всех сценах.
+
+### new RectJS.TouchStart(callback[, id[, active[, scene[, target]]]])
+Событие начала нажатия
+### new RectJS.TouchEnd(callback[, id[, active[, scene[, target]]]])
+Событие окончания нажатия
+### new RectJS.TouchMove(callback[, id[, active[, scene[, target]]]])
+Событие движения нажатия
+
+- __callback__ `<function>` - функция обработчик события, принимает  объект __event__ в качестве аргумента
+- __id__ `<number>` __*Defaut:*__ `null` - индекс нажатия. Если = `null` - обработчик реагирует на все нажатия
+- __active__ `<boolean>` __*Defaut:*__ `true` - состояние оработчика события
+- __scene__ `<object>` (`<RectJS.Scene>`) __*Defaut:*__ `null` - сцена на которой обработчик события работает
+- __target__ `<DOM>` __*Defaut:*__ `RectJS.eventDetector` - DOM-элеммент, к которому привязан обработчик события
+
+### new RectJS.KeyDown(callback[, key[, active[, scene[, target]]]])
+Событие зажатия клашвиши на клавиатуры
+### new RectJS.KeyUp(callback[, key[, active[, scene[, target]]]])
+Событие отпускания клашвиши на клавиатуры
+
+- __callback__ `<function>` - функция обработчик события, принимает  объект __event__ в качестве аргумента
+- __key__ `<number>` __*Defaut:*__ `null` - `event.keyCode` клавиши. Если = `null` - обработчик реагирует на все клавиши
+- __active__ `<boolean>` __*Defaut:*__ `true` - состояние оработчика события
+- __scene__ `<object>` (`<RectJS.Scene>`) __*Defaut:*__ `null` - сцена на которой обработчик события работает
+- __target__ `<DOM>` __*Defaut:*__ `RectJS.eventDetector` - DOM-элеммент, к которому привязан обработчик события
+
+### new RectJS.KeyPress(callback[, key[, active[, scene]]])
+Событие удерживания клавиши на клавиатуре в зажатом положении
+
+- __callback__ `<function>` - функция обработчик события, принимает  объект __event__ в качестве аргумента
+- __key__ `<number>` __*Defaut:*__ `null` - `event.keyCode` клавиши. Если = `null` - обработчик реагирует на все клавиши
+- __active__ `<boolean>` __*Defaut:*__ `true` - состояние оработчика события
+- __scene__ `<object>` (`<RectJS.Scene>`) __*Defaut:*__ `null` - сцена на которой обработчик события работает. Если = `null` - обработчик работает на всех сценах.
+
+### RectJS.KeyPressed(key)
+Возвращает `true` если заданая клавиша на клавиатуре зажата.
+
+- __key__ `<number>` __*Defaut:*__ `null` - `event.keyCode` клавиши. Если = `null` - метод реагирует на все клавиши
