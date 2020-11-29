@@ -1,10 +1,9 @@
 (scene, params) => {
 	
-	// this script executes on every start of the scene
-	// scene takes value of this scene object
-	// params takes value from RectJS.Scene.set([option])
+	// скрипт запускается после перехода на сцену
+	// params -  набор параметров запуска сцены
 	
-	// switching camera
+	// переключение на камеру "new_cam"
 	new_cam.set();
 
 }

@@ -1,7 +1,5 @@
 const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine/', pluginSource = 'Plugins/') {
 	
-
-
 	var rjs = this;
 
 	this.engineSource = engineSource;
@@ -13,8 +11,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.src = function (src) {
 		return String(rjs.sourceHOST+src);
 	};
-
-	
 
 	this.Vector2 = function (x, y) {
 
@@ -209,6 +205,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.canvas_width = 0;
 	this.canvas_height = 0;
 
+	this.con_width = 0;
+	this.con_height = 0;
+
 	this.CLEAR_COLOR = rjs._GLOBAL.rgba(150, 150, 150, 255);
 	this.BG_COLOR = rjs._GLOBAL.rgba(0, 0, 0, 255);
 
@@ -228,8 +227,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			rjs.prevWindowSize = vec2(window.innerWidth, window.innerHeight);
 			if(window.innerWidth > window.innerHeight * prop) {
 
-				var w = rjs.canvas_width = window.innerHeight * prop;
-				var h = rjs.canvas_height = window.innerHeight;
+				var w = rjs.canvas_width = rjs.con_width = window.innerHeight * prop;
+				var h = rjs.canvas_height = rjs.con_height = window.innerHeight;
 
 				con.style.width = w + 'px';
 				con.style.height = h + 'px';
@@ -358,7 +357,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 
 	this.Scene.prototype.update = function () {
-		if(rjs.currentScene == this && rjs.renderer.PATTERN_MODE) {
+		if(rjs.currentScene == this) {
 			rjs.renderer.updatePatterns();
 		}
 	};
@@ -700,7 +699,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		if(typeof this.init == 'function')
 			this.init();
 
-		if(rjs.renderer.PATTERN_MODE && rjs.currentScene == this.scene) {
+		if(rjs.currentScene == this.scene) {
 			rjs.renderer.updateObject(this);
 		}
 		
@@ -774,7 +773,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		if(typeof this.init == 'function')
 			this.init();
 
-		if(rjs.renderer.PATTERN_MODE && rjs.currentScene == this.scene) {
+		if(rjs.currentScene == this.scene) {
 			rjs.renderer.updateObject(this);
 		}
 		
@@ -842,7 +841,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		if(typeof this.init == 'function')
 			this.init();
 
-		if(rjs.renderer.PATTERN_MODE && rjs.currentScene == this.scene) {
+		if(rjs.currentScene == this.scene) {
 			rjs.renderer.updateObject(this);
 		}
 		
@@ -855,8 +854,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		for(var i in this.families) {
 			this.families[i].remove(this);
 		}
-		if(rjs.renderer.PATTERN_MODE)
-			rjs.renderer.deleteObject(this);
+		rjs.renderer.deleteObject(this);
 		this.destroyed = true;
 	};
 	
@@ -887,7 +885,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 	this.ObjectsPrototype.update = function () {
 		this.boundingBox = rjs.getBoundingBox(this);
-		if(rjs.renderer.PATTERN_MODE && rjs.currentScene == this.scene) {
+		if(rjs.currentScene == this.scene) {
 			rjs.renderer.updateObject(this);
 		}
 	};
@@ -1136,6 +1134,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	
 	//events
 	
+	this.events = [];
 	
 	this.Event = function (type, fnc, active = true, scene = null, target = window) {
 		var ev = this;
@@ -1146,6 +1145,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			if(ev.active && (rjs.currentScene == ev.scene || ev.scene == null))
 				ev.fnc(e);
 		});
+		rjs.events.push(this);
 	};
 	
 	this.Event.prototype.start = function () {
@@ -1254,9 +1254,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 	this.TouchStart = function (fnc, id = null, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('touchstart', (e) => {
-			if(id == null || typeof e.changedTouches[id] != 'undefined')
+			if(id == null || typeof e.changedTouches[id] != 'undefined') {
 				rjs.updateTouchMouse(e);
 				fnc(e);
+			}
 		}, active, scene, target);
 		return this.event;
 	};
@@ -1264,6 +1265,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.TouchEnd = function (fnc, id = null, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('touchend', (e) => {
 			if(id == null || typeof e.changedTouches[id] != 'undefined') {
+				rjs.updateTouchMouse(e);
 				fnc(e);
 			}
 		}, active, scene, target);
@@ -1275,6 +1277,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			if(id == null || typeof e.changedTouches[id] != 'undefined') {
 				rjs.updateTouchMouse(e);
 				fnc(e);
+				rjs.updateTouchMouse(e);
 			}
 		}, active, scene, target);
 		return this.event;
@@ -1702,9 +1705,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		rjs.touchStart = new rjs.TouchStart((e) => {
 			for(let i = 0; i < e.changedTouches.length; i ++) {
 				var rect = rjs.eventDetector.getBoundingClientRect();
-				var prop = rjs.canvas_width / rjs.client.w;
+				var prop = rjs.con_width / rjs.client.w;
 				rjs.touches[i] = {};
-				rjs.touches[i].get = function () {
+				rjs.touches[i].get = function (layer) {
 					var m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
 					return vec2(m.x + rjs.currentCamera.pos.x * layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * layer.parallax.y / 100);
 				};
@@ -1715,9 +1718,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		rjs.touchMove = new rjs.TouchMove((e) => {
 			for(let i = 0; i < e.changedTouches.length; i ++) {
 				var rect = rjs.eventDetector.getBoundingClientRect();
-				var prop = rjs.canvas_width / rjs.client.w;
+				var prop = rjs.con_width / rjs.client.w;
 				rjs.touches[i] = {};
-				rjs.touches[i].get = function () {
+				rjs.touches[i].get = function (layer) {
 					var m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
 					return vec2(m.x + rjs.currentCamera.pos.x * layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * layer.parallax.y / 100);
 				};
@@ -1726,6 +1729,17 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			}
 		});
 		rjs.touchEnd = new rjs.TouchEnd((e) => {
+			for(let i = 0; i < e.changedTouches.length; i ++) {
+				var rect = rjs.eventDetector.getBoundingClientRect();
+				var prop = rjs.con_width / rjs.client.w;
+				rjs.touches[i] = {};
+				rjs.touches[i].get = function (layer) {
+					var m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
+					return vec2(m.x + rjs.currentCamera.pos.x * layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * layer.parallax.y / 100);
+				};
+				rjs.touches[i].x = (e.changedTouches[i].pageX-rect.x) / prop - rjs.client.w/2;
+				rjs.touches[i].y = (e.changedTouches[i].pageY-rect.y) / prop - rjs.client.h/2;
+			}
 			for(let i = 0; i < e.changedTouches.length; i ++) {
 				delete rjs.touches[i];
 			}
@@ -1736,9 +1750,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.updateTouchMouse = function (e) {
 		for(let i = 0; i < e.changedTouches.length; i ++) {
 			var rect = rjs.eventDetector.getBoundingClientRect();
-			var prop = rjs.canvas_width / rjs.client.w;
+			var prop = rjs.con_width / rjs.client.w;
 			rjs.touches[i] = {};
-			rjs.touches[i].get = function () {
+			rjs.touches[i].get = function (layer) {
 				var m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
 				return vec2(m.x + rjs.currentCamera.pos.x * layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * layer.parallax.y / 100);
 			};
@@ -1760,7 +1774,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		rjs.mosueLoop = new rjs.MouseMove((e) => {
 			
-			var prop = rjs.canvas_width / rjs.client.w;
+			var prop = rjs.con_width / rjs.client.w;
 			
 			rjs._mouse.x = e.offsetX / prop - rjs.client.w/2;
 			rjs._mouse.y = e.offsetY / prop - rjs.client.h/2;
@@ -1770,7 +1784,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		rjs.touchMouseLoop = new rjs.TouchMove((e) => {
 			
 			var rect = rjs.eventDetector.getBoundingClientRect();
-			var prop = rjs.canvas_width / rjs.client.w;
+			var prop = rjs.con_width / rjs.client.w;
 
 			rjs._mouse.x = (e.changedTouches[rjs._mouse.touchID].pageX-rect.x) / prop - rjs.client.w/2;
 			rjs._mouse.y = (e.changedTouches[rjs._mouse.touchID].pageY-rect.y) / prop - rjs.client.h/2;

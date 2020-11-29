@@ -1,14 +1,12 @@
 () => {
 
-	// this script executes after engine initialization
-	// there's all project configurations and settings
+	// скрипт выполняется после инициализации движка
+	// используется для настроек проекта и движка
 
-	// settings for RectJS.renderer
-	// it sets renderer to PATTERN OPTIMIZATION MODE (recomended)
-	// and switched off CHUNKS OPTIMIZATION MODE (recomended for scenes with lots of objects out of screen)
-	rjs.renderer.PATTERN_MODE = true;
+	// выключение чанковой системы оптимизации (рекомендуется для сцен с большим количеством объектов)
 	rjs.renderer.CHUNKS_MODE = false;
 
+	// подключение мыши и тачскрина
 	Mouse = new rjs.Mouse();
 	Touch = new rjs.Touch();
 

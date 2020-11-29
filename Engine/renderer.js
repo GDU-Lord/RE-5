@@ -1,7 +1,8 @@
 (rjs) => {
 
 	var tools = {};
-
+ 	
+ 	// создание шейдера
 	tools.createShader = function (gl, type, code) {
 		var shader = gl.createShader(type);
 		gl.shaderSource(shader, code);
@@ -17,11 +18,18 @@
 		}
 	};
 	
+	// создание шейдерной программы
 	tools.createProgram = function (gl, vs, fs) {
 		
 		var program = gl.createProgram();
 		gl.attachShader(program, vs);
 		gl.attachShader(program, fs);
+		// установка индексов атрибутов
+		gl.bindAttribLocation(program, 0, "a_position");
+		gl.bindAttribLocation(program, 1, "a_texcoord");
+		gl.bindAttribLocation(program, 2, "a_filter");
+		gl.bindAttribLocation(program, 3, "a_opacity");
+		gl.bindAttribLocation(program, 4, "a_matrix");
 		gl.linkProgram(program);
 		
 		var success = gl.getProgramParameter(program, gl.LINK_STATUS);
@@ -34,7 +42,8 @@
 		}
 		
 	};
-
+ 	
+ 	// получение угла между двумя векторами
 	tools.getAtan = function (a, b, c) {
 		var A = vec2(a.x-c.x, a.y-c.y);
 		var B = vec2(b.x-c.x, b.y-c.y);
@@ -43,12 +52,14 @@
 		return a2 - a1;
 	}
 
+	// получение индекса последнего элеммента массива
 	tools.getN = function (vertList, n) {
 		if(n >= vertList.length)
 			n -= vertList.length;
 		return n;
 	}
 
+	// получение вершины
 	tools.getVert = function (vertList, n) {
 		n = tools.getN(vertList, n);
 		if(typeof vertList[n] != 'undefined')
@@ -57,6 +68,7 @@
 			return tools.getVert(vertList, n+1);
 	}
 
+	// получение идентификатора вершины
 	tools.getVertID = function (vertList, n) {
 		n = tools.getN(vertList, n);
 		if(typeof vertList[n] != 'undefined')
@@ -65,6 +77,7 @@
 			return tools.getVertID(vertList, n+1);
 	}
 
+	// шаг разбиения фигуры на триугольники
 	tools.triStep = function (vertList, triList, n) {
 		if(count(vertList) < 3)
 			return;
@@ -88,6 +101,7 @@
 		tools.triStep(vertList, triList, n);
 	}
 	
+	// разбиение фигуры на триугольники
 	tools.triangulation = function (vertices = []) {
 
 		var vertList = [];
@@ -105,7 +119,7 @@
 		
 	}
 
-	//converting an array of points to WebGL vertices array
+	// получение массива вершин
 	tools.getVerticesArray = function (o) {
 		
 		var vertices = [];
@@ -140,7 +154,7 @@
 		
 	};
 	
-	//returns texture coordinates (for shaders)
+	// получение координат текстуры
 	tools.getTexcoordArray = function (o, vertices, texture = null) {
 		
 		var texcoord = [];
@@ -196,6 +210,7 @@
 		
 	};
 	
+	// получение bounding box'а
 	tools.getBoundingBox = function (vertices) {
 		var minX = vertices[0];
 		var minY = vertices[1];
@@ -221,83 +236,249 @@
 		};
 	};
 	
-	//matrices
-	tools.projectionMatrix = function (w, h) {
-		return [
-			2 / w, 0, 0,
-			0, -2 / h, 0,
-			0, 0, 1
-		];
-	};
-	
-	tools.translationMatrix = function (tx, ty) {
-		return [
-			1, 0, 0,
-			0, 1, 0,
-			tx, ty, 1
-		];
-	};
-	
-	tools.scalingMatrix = function (sx, sy) {
-		return [
-			sx, 0, 0,
-			0, sy, 0,
-			0, 0, 1
-		];
-	};
-	
-	tools.rotationMatrix = function (angle) {
-		var a = angle;
-		var sin = 0;
-		var cos = 1;
-		if(a != 0) {
-			a = -angle * Math.PI / 180;
-			sin = Math.sin(a);
-			cos = Math.cos(a);
-		}
-		return [
-			cos, -sin, 0,
-			sin, cos, 0,
-			0, 0, 1
-		];
-	};
-	
-	tools.multiplyMatrix = function (a, b) {
-		var a00 = a[0 * 3 + 0];
-		var a01 = a[0 * 3 + 1];
-		var a02 = a[0 * 3 + 2];
-		var a10 = a[1 * 3 + 0];
-		var a11 = a[1 * 3 + 1];
-		var a12 = a[1 * 3 + 2];
-		var a20 = a[2 * 3 + 0];
-		var a21 = a[2 * 3 + 1];
-		var a22 = a[2 * 3 + 2];
-		var b00 = b[0 * 3 + 0];
-		var b01 = b[0 * 3 + 1];
-		var b02 = b[0 * 3 + 2];
-		var b10 = b[1 * 3 + 0];
-		var b11 = b[1 * 3 + 1];
-		var b12 = b[1 * 3 + 2];
-		var b20 = b[2 * 3 + 0];
-		var b21 = b[2 * 3 + 1];
-		var b22 = b[2 * 3 + 2];
-		return [
-			b00 * a00 + b01 * a10 + b02 * a20,
-			b00 * a01 + b01 * a11 + b02 * a21,
-			b00 * a02 + b01 * a12 + b02 * a22,
-			b10 * a00 + b11 * a10 + b12 * a20,
-			b10 * a01 + b11 * a11 + b12 * a21,
-			b10 * a02 + b11 * a12 + b12 * a22,
-			b20 * a00 + b21 * a10 + b22 * a20,
-			b20 * a01 + b21 * a11 + b22 * a21,
-			b20 * a02 + b21 * a12 + b22 * a22,
-		];
+	// умножение матриц
+	tools.multiply = function (a, b, dst) {
+		dst = dst || new Float32Array(16);
+		var b00 = b[0 * 4 + 0];
+		var b01 = b[0 * 4 + 1];
+		var b02 = b[0 * 4 + 2];
+		var b03 = b[0 * 4 + 3];
+		var b10 = b[1 * 4 + 0];
+		var b11 = b[1 * 4 + 1];
+		var b12 = b[1 * 4 + 2];
+		var b13 = b[1 * 4 + 3];
+		var b20 = b[2 * 4 + 0];
+		var b21 = b[2 * 4 + 1];
+		var b22 = b[2 * 4 + 2];
+		var b23 = b[2 * 4 + 3];
+		var b30 = b[3 * 4 + 0];
+		var b31 = b[3 * 4 + 1];
+		var b32 = b[3 * 4 + 2];
+		var b33 = b[3 * 4 + 3];
+		var a00 = a[0 * 4 + 0];
+		var a01 = a[0 * 4 + 1];
+		var a02 = a[0 * 4 + 2];
+		var a03 = a[0 * 4 + 3];
+		var a10 = a[1 * 4 + 0];
+		var a11 = a[1 * 4 + 1];
+		var a12 = a[1 * 4 + 2];
+		var a13 = a[1 * 4 + 3];
+		var a20 = a[2 * 4 + 0];
+		var a21 = a[2 * 4 + 1];
+		var a22 = a[2 * 4 + 2];
+		var a23 = a[2 * 4 + 3];
+		var a30 = a[3 * 4 + 0];
+		var a31 = a[3 * 4 + 1];
+		var a32 = a[3 * 4 + 2];
+		var a33 = a[3 * 4 + 3];
+		dst[ 0] = b00 * a00 + b01 * a10 + b02 * a20 + b03 * a30;
+		dst[ 1] = b00 * a01 + b01 * a11 + b02 * a21 + b03 * a31;
+		dst[ 2] = b00 * a02 + b01 * a12 + b02 * a22 + b03 * a32;
+		dst[ 3] = b00 * a03 + b01 * a13 + b02 * a23 + b03 * a33;
+		dst[ 4] = b10 * a00 + b11 * a10 + b12 * a20 + b13 * a30;
+		dst[ 5] = b10 * a01 + b11 * a11 + b12 * a21 + b13 * a31;
+		dst[ 6] = b10 * a02 + b11 * a12 + b12 * a22 + b13 * a32;
+		dst[ 7] = b10 * a03 + b11 * a13 + b12 * a23 + b13 * a33;
+		dst[ 8] = b20 * a00 + b21 * a10 + b22 * a20 + b23 * a30;
+		dst[ 9] = b20 * a01 + b21 * a11 + b22 * a21 + b23 * a31;
+		dst[10] = b20 * a02 + b21 * a12 + b22 * a22 + b23 * a32;
+		dst[11] = b20 * a03 + b21 * a13 + b22 * a23 + b23 * a33;
+		dst[12] = b30 * a00 + b31 * a10 + b32 * a20 + b33 * a30;
+		dst[13] = b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31;
+		dst[14] = b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32;
+		dst[15] = b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33;
+		return dst;
 	};
 
+	// создание матрици переноса
+	tools.translation = function(tx, ty, tz, dst) {
+		dst = dst || new Float32Array(16);
+
+		dst[ 0] = 1;
+		dst[ 1] = 0;
+		dst[ 2] = 0;
+		dst[ 3] = 0;
+		dst[ 4] = 0;
+		dst[ 5] = 1;
+		dst[ 6] = 0;
+		dst[ 7] = 0;
+		dst[ 8] = 0;
+		dst[ 9] = 0;
+		dst[10] = 1;
+		dst[11] = 0;
+		dst[12] = tx;
+		dst[13] = ty;
+		dst[14] = tz;
+		dst[15] = 1;
+
+		return dst;
+	};
+
+	// перенос матрици
+	tools.translate = function(m, tx, ty, tz, dst) {
+		dst = dst || new Float32Array(16);
+
+		var m00 = m[0];
+		var m01 = m[1];
+		var m02 = m[2];
+		var m03 = m[3];
+		var m10 = m[1 * 4 + 0];
+		var m11 = m[1 * 4 + 1];
+		var m12 = m[1 * 4 + 2];
+		var m13 = m[1 * 4 + 3];
+		var m20 = m[2 * 4 + 0];
+		var m21 = m[2 * 4 + 1];
+		var m22 = m[2 * 4 + 2];
+		var m23 = m[2 * 4 + 3];
+		var m30 = m[3 * 4 + 0];
+		var m31 = m[3 * 4 + 1];
+		var m32 = m[3 * 4 + 2];
+		var m33 = m[3 * 4 + 3];
+
+		if (m !== dst) {
+			dst[ 0] = m00;
+			dst[ 1] = m01;
+			dst[ 2] = m02;
+			dst[ 3] = m03;
+			dst[ 4] = m10;
+			dst[ 5] = m11;
+			dst[ 6] = m12;
+			dst[ 7] = m13;
+			dst[ 8] = m20;
+			dst[ 9] = m21;
+			dst[10] = m22;
+			dst[11] = m23;
+		}
+
+		dst[12] = m00 * tx + m10 * ty + m20 * tz + m30;
+		dst[13] = m01 * tx + m11 * ty + m21 * tz + m31;
+		dst[14] = m02 * tx + m12 * ty + m22 * tz + m32;
+		dst[15] = m03 * tx + m13 * ty + m23 * tz + m33;
+
+		return dst;
+	};
+
+	// создание матрици поворота
+	tools.zRotation = function(angleInRadians, dst) {
+		dst = dst || new Float32Array(16);
+		var c = Math.cos(angleInRadians);
+		var s = Math.sin(angleInRadians);
+
+		dst[ 0] = c;
+		dst[ 1] = s;
+		dst[ 2] = 0;
+		dst[ 3] = 0;
+		dst[ 4] = -s;
+		dst[ 5] = c;
+		dst[ 6] = 0;
+		dst[ 7] = 0;
+		dst[ 8] = 0;
+		dst[ 9] = 0;
+		dst[10] = 1;
+		dst[11] = 0;
+		dst[12] = 0;
+		dst[13] = 0;
+		dst[14] = 0;
+		dst[15] = 1;
+
+		return dst;
+	};
+
+	// поворот матрици
+	tools.zRotate = function(m, angleInRadians, dst) {
+		dst = dst || new Float32Array(16);
+
+		var m00 = m[0 * 4 + 0];
+		var m01 = m[0 * 4 + 1];
+		var m02 = m[0 * 4 + 2];
+		var m03 = m[0 * 4 + 3];
+		var m10 = m[1 * 4 + 0];
+		var m11 = m[1 * 4 + 1];
+		var m12 = m[1 * 4 + 2];
+		var m13 = m[1 * 4 + 3];
+		var c = Math.cos(angleInRadians);
+		var s = Math.sin(angleInRadians);
+
+		dst[ 0] = c * m00 + s * m10;
+		dst[ 1] = c * m01 + s * m11;
+		dst[ 2] = c * m02 + s * m12;
+		dst[ 3] = c * m03 + s * m13;
+		dst[ 4] = c * m10 - s * m00;
+		dst[ 5] = c * m11 - s * m01;
+		dst[ 6] = c * m12 - s * m02;
+		dst[ 7] = c * m13 - s * m03;
+
+		if (m !== dst) {
+			dst[ 8] = m[ 8];
+			dst[ 9] = m[ 9];
+			dst[10] = m[10];
+			dst[11] = m[11];
+			dst[12] = m[12];
+			dst[13] = m[13];
+			dst[14] = m[14];
+			dst[15] = m[15];
+		}
+
+		return dst;
+	}
+
+	// создание матрици изменения размера
+	tools.scaling = function(sx, sy, sz, dst) {
+		dst = dst || new Float32Array(16);
+
+		dst[ 0] = sx;
+		dst[ 1] = 0;
+		dst[ 2] = 0;
+		dst[ 3] = 0;
+		dst[ 4] = 0;
+		dst[ 5] = sy;
+		dst[ 6] = 0;
+		dst[ 7] = 0;
+		dst[ 8] = 0;
+		dst[ 9] = 0;
+		dst[10] = sz;
+		dst[11] = 0;
+		dst[12] = 0;
+		dst[13] = 0;
+		dst[14] = 0;
+		dst[15] = 1;
+
+		return dst;
+	}
+
+	// изменение размера матрици
+	tools.scale = function(m, sx, sy, sz, dst) {
+		dst = dst || new Float32Array(16);
+
+		dst[ 0] = sx * m[0 * 4 + 0];
+		dst[ 1] = sx * m[0 * 4 + 1];
+		dst[ 2] = sx * m[0 * 4 + 2];
+		dst[ 3] = sx * m[0 * 4 + 3];
+		dst[ 4] = sy * m[1 * 4 + 0];
+		dst[ 5] = sy * m[1 * 4 + 1];
+		dst[ 6] = sy * m[1 * 4 + 2];
+		dst[ 7] = sy * m[1 * 4 + 3];
+		dst[ 8] = sz * m[2 * 4 + 0];
+		dst[ 9] = sz * m[2 * 4 + 1];
+		dst[10] = sz * m[2 * 4 + 2];
+		dst[11] = sz * m[2 * 4 + 3];
+
+		if (m !== dst) {
+			dst[12] = m[12];
+			dst[13] = m[13];
+			dst[14] = m[14];
+			dst[15] = m[15];
+		}
+
+		return dst;
+	};
+
+	// справнение векторов
 	tools.compareVectors = function (v1, v2) {
 		return (v1.x == v2.x && v1.y == v2.y);
 	};
 
+	// сравнение массивов векторов
 	tools.compareVectorArrays = function (arr1, arr2) {
 		for(let i in arr1) {
 			if(!tools.compareVectors(arr1[i], arr2[i]))
@@ -306,6 +487,7 @@
 		return true;
 	};
 
+	// сравнение массивов
 	tools.compareArrays = function (arr1, arr2) {
 		for(let i in arr1) {
 			if(typeof arr1[i] != 'function' && arr1[i] != arr2[i])
@@ -314,6 +496,7 @@
 		return true;
 	};
 
+	// сравнение двухмерных массивов
 	tools.compare2dArrays = function (arr1, arr2) {
 		for(let i in arr1) {
 			if(!tools.compareArrays(arr1[i], arr2[i]))
@@ -322,41 +505,47 @@
 		return true;
 	};
 
+	// очищение буфера текстур
 	tools.clearTextureBuffer = function () {
 		tools.staticTex = {};
 		tools.staticTexIds = [];
 	};
 
+	// создание буфера текстур
 	tools.staticTex = {};
 	tools.staticTexSize = rjs.gl.getParameter(rjs.gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
 	tools.staticTexIds = new Array(tools.staticTexSize);
 
 	tools.staticTexUsed = {};
 	
-	//loading texture to WebGL TEXTURE_2D buffer
+	// загрузка текстуры в буфер видеокарты
 	tools.setTexture = function (t, buffer = 0) {
 		var gl = rjs.gl;
 		if(t != null && (t.type == 'tiled' || t.type == 'croped')) {
 			t = t.tex;
 		}
 		if(t == null) {
+			// создание пустой текстуры
 			gl.activeTexture(gl[`TEXTURE${buffer}`]);
 			gl.bindTexture(gl.TEXTURE_2D, tools.STANDART_TEXTURE);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
 		}
 		else if(!t.image.loaded) {
+			// создание пустой текстуры
 			gl.activeTexture(gl[`TEXTURE${buffer}`]);
 			gl.bindTexture(gl.TEXTURE_2D, tools.STANDART_TEXTURE);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
 			return buffer;
 		}
 		else if(t.src in tools.staticTex) {
+			// выбор текстуры из буфера текстур
 			buffer = tools.staticTex[t.src].index;
 			gl.activeTexture(gl[`TEXTURE${buffer}`]);
 			tools.staticTexUsed[t.src] = t;
 			return buffer;
 		}
 		else {
+			// добавление текстуры в буфер текстур
 			let coll = 0;
 			for(let i = 1; i < tools.staticTexSize-1; i ++) {
 				if(typeof(tools.staticTexIds[i]) == 'undefined') {
@@ -374,11 +563,13 @@
 				buffer = tools.staticTex[t.src].index;
 			}
 			tools.staticTexUsed[t.src] = t;
+			// загрузка текстуры в буфер видеокарты
 			gl.activeTexture(gl[`TEXTURE${buffer}`]);
 			gl.bindTexture(gl.TEXTURE_2D, tools.STANDART_TEXTURE);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
 			gl.bindTexture(gl.TEXTURE_2D, t.texture);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, t.canvas);
+			// установка параметров текстуры
 			if(rjs.renderer.DRAWING_MODE == 'linear') {
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -396,13 +587,16 @@
 		}
 	};
 
+	// отрисовка текста
+
 	tools.drawText = function (t) {
 
 		if(typeof t == 'undefined' || !t.render)
 			return false;
-		if(rjs.renderer.TEXT_RENDER_MODE == '2D' || rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL') {
+		if(rjs.renderer.TEXT_RENDER_MODE == '2D') {
 			var ctx = rjs.ctx;
 
+			// получение параметров отрисовки текста
 			var prop = rjs.canvas_width / rjs.client.w;
 			var x = ((t.pos.x+t.offset.x*t.scale.x) * t.layer.scale.x + rjs.client.w/2 - rjs.currentCamera.pos.x * t.layer.scale.x * t.layer.parallax.x/100) * prop;
 			var y = ((t.pos.y+t.offset.y*t.scale.y) * t.layer.scale.y + rjs.client.h/2 - rjs.currentCamera.pos.y * t.layer.scale.y * t.layer.parallax.y/100) * prop;
@@ -422,6 +616,7 @@
 
 			var lines = text.split('\n');
 
+			// отрисовка строчек текста
 			for(var i in lines) {
 				let modY;
 
@@ -451,88 +646,94 @@
 			}
 
 		}
-		else if(rjs.renderer.TEXT_RENDER_MODE == 'CSS') {
-			if(t.DOM == null) {
-				t.DOM = document.createElement('div');
-				rjs.container.appendChild(t.DOM);
-				t.DOM.style.position = 'absolute';
-				t.DOM.style.userSelect = 'none';
-				t.DOM.style.overflow = 'hidden';
-			}
-			t.DOM.style.width = 'auto';
-			t.DOM.style.height = 'auto';
-			t.DOM.style.transform = `rotate(${0}deg)`;
-			var lines = t.text.toString().split('\n');
-			var text = '';
-			for(var i in lines) {
-				text += lines[i] + '<br/>';
-			}
-			t.DOM.innerHTML = `<div>${text}</div>`;
-			var div = t.DOM.getElementsByTagName('div')[0];
-			div.style = t.CSS;
-			var tb = t.DOM.getBoundingClientRect();
-			var cvs = rjs.container.getBoundingClientRect();
-			var cx = cvs.left;
-			var cy = cvs.top;
-			var prop = rjs.canvas_width / rjs.client.w;
-			var tx = (t.pos.x * t.layer.scale.x + rjs.client.w/2 - rjs.currentCamera.pos.x * t.layer.scale.x * t.layer.parallax.x / 100) * prop;
-			var ty = (t.pos.y * t.layer.scale.y + rjs.client.h/2 - rjs.currentCamera.pos.y * t.layer.scale.y * t.layer.parallax.y / 100) * prop;
-			t.DOM.style.fontSize = t.size * prop + "px";
-			t.DOM.style.fontFamily = t.font;
-			t.DOM.style.left = (tx) - tb.width + "px";
-			t.DOM.style.top = (ty) - tb.height + "px";
-			var color = rgba(t.color.r, t.color.g, t.color.b, (typeof t.color.a ? t.color.a : 255));
-			for(var k in t.filters) {
-				color.r *= t.filters[k].r/255;
-				color.g *= t.filters[k].g/255;
-				color.b *= t.filters[k].b/255;
-				color.a *= t.filters[k].a/255;
-			}
-			color.a /= 255;
-			color.a *= t.opacity/100;
-			t.DOM.style.color = color.toString();
-			var ox = t.origin.split('-')[0].trim();
-			var oy = t.origin.split('-')[1].trim();
+		// else if(rjs.renderer.TEXT_RENDER_MODE == 'CSS') {
+		// 	if(t.DOM == null) {
+		// 		t.DOM = document.createElement('div');
+		// 		rjs.container.appendChild(t.DOM);
+		// 		t.DOM.style.position = 'absolute';
+		// 		t.DOM.style.userSelect = 'none';
+		// 		t.DOM.style.overflow = 'hidden';
+		// 	}
+		// 	t.DOM.style.width = 'auto';
+		// 	t.DOM.style.height = 'auto';
+		// 	t.DOM.style.transform = `rotate(${0}deg)`;
+		// 	var lines = t.text.toString().split('\n');
+		// 	var text = '';
+		// 	for(var i in lines) {
+		// 		text += lines[i] + '<br/>';
+		// 	}
+		// 	t.DOM.innerHTML = `<div>${text}</div>`;
+		// 	var div = t.DOM.getElementsByTagName('div')[0];
+		// 	div.style = t.CSS;
+		// 	var tb = t.DOM.getBoundingClientRect();
+		// 	var cvs = rjs.container.getBoundingClientRect();
+		// 	var cx = cvs.left;
+		// 	var cy = cvs.top;
+		// 	var prop = rjs.canvas_width / rjs.client.w;
+		// 	var tx = (t.pos.x * t.layer.scale.x + rjs.client.w/2 - rjs.currentCamera.pos.x * t.layer.scale.x * t.layer.parallax.x / 100) * prop;
+		// 	var ty = (t.pos.y * t.layer.scale.y + rjs.client.h/2 - rjs.currentCamera.pos.y * t.layer.scale.y * t.layer.parallax.y / 100) * prop;
+		// 	t.DOM.style.fontSize = t.size * prop + "px";
+		// 	t.DOM.style.fontFamily = t.font;
+		// 	t.DOM.style.left = (tx) - tb.width + "px";
+		// 	t.DOM.style.top = (ty) - tb.height + "px";
+		// 	var color = rgba(t.color.r, t.color.g, t.color.b, (typeof t.color.a ? t.color.a : 255));
+		// 	for(var k in t.filters) {
+		// 		color.r *= t.filters[k].r/255;
+		// 		color.g *= t.filters[k].g/255;
+		// 		color.b *= t.filters[k].b/255;
+		// 		color.a *= t.filters[k].a/255;
+		// 	}
+		// 	color.a /= 255;
+		// 	color.a *= t.opacity/100;
+		// 	t.DOM.style.color = color.toString();
+		// 	var ox = t.origin.split('-')[0].trim();
+		// 	var oy = t.origin.split('-')[1].trim();
 			
-			div.style.position = 'absolute';
-			if(ox == 'right') {
-				div.style.left = tb.width + 'px';
-			}
-			if(ox == 'center') {
-				div.style.left = tb.width/2 + 'px';
-			}
-			if(ox == 'left') {
-				div.style.left = 0 + 'px';
-			}
-			if(oy == 'bottom') {
-				div.style.top = tb.height + 'px';
-			}
-			if(oy == 'middle') {
-				div.style.top = tb.height/2 + 'px';
-			}
-			if(oy == 'top') {
-				div.style.top = 0 + 'px';
-			}
-			t.DOM.style.width = tb.width * 2 + 'px';
-			t.DOM.style.height = tb.height * 2 + 'px';
-			t.DOM.style.transform = `scale(${t.layer.scale.x}, ${t.layer.scale.y}) rotate(${t.angle}deg) scale(${t.scale.x}, ${t.scale.y})`;
-		}
+		// 	div.style.position = 'absolute';
+		// 	if(ox == 'right') {
+		// 		div.style.left = tb.width + 'px';
+		// 	}
+		// 	if(ox == 'center') {
+		// 		div.style.left = tb.width/2 + 'px';
+		// 	}
+		// 	if(ox == 'left') {
+		// 		div.style.left = 0 + 'px';
+		// 	}
+		// 	if(oy == 'bottom') {
+		// 		div.style.top = tb.height + 'px';
+		// 	}
+		// 	if(oy == 'middle') {
+		// 		div.style.top = tb.height/2 + 'px';
+		// 	}
+		// 	if(oy == 'top') {
+		// 		div.style.top = 0 + 'px';
+		// 	}
+		// 	t.DOM.style.width = tb.width * 2 + 'px';
+		// 	t.DOM.style.height = tb.height * 2 + 'px';
+		// 	t.DOM.style.transform = `scale(${t.layer.scale.x}, ${t.layer.scale.y}) rotate(${t.angle}deg) scale(${t.scale.x}, ${t.scale.y})`;
+		// }
 	};
 
+	// отрисовка шаблона объектов с одинаковыми вершинами
+
 	tools.drawPattern = function (pattern) {
+
 		if(rjs.currentCamera == null)
 			return;
 
 		var gl = rjs.gl;
 
-		var vertices = pattern.type == 'sprite' ? [-0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5] : tools.getVerticesArray(pattern);
+		// создание массива вершин
+		if(pattern.type == 'sprite')
+			pattern.verticesArray = [-0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5];
+		else if(typeof(pattern.verticesArray) == 'undefined' || pattern.verticesArray == null) {
+			pattern.verticesArray = tools.getVerticesArray(pattern);
+		}
 
-		// if(pattern.type == 'polygon') {
-		// 	log(vertices);
-		// 	debugger;
-		// }
+		var vertices = pattern.verticesArray;
 		
 		var texcoordChanged = true;
+		// загрузка массива вершин
 		if(pattern.type == 'sprite') {
 			if(tools.posBuffer != 'sprite_position') {
 				tools.bindBuffer('sprite_position', 'position');
@@ -545,16 +746,19 @@
 			tools.bufferData('position', vertices);
 		}
 
+		// отрисовка объектов в видимых чанках в чанковом режиме
 		if(rjs.renderer.CHUNKS_MODE) {
 			var textures = {};
 			let chunks = pattern.chunks;
 			let cam = rjs.currentCamera;
+			// выделение области отрисовки чанков
 			let start = tools.getChunkPos(cam.pos);
 			start.x = Math.round(start.x-rjs.renderer.CHUNKS_VIEWPORT.x/2);
 			start.y = Math.round(start.y-rjs.renderer.CHUNKS_VIEWPORT.y/2);
 			let end = tools.getChunkPos(cam.pos);
 			end.x = Math.round(end.x+rjs.renderer.CHUNKS_VIEWPORT.x/2);
 			end.y = Math.round(end.y+rjs.renderer.CHUNKS_VIEWPORT.y/2);
+			// создание массива всех объектов в выбраной области
 			for(let i = start.x; i < end.x; i ++) {
 				for(let j = start.y; j < end.y; j ++) {
 					if(typeof chunks[i] != 'undefined' && typeof chunks[i][j] != 'undefined') {
@@ -567,16 +771,20 @@
 					}
 				}
 			}
+			// добавление объектов вне чанковой системы
 			for(let k in pattern.no_chunks) {
 				if(!(k in textures))
 					textures[k] = [];
 				textures[k] = [...textures[k], ...pattern.no_chunks[k]];
 			}
+			// отрисовка групп объектов с одинаковой текстурой
 			for(let k in textures) {
 				texcoordChanged = tools.drawPatternTexture(pattern, vertices, textures, k, texcoordChanged);
 			}
 		}
+		// отрисовка объектов с выключеным чанковым режимом
 		else {
+			// отрисовка групп объектов с одинаковой текстурой
 			for(let k in pattern.textures) {
 				texcoordChanged = tools.drawPatternTexture(pattern, vertices, pattern.textures, k, texcoordChanged);
 			}
@@ -586,35 +794,41 @@
 
 	tools.drawPatternTexture = function (pattern, vertices, textures, k, texcoordChanged) {
 		let tex_buffer;
+		let texcoord = false;
+		// привязка текстуры
 		if(k == 'default' || k in rjs.textures) {
 			if(count(textures[k]) > 0) {
 				let texture = k != 'default' ? rjs.textures[k] : null;
 
+				// загрузка текстурных координат
 				if(texcoordChanged) {
 					if(pattern.type == 'sprite') {
 						if(tools.texBuffer != 'sprite_texcoord') {
 							tools.bindBuffer('sprite_texcoord', 'texcoord');
+							
 						}
+						texcoord = true;
 						texcoordChanged = false;
 					}
 					else if(pattern.type == 'polygon') {
 						if(tools.texBuffer != 'texcoord')
 							tools.bindBuffer('texcoord', 'texcoord');
-						var texcoord = tools.getTexcoordArray(pattern, vertices);
+						texcoord = tools.getTexcoordArray(pattern, vertices);
 						tools.bufferData('texcoord', texcoord);
 						texcoordChanged = false;
 					}
-				}
+				} else
+					texcoord = true;
 				
+				// выбор кадра анимации
 				if(texture != null && texture.type == 'animation') {
 					texture = texture.frames[texture.currentIndex];
-
 				}
+				// загрузка текстуры
 				if(texture != null && (texture.type == 'tiled' || texture.type == 'croped')) {
 					if(tools.texBuffer != 'texcoord')
 						tools.bindBuffer('texcoord', 'texcoord');
-					
-					var texcoord = tools.getTexcoordArray(pattern, vertices, texture);
+					texcoord = tools.getTexcoordArray(pattern, vertices, texture);
 
 					tools.bufferData('texcoord', texcoord);
 					
@@ -624,27 +838,98 @@
 				else
 					tex_buffer = tools.setTexture(texture);
 			}
+			// удаление пустого текстур
 			else {
 				delete pattern.textures[k];
 			}
 		}
-		for(let l in textures[k]) {
-			let o = textures[k][l];
-			if(typeof o != 'undefined') {
-				if(o.type == 'sprite' || o.type == 'polygon')
-					tools.drawPatternObject(o, vertices, tex_buffer);
-				else if(o.type == 'text')
-					if(rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL')
-						tools.textBuffer[o.id] = o;
-					else
-						tools.drawText(o);
-			}
+		
+		// отрисовка спрайтов и полигонов
+    	if(pattern.type == 'sprite' || pattern.type == 'polygon') {
+    		let instances = 0;
+			let numInstances = 0;
+			let gl = rjs.gl;
+
+			let i = 0;
 			
-		}
+			// подсчёт объектов для отрисовки
+			for(let l in textures[k]) {
+	    		let o = textures[k][l];
+				if(typeof o != 'undefined') {
+					if(o.render) {
+						numInstances ++;
+					}
+				}
+	    	}
+	    	
+	    	//создание массивов для атрибутов
+	    	let colors = [];
+	    	let opacities = [];
+	    	let matrices = [];
+	    	let matrixData = new Float32Array(numInstances * 16);
+
+	    	// отрисовка каждого объекта
+    		for(let l in textures[k]) {
+				let o = textures[k][l];
+				if(typeof o != 'undefined') {
+					if(o.render) {
+						tools.drawPatternObject(o, vertices, colors, opacities, matrices, matrixData, instances);
+						instances ++;
+					}
+				}
+			}
+
+			// выбор текстуры в  буфере
+			gl.uniform1i(tools.uniforms.texture, tex_buffer);
+
+			// загрузка матриц в буфер
+			gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.matrix);
+			gl.bufferData(gl.ARRAY_BUFFER, matrixData.byteLength, gl.DYNAMIC_DRAW);
+		    gl.bufferSubData(gl.ARRAY_BUFFER, 0, matrixData);
+
+		    // подготовка 4 атрибутов для матрици
+		   	const bytesPerMatrix = 4*16;
+			for (let i = 0; i < 4; i ++) {
+				let loc = tools.attribs.matrix + i
+				gl.enableVertexAttribArray(loc);
+				const offset = i*16;
+				gl.vertexAttribPointer(loc, 4, gl.FLOAT, false, bytesPerMatrix, offset);
+				gl.vertexAttribDivisor(loc, 1);
+			}
+		 	
+		 	// загрузка массива цветов в буфер
+		 	tools.bufferData('filter', colors);
+		 	tools.bindBuffer('filter', 'filter', 4);
+		    gl.vertexAttribDivisor(tools.attribs.filter, 1);
+
+		    // загрузка массива прозрачностей и градиентов в буфер
+		 	tools.bufferData('opacity', opacities);
+		 	tools.bindBuffer('opacity', 'opacity', 3);
+		    gl.vertexAttribDivisor(tools.attribs.opacity, 1);
+
+		    // вызов отрисовки
+		    gl.drawArraysInstanced(gl.TRIANGLES, 0, vertices.length/2, numInstances);
+		    rjs.renderer.DCPF ++;
+    	}
+    	// отрисовка текстов
+    	else if(pattern.type == 'text') {
+			for(let l in textures[k]) {
+				let o = textures[k][l];
+				if(typeof o != 'undefined') {
+					if(o.type == 'text') {
+						// отрисовка текста
+						tools.drawText(o);
+						rjs.renderer.DCPF ++;
+					}
+				}
+				
+			}
+    	}
 		return texcoordChanged;
 	};
 
 	tools.uniform2f = function (name, v2) {
+		// загрузка двухмерного вектора в видеокарту
 		var gl = rjs.gl;
 		var uv = tools.uniform2f_values;
 		if(typeof uv[name] != 'object' || uv[name].x != v2.x || uv[name].y != v2.y) {
@@ -653,81 +938,63 @@
 		}
 	};
 
-	tools.drawPatternObject = function (o, vertices, tex_buffer) {
+	// отрисовка объекта
+	tools.drawPatternObject = function (o, vertices, colors, opacities, matrices, matrixData, instance) {
 
-		if(typeof o == 'undefined' || o == null || !o.render)
-			return;
-		
-		var gl = rjs.gl;
-		
-		// var o_bb = rjs.getBoundingBox(o);
-		// var c_p = rjs.currentCamera.pos;
-		// var c_pos = vec2(c_p.x * o.layer.parallax.x / 100, c_p.y * o.layer.parallax.y / 100);
-		// var c_bb = {
-		// 	x1: c_pos.x - rjs.client.w / 1.8 / o.layer.scale.x,
-		// 	y1: c_pos.y - rjs.client.h / 1.8 / o.layer.scale.y,
-		// 	x2: c_pos.x + rjs.client.w / 1.8 / o.layer.scale.x,
-		// 	y2: c_pos.y + rjs.client.h / 1.8 / o.layer.scale.y
-		// };
-		
-		// if(!rjs.AABB(c_bb, o_bb))
-		// 	return;
-
-		var sx = o.type == 'sprite' ? o.size.x : 1;
-		var sy = o.type == 'sprite' ? o.size.y : 1;
-		
-		if(rjs.MATRIX_MODE) {
-			var lm = tools.scalingMatrix(2/rjs.client.w*o.layer.scale.x, -2/rjs.client.h*o.layer.scale.y);
-			
-			var cm = tools.translationMatrix(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
-			var rm = tools.rotationMatrix(o.angle);
-			var sm = tools.scalingMatrix(o.scale.x*sx, o.scale.y*sy);
-			var om = tools.translationMatrix(-o.origin.x/sx, -o.origin.y/sy);
-			
-			var matrix = tools.multiplyMatrix(lm, cm);
-			matrix = tools.multiplyMatrix(matrix, rm);
-			matrix = tools.multiplyMatrix(matrix, sm);
-			matrix = tools.multiplyMatrix(matrix, om);
-
-			gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
-		}
-		else {
-			tools.uniform2f("proj_layer", vec2(1/rjs.client.w*o.layer.scale.x, 1/rjs.client.h*o.layer.scale.y));
-			tools.uniform2f("pos", vec2(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100));
-			var _a = o.angle*Math.PI/180;
-			tools.uniform2f("angle", vec2(Math.sin(_a), Math.cos(_a)));
-			tools.uniform2f("scale", vec2(o.scale.x*sx, o.scale.y*sy));
-			tools.uniform2f("origin", vec2(-o.origin.x/sx, -o.origin.y/sy));
+		if(typeof o == 'undefined' || o == null || !o.render) {
+			return false;
 		}
 		
+		let gl = rjs.gl;
+
+		let sx = o.type == 'sprite' ? o.size.x : 1;
+		let sy = o.type == 'sprite' ? o.size.y : 1;
+
+		// добавление матрици в массив
+    	let byteOffsetToMatrix = instance * 16 * 4;
+    	let numFloatsForView = 16;
+    	matrices[instance] = new Float32Array(matrixData.buffer, byteOffsetToMatrix, numFloatsForView);
+
+    	// трансформация матрици
+    	tools.scaling(2/rjs.client.w*o.layer.scale.x, -2/rjs.client.h*o.layer.scale.y, 1, matrices[instance]);
+    	tools.translate(matrices[instance], o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100, 0, matrices[instance]);
+    	tools.zRotate(matrices[instance], o.angle*Math.PI/180, matrices[instance]);
+    	tools.scale(matrices[instance], o.scale.x*sx, o.scale.y*sy, 1, matrices[instance]);
+    	tools.translate(matrices[instance], -o.origin.x/sx, -o.origin.y/sy, 0, matrices[instance]);
 		
-		
-		gl.uniform1i(tools.uniforms.texture, tex_buffer);
-		var og = o.opacityGradient;
-		gl.uniform3f(tools.uniforms.opacity, o.opacity/100, og.x, og.y);
-		var color = rgba(o.color.r, o.color.g, o.color.b, (typeof o.color.a != 'undefined' ? o.color.a : 255));
-		for(var k in o.filters) {
+		// подсчёт цвета
+		let color = rgba(o.color.r, o.color.g, o.color.b, (typeof o.color.a != 'undefined' ? o.color.a : 255));
+		for(let k in o.filters) {
 			color.r *= o.filters[k].r/255;
 			color.g *= o.filters[k].g/255;
 			color.b *= o.filters[k].b/255;
 			color.a *= (typeof o.filters[k].a != 'undefined' ? o.filters[k].a : 255)/255;
 		}
-		gl.uniform4f(tools.uniforms.filter, color.r/255, color.g/255, color.b/255, color.a/255);
-		
-		gl.drawArrays(gl.TRIANGLES, 0, vertices.length/2);
+
+		// добавление цвета в массив
+		colors.push(color.r/255, color.g/255, color.b/255, color.a/255);
+
+		// добавление прзрачности и градиентов в массив
+		let og = o.opacityGradient;
+		opacities.push(o.opacity/100, og.x, og.y);
+
 
 		if(rjs.renderer.TEXT_RENDER_MODE == '2D' && o.textOverlap) {
 
+			// перекрытие текстов объектом
 			tools.clearTextObject(o, vertices, sx, sy);
 			
 		}
 
+		return true;
+
 	}
 
+	// перекрытие текстов обхектом
 	tools.clearTextObject = function (o, vertices, sx, sy) {
-		var ctx = rjs.ctx;
+		let ctx = rjs.ctx;
 
-		var prop = rjs.canvas_width/rjs.client.w;
+		let prop = rjs.canvas_width/rjs.client.w;
 		ctx.save();
 		
 		ctx.scale(o.layer.scale.x*prop, o.layer.scale.y*prop);
@@ -739,9 +1006,9 @@
 		ctx.translate(-o.origin.x, -o.origin.y);
 		ctx.beginPath();
 		ctx.moveTo(vertices[0], vertices[1]);
-		for(var i = 2; i < vertices.length; i += 2) {
-			var x = vertices[i];
-			var y = vertices[i+1];
+		for(let i = 2; i < vertices.length; i += 2) {
+			let x = vertices[i];
+			let y = vertices[i+1];
 			ctx.lineTo(x, y);
 		}
 		ctx.closePath();
@@ -751,131 +1018,14 @@
 		ctx.restore();
 	};
 
-	tools.drawObject = function (o) {
-
-		if(typeof o == 'undefined' || o == null || !o.render)
-			return;
-
-		var gl = rjs.gl;
-
-		var o_bb = rjs.getBoundingBox(o);
-		var c_p = rjs.currentCamera.pos;
-		var c_pos = vec2(c_p.x * o.layer.parallax.x / 100, c_p.y * o.layer.parallax.y / 100);
-		var c_bb = {
-			x1: c_pos.x - rjs.client.w / 1.8 / o.layer.scale.x,
-			y1: c_pos.y - rjs.client.h / 1.8 / o.layer.scale.y,
-			x2: c_pos.x + rjs.client.w / 1.8 / o.layer.scale.x,
-			y2: c_pos.y + rjs.client.h / 1.8 / o.layer.scale.y
-		};
-		
-		if(!rjs.AABB(c_bb, o_bb))
-			return;
-		
-		var vertices = o.type == 'sprite' ? [-0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5] : tools.getVerticesArray(o);
-
-		// log(vertices);
-		// debugger;
-		
-
-		if(o.type == 'sprite') {
-			if(tools.posBuffer != 'sprite_position') {
-				tools.bindBuffer('sprite_position', 'position');
-			}
-			if(o.texture != null && o.texture.type == 'tiled') {
-				if(tools.texBuffer != 'texcoord') {
-					tools.bindBuffer('texcoord', 'texcoord');
-				}
-				var texcoord = tools.getTexcoordArray(o, vertices, o.texture);
-				tools.bufferData('texcoord', texcoord);
-			}
-			else {
-				tools.bindBuffer('sprite_texcoord', 'texcoord');
-			}
-		}
-		else if(o.type == 'polygon') {
-
-			if(tools.posBuffer != 'position')
-				tools.bindBuffer('position', 'position');
-			if(tools.texBuffer != 'texcoord')
-				tools.bindBuffer('texcoord', 'texcoord');
-			
-			tools.bufferData('position', vertices);
-
-			if(o.texture != null && o.texture.type == 'tiled')
-				var texcoord = tools.getTexcoordArray(o, vertices, o.texture);
-			else
-				var texcoord = tools.getTexcoordArray(o, vertices);
-
-			tools.bufferData('texcoord', texcoord);
-
-		}
-
-		var buffer;
-
-		if(o.texture != null && o.texture.type == 'animation')
-			buffer = tools.setTexture(o.texture.frames[o.texture.currentIndex]);
-		else
-			buffer = tools.setTexture(o.texture);
-
-		var sx = o.type == 'sprite' ? o.size.x : 1;
-		var sy = o.type == 'sprite' ? o.size.y : 1;
-		
-		if(rjs.MATRIX_MODE) {
-			var lm = tools.scalingMatrix(2/rjs.client.w*o.layer.scale.x, -2/rjs.client.h*o.layer.scale.y);
-			
-			var cm = tools.translationMatrix(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100);
-			var rm = tools.rotationMatrix(o.angle);
-			var sm = tools.scalingMatrix(o.scale.x*sx, o.scale.y*sy);
-			var om = tools.translationMatrix(-o.origin.x/sx, -o.origin.y/sy);
-			
-			var matrix = tools.multiplyMatrix(lm, cm);
-			matrix = tools.multiplyMatrix(matrix, rm);
-			matrix = tools.multiplyMatrix(matrix, sm);
-			matrix = tools.multiplyMatrix(matrix, om);
-
-			gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
-		}
-		else {
-			tools.uniform2f("proj_layer", vec2(1/rjs.client.w*o.layer.scale.x, 1/rjs.client.h*o.layer.scale.y));
-			tools.uniform2f("pos", vec2(o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100));
-			var _a = o.angle*Math.PI/180;
-			tools.uniform2f("angle", vec2(Math.sin(_a), Math.cos(_a)));
-			tools.uniform2f("scale", vec2(o.scale.x*sx, o.scale.y*sy));
-			tools.uniform2f("origin", vec2(-o.origin.x/sx, -o.origin.y/sy));
-		}
-		
-		
-		
-		gl.uniform1i(tools.uniforms.texture, buffer);
-		var og = o.opacityGradient;
-		gl.uniform3f(tools.uniforms.opacity, o.opacity/100, og.x, og.y);
-		var color = rgba(o.color.r, o.color.g, o.color.b, (typeof o.color.a != 'undefined' ? o.color.a : 255));
-		for(var k in o.filters) {
-			color.r *= o.filters[k].r/255;
-			color.g *= o.filters[k].g/255;
-			color.b *= o.filters[k].b/255;
-			color.a *= (typeof o.filters[k].a != 'undefined' ? o.filters[k].a : 255)/255;
-		}
-		gl.uniform4f(tools.uniforms.filter, color.r/255, color.g/255, color.b/255, color.a/255);
-		
-		gl.drawArrays(gl.TRIANGLES, 0, vertices.length/2);
-
-		if(rjs.renderer.TEXT_RENDER_MODE == '2D' && o.textOverlap) {
-
-			tools.clearTextObject(o, vertices, sx, sy);
-			
-		}
-
-
-
-	};
-
+	// получение позции чанка
 	tools.getChunkPos = function (pos) {
 		var x = Math.floor(pos.x/rjs.renderer.CHUNKS_SIZE.x);
 		var y = Math.floor(pos.y/rjs.renderer.CHUNKS_SIZE.y);
 		return vec2(x, y);
 	};
 
+	// создание чанка
 	tools.createChunk = function (o) {
 		var chunk = {};
 		chunk.x = Math.floor(o.pos.x/rjs.renderer.CHUNKS_SIZE.x);
@@ -883,6 +1033,7 @@
 		chunk.textures = {
 			default: []
 		};
+		// добавление объекта в чанк
 		chunk.add = function (o) {
 			var tex = o.texture != null ? o.texture.src : 'default';
 			if(typeof chunk.textures[tex] == 'undefined')
@@ -896,6 +1047,7 @@
 		return chunk;
 	};
 
+	// создание шаблона
 	tools.createPattern = function (o, id) {
 		var pattern = {};
 		pattern.textures = {
@@ -909,6 +1061,8 @@
 		pattern.layerID = o.layer.id;
 		pattern.chunks = [];
 		pattern.no_chunks = [];
+
+		// проверка принадлежности объекта к шаблону
 		pattern.belong = function (o) {
 			if(pattern.type == o.type) {
 				if(pattern.type == 'sprite' && (o.texture == null || o.texture.type != 'tiled' || tools.compareVectors(o.size, pattern.size)) && tools.compare2dArrays(o.colors, pattern.colors))
@@ -920,6 +1074,8 @@
 			}
 			return false;
 		};
+
+		// добавление объекта в шаблон
 		pattern.add = function (o) {
 			var tex = o.texture != null ? o.texture.src : 'default';
 			if(typeof pattern.textures[tex] == 'undefined')
@@ -930,8 +1086,10 @@
 			o.patternLoc.objectIndex = id;
 			o.patternLoc.patternID = pattern.id;
 			o.patternLoc.layerID = pattern.layerID;
+
 			if(rjs.renderer.CHUNKS_MODE) {
 				if(o.enable_chunks) {
+					// добавление объекта в чанк
 					var c = tools.getChunkPos(o.pos);
 					if(typeof pattern.chunks[c.x] == 'undefined')
 						pattern.chunks[c.x] = [];
@@ -942,6 +1100,7 @@
 					chunk.add(o);
 				}
 				else {
+					// добавление объекта шаблон вне чанка
 					var tex = o.texture != null ? o.texture.src : 'default';
 					if(typeof pattern.no_chunks[tex] == 'undefined')
 						pattern.no_chunks[tex] = [];
@@ -954,67 +1113,67 @@
 		return pattern;
 	};
 
-	tools.drawTextLayer = function () {
+	// tools.drawTextLayer = function () {
 
-		let gl = rjs.gl;
+	// 	let gl = rjs.gl;
 
-		let data = rjs.ctx2D_Canvas;
+	// 	let data = rjs.ctx2D_Canvas;
 
-		var w = rjs.client.w/2;
-		var h = rjs.client.h/2;
+	// 	var w = rjs.client.w/2;
+	// 	var h = rjs.client.h/2;
 
-		var k1 = w*2;
-		var k2 = h*2;
+	// 	var k1 = w*2;
+	// 	var k2 = h*2;
 
-		var b1 = w/k1;
-		var b2 = h/k2;
+	// 	var b1 = w/k1;
+	// 	var b2 = h/k2;
 		
-		var vertices = [
-			-w, -h,
-			w, -h,
-			w, h,
-			w, h,
-			-w, h,
-			-w, -h
-		];
+	// 	var vertices = [
+	// 		-w, -h,
+	// 		w, -h,
+	// 		w, h,
+	// 		w, h,
+	// 		-w, h,
+	// 		-w, -h
+	// 	];
 
-		var texcoord = [
-			-w/k1-b1, -h/k2-b2,
-			w/k1-b1, -h/k2-b2,
-			w/k1-b1, h/k2-b2,
-			w/k1-b1, h/k2-b2,
-			-w/k1-b1, h/k2-b2,
-			-w/k1-b1, -h/k2-b2
-		];
+	// 	var texcoord = [
+	// 		-w/k1-b1, -h/k2-b2,
+	// 		w/k1-b1, -h/k2-b2,
+	// 		w/k1-b1, h/k2-b2,
+	// 		w/k1-b1, h/k2-b2,
+	// 		-w/k1-b1, h/k2-b2,
+	// 		-w/k1-b1, -h/k2-b2
+	// 	];
 		
-		gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.position);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	// 	gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.position);
+	// 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 		
-		gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.texcoord);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoord), gl.STATIC_DRAW);
+	// 	gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.texcoord);
+	// 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoord), gl.STATIC_DRAW);
 		
-		var matrix = tools.projectionMatrix(rjs.client.w, rjs.client.h);
+	// 	var matrix = tools.projectionMatrix(rjs.client.w, rjs.client.h);
 		
-		gl.bindTexture(gl.TEXTURE_2D, tools.STANDART_TEXTURE);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	// 	gl.bindTexture(gl.TEXTURE_2D, tools.STANDART_TEXTURE);
+	// 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
+	// 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	// 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		
-		gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
-		gl.uniform1i(tools.uniforms.texture, 0);
-		gl.uniform2f(tools.uniforms.opacity, 1, 0);
+	// 	gl.uniformMatrix3fv(tools.uniforms.matrix, false, matrix);
+	// 	gl.uniform1i(tools.uniforms.texture, 0);
+	// 	gl.uniform2f(tools.uniforms.opacity, 1, 0);
 
-		gl.uniform4f(tools.uniforms.filter, 1, 1, 1, 1);
+	// 	gl.uniform4f(tools.uniforms.filter, 1, 1, 1, 1);
 		
-		gl.drawArrays(gl.TRIANGLES, 0, vertices.length/2);
+	// 	gl.drawArrays(gl.TRIANGLES, 0, vertices.length/2);
 		
-	};
+	// };
 
-	
-
+	// маркеры активности буферов вершин и текстурных координат
 	tools.posBuffer = null;
 	tools.texBuffer = null;
 
+	// добавление тектсуры в буфер текстур
 	tools.texToBuffer = function (tex) {
 		for(let i = 0; i < tools.texBufferSize; i ++) {
 			if(tools.texIds[i] == null) {
@@ -1027,12 +1186,14 @@
 		}
 	};
 
+	// загрузка данных в буфер
 	tools.bufferData = function (buffer, data) {
 		var gl = rjs.gl;
 		gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers[buffer]);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
 	}
 
+	// привязка буфера
 	tools.bindBuffer = function (buffer, attrib, p = 2) {
 		var gl = rjs.gl;
 		if(attrib == 'position')
@@ -1044,11 +1205,10 @@
 		gl.vertexAttribPointer(tools.attribs[attrib], p, gl.FLOAT, false, 0, 0);
 	};
 	
-	//buffers and WebGL shader variables locations
-
+	// ссылка на набор инструментов отрисовки
 	rjs.renderTools = tools;
 
-
+	// массивы буферов, программ и вводных данных шейдеров
 	tools.buffers = {};
 	tools.programs = {};
 	tools.uniforms = {};
@@ -1062,6 +1222,7 @@
 		eval(`var ${i} = tools['${i}']`);
 	}
 
+	// объединение тектср в тайлмапы (в разработке)
 	tools.tilemaps = [];
 	tools.tilemapCount = 0;
 
@@ -1101,6 +1262,8 @@
 		}
 		tools.tilemapCount ++;
 	};
+
+	// получение координат тектуры
 
 	tools.getImageCoords = function (image, map, dir) {
 
@@ -1177,13 +1340,17 @@
 		}
 
 	};
+
+	// интерфейс рендерера
 	
 	var RENDERER =  {
 		
+		// инициализация рендеринга
 		init: function () {
 
 			var gl = rjs.gl;
 
+			// создание шейдерной программы
 			var vertexShaderCode = require(rjs.engineSource+'Shaders/vertex-shader.glsl', 'text');
 			var fragmentShaderCode = require(rjs.engineSource+'Shaders/fragment-shader.glsl', 'text');
 
@@ -1192,104 +1359,108 @@
 
 			tools.programs.def = tools.createProgram(gl, vertexShader, fragmentShader);
 
+			// подключение вводных параметров шейдеров
 			tools.attribs.position = gl.getAttribLocation(tools.programs.def, 'a_position');
 			tools.attribs.texcoord = gl.getAttribLocation(tools.programs.def, 'a_texcoord');
 			
-			if(rjs.MATRIX_MODE)
-				tools.uniforms.matrix = gl.getUniformLocation(tools.programs.def, 'u_matrix');
-			else {
-				tools.uniforms.proj_layer = gl.getUniformLocation(tools.programs.def, 'u_proj_layer');
-				tools.uniforms.pos = gl.getUniformLocation(tools.programs.def, 'u_pos');
-				tools.uniforms.angle = gl.getUniformLocation(tools.programs.def, 'u_angle');
-				tools.uniforms.scale = gl.getUniformLocation(tools.programs.def, 'u_scale');
-				tools.uniforms.origin = gl.getUniformLocation(tools.programs.def, 'u_origin');
-			}
+			tools.attribs.matrix = gl.getAttribLocation(tools.programs.def, 'a_matrix');
 
 			tools.uniforms.texture = gl.getUniformLocation(tools.programs.def, 'u_texture');
-			tools.uniforms.opacity = gl.getUniformLocation(tools.programs.def, 'u_opacity');
-			tools.uniforms.filter = gl.getUniformLocation(tools.programs.def, 'u_filter');
+			tools.attribs.opacity = gl.getAttribLocation(tools.programs.def, 'a_opacity');
+			tools.attribs.filter = gl.getAttribLocation(tools.programs.def, 'a_filter');
 
+			// создание буферов
 			tools.buffers.position = gl.createBuffer();
 			tools.buffers.sprite_position = gl.createBuffer();
 			tools.buffers.texcoord = gl.createBuffer();
 			tools.buffers.sprite_texcoord = gl.createBuffer();
 			tools.buffers.color = gl.createBuffer();
+			tools.buffers.filter = gl.createBuffer();
+			tools.buffers.opacity = gl.createBuffer();
+			tools.buffers.matrix = gl.createBuffer();
 
-			//gl.enableVertexAttribArray(tools.attribs.position);
-
+			// загрузка параметров отрисовки для спрайта
 			gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.sprite_position);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5]), gl.STATIC_DRAW);
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.sprite_texcoord);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1]), gl.STATIC_DRAW);
 			
+			// создание стандартной текстуры
 			tools.STANDART_TEXTURE = gl.createTexture();
 
 		},
 
+		// инийиализация слоя
 		initLayer: function (layer) {
 
 			layer.patterns = [];
 
 		},
 		
+
 		getPatterns: function (layer) {
 			
 
 
 		},
 
-
+		// создание текстуры
 		createTexture: function () {
 			return rjs.gl.createTexture();
 		},
-		//default
-		//sprite
 
-		PATTERN_MODE: false,
+		// чанковый режим
 		CHUNKS_MODE: false,
 
+		// режим отладки
 		DEBUG_MODE: false,
 
+		// автоматическое обновление окна отрисовки чанков
 		AUTO_CHUNKS_VIEWPORT_UPDATE: false,
 		CHUNKS_VIEWPORT_MODIFER: vec2(3, 2),
 		
+		// параметры чанков
 		CHUNKS_SIZE: vec2(256, 256),
 		CHUNKS_VIEWPORT: vec2(1, 1),
 
+		// режим отрисовки текста
 		TEXT_RENDER_MODE: '2D',
 		//2D
-		//2D_VIRTUAL
-		//CSS
 
+		// режим отрисовки
 		DRAWING_MODE: 'mipmap',
 		//linear
 		//pixel
 		//mipmap
 
+		// статус рендеринга
 		ACTIVE: true,
 		//true
 		//false
 
+		// показатель количества вызовов отрисовки за кадр
+		DCPF: 0,
+		// draw calls per frame
+
+		// обновление тайлмапов (в разработке)
 		updateTilemaps: function () {
 
 			new tools.Tilemap(rjs.images);
 
 		},
 		
+		// обновление шабонов сцены
 		updatePatterns: function (scene = rjs.currentScene) {
-
-			if(!rjs.renderer.PATTERN_MODE) {
-				warning('RectJS.renderer.updatePatterns(): PATTERN_MODE is off');
-				return;
-			}
 
 			var layers = scene.layers;
 
+			// обновление слоёв
 			for(let i in layers) {
 				let layer = layers[i];
 				layer.patterns = [];
 				let patterns = layer.patterns;
+				// обноление объектов
 				for(let j in layer.objects) {
 					let o = layer.objects[j];
 					o.patternLoc = {
@@ -1304,11 +1475,13 @@
 					let inPattern = false;
 					for(let k in patterns) {
 						let pattern = patterns[k];
+						// добавление объекта в шаблон
 						if(!inPattern && pattern.belong(o)) {
 							pattern.add(o);
 							inPattern = true;
 						}
 					}
+					// создание нового шаблона
 					if(!inPattern) {
 						let id = patterns.length;
 						patterns[id] = tools.createPattern(o, id);
@@ -1320,11 +1493,10 @@
 			}
 		},
 
+		// обновление объекта
 		updateObject: function (o) {
 
-			if(!rjs.renderer.PATTERN_MODE)
-				return;
-
+			//
 			if(rjs.renderer.deleteObject(o) == "ERROR")
 				return;
 
@@ -1343,6 +1515,8 @@
 				chunkObjectIndex: null
 			};
 
+			// добавление объекта в шаблон
+
 			for(let i in patterns) {
 				let pattern = patterns[i];
 				if(pattern.belong(o) && !inPattern) {
@@ -1350,6 +1524,8 @@
 					inPattern = true;
 				}
 			}
+
+			// создание шаблона
 			if(!inPattern) {
 				let id = patterns.length;
 				patterns[id] = tools.createPattern(o, id);
@@ -1360,9 +1536,10 @@
 
 		},
 
+		// удаление объекта из шаблона
 		deleteObject: function (o) {
 
-			if(!rjs.renderer.PATTERN_MODE || typeof o.patternLoc == 'undefined')
+			if(typeof o.patternLoc == 'undefined')
 				return;
 			
 			var patternID = o.patternLoc.patternID;
@@ -1375,6 +1552,7 @@
 
 			try {
 
+				// удаление объекта из шаблона и очистка шаблона от пустых массивов
 				if(typeof o.scene.layers[layerID].patterns[patternID].textures[textureID] != 'undefined') {
 					delete o.scene.layers[layerID].patterns[patternID].textures[textureID][objectIndex];
 
@@ -1400,7 +1578,8 @@
 				}
 
 			} catch (err) {
-				log("Error in RectJS.Object.update() !!! Fixed automatically");
+				// исправление ошибки в случае её возникновения
+				log("Error in RectJS.Object.update(). Fixed automatically");
 				for(let i in rjs.currentScene.layers) {
 					let layer = rjs.currentScene.layers[i];
 					for(let j in layer.patterns) {
@@ -1424,6 +1603,7 @@
 
 		},
 		
+		// цикл отрисовки
 		render: function () {
 
 			if(!rjs.renderer.ACTIVE)
@@ -1436,13 +1616,14 @@
 
 			var layers = scene.layers;
 
-			if(rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL')
-				rjs.ctx2D_Canvas.style.display = 'none';
-			else
-				rjs.ctx2D_Canvas.style.display = 'inline';
+			// подготовка параметров
+			rjs.renderer.DCPF = 0;
+
+			rjs.ctx2D_Canvas.style.display = 'inline';
 
 			let gl = rjs.gl;
 
+			// установка параметров WebGL
 			gl.viewport(0, 0, rjs.canvas_width, rjs.canvas_height);
 			gl.clearColor(0, 0, 0, 0);
 			gl.clear(gl.COLOR_BUFFER_BIT);
@@ -1452,12 +1633,10 @@
 				
 			gl.useProgram(tools.programs.def);
 			
-			
 			gl.enableVertexAttribArray(tools.attribs.position);
 			gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.position);
 			
 			gl.vertexAttribPointer(tools.attribs.position, 2, gl.FLOAT, false, 0, 0);
-			
 			
 			gl.enableVertexAttribArray(tools.attribs.texcoord);
 			gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers.texcoord);
@@ -1465,9 +1644,9 @@
 			gl.vertexAttribPointer(tools.attribs.texcoord, 2, gl.FLOAT, false, 0, 0);
 
 			tools.uniform2f_values = {};
-				
 
-			if(rjs.renderer.PATTERN_MODE && rjs.renderer.AUTO_CHUNKS_VIEWPORT_UPDATE) {
+			// обновление окна отрисовки чанков
+			if(rjs.renderer.AUTO_CHUNKS_VIEWPORT_UPDATE) {
 				let minScaleX = 1;
 				let minScaleY = 1;
 				let cnt = 0;
@@ -1488,46 +1667,25 @@
 				rjs.renderer.CHUNKS_VIEWPORT = vec2(vx, vy);
 			}
 
+			// отрисовка слоёв
 			for(let i in layers) {
 				let layer = layers[i];
 				tools.textBuffer = {};
-				if(!rjs.renderer.PATTERN_MODE) {
-					for(let j in layer.objects) {
-						let o = layer.objects[j];
-						if(o.type == 'sprite' || o.type == 'polygon')
-							tools.drawObject(o);
-						else if(o.type == 'text') {
-							if(rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL')
-								tools.textBuffer[o.id] = o;
-							else
-								tools.drawText(o);
-						}
-					}
-				}
-				else {
-					for(let j in layer.patterns) {
-						let pattern = layer.patterns[j];
-						tools.drawPattern(pattern);
-					}
-				}
-				if(rjs.renderer.TEXT_RENDER_MODE == '2D_VIRTUAL' && count(tools.textBuffer) > 0) {
-					let ctx = rjs.ctx;
-					ctx.setTransform(1, 0, 0, 1, 0, 0);
-					ctx.clearRect(0, 0, rjs.canvas_width, rjs.canvas_height);
-					for(let j in tools.textBuffer) {
-						let o = tools.textBuffer[j];
-						tools.drawText(o);
-					}
-					tools.drawTextLayer();
+				// отрисовка шаблонов
+				for(let j in layer.patterns) {
+					let pattern = layer.patterns[j];
+					tools.drawPattern(pattern);
 				}
 			}
 
+			// удаление неиспользуемых текстур из буфера текстур
 			for(let i in tools.staticTex) {
 				if(!(i in tools.staticTexUsed)) {
 					delete tools.staticTex[i];
 				}
 			}
 
+			// обнуление буферов
 			tools.staticTexUsed = {};
 
 			tools.posBuffer = null;

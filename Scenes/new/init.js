@@ -1,17 +1,16 @@
 (scene) => {
 
-	// this script executes after scene initialization
-	// scene takes value of this scene object
+	// скрипт запускается после инициализации сцены
 	
-	// creating camera
+	// создание камеры
 	new_cam = new rjs.Camera({});
 
-	// creating layers attached to this scene
+	// создание слоёв
 	new_bg = new rjs.Layer(scene);
 	new_main = new rjs.Layer(scene);
 	new_ui = new rjs.Layer(scene, vec2(0, 0));
 
-	//creating Sprite
+	//создание спрайта
 
 	var box = new rjs.Sprite({
 		pos: vec2(),
@@ -22,8 +21,8 @@
 
 	var loop = new rjs.GameLoop(() => {
 
-		// this script executes every tick while this scene is active
-		// rotating box rightwards
+		// скрипт выполняется каждый раз перед отрисовкой сцены
+		// поворот спрайта вправо
 		box.angle ++;
 
 	}, true, scene);

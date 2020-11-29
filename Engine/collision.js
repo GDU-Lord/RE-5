@@ -1,5 +1,6 @@
 (rjs, params) => {
 	
+	// использоваие SAT.js для просчёта пересечений объектов
 	rjs.Collision = function (a, b) {
 		
 		var _a_vert;
@@ -71,7 +72,8 @@
 	};
 
 	rjs.collision = rjs.Collision;
-	
+
+	// получение bonding box'а
 	rjs.getBoundingBox = function (o, calc_angle = true) {
 		
 		var vert;
@@ -136,6 +138,8 @@
 		};
 		
 	};
+
+	// пересечение двух bounding box'ов
 	
 	rjs.AABB = function (a, b) {
 		return (

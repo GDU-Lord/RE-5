@@ -1,6 +1,6 @@
 () => {
 	
-	// this script executes after engine initialization
-	// there's all RectJS.Asset([options]) definitions
+	// скрипт выполняется после инициализации движка
+	// используется для создания ассетов объектов
 
 }

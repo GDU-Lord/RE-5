@@ -1,6 +1,6 @@
 () => {
 	
-	// this script executes after engine initialization
-	// there's all RectJS.Family() definidions
+	// скрипт выполняется после инициализации движка
+	// скрипт для создание семей объектов
 
 }
