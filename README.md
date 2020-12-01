@@ -84,6 +84,10 @@ rjs
 - [colorRGB.toString()](#colorrgbtostring)
 - [colorRGBA.toString()](#colorrgbatostring)
 - [colorRGBA.toStringCSS()](#colorrgbatostringcss)
+- [count()](#countobject)
+- [copy()](#copyobject)
+- [RectJS.isObject()](#rectjsisobjectobject)
+- [RectJS.checkSourceLoaded()](#rectjschecksourceloaded)
 - [new RectJS.Camera()](#new-rectjscameraoptions)
 - [Camera.set()](#cameraset)
 - [new RectJS.Layer()](#new-rectjslayerscene-parallax-scale-id-options)
@@ -97,10 +101,25 @@ rjs
 - [new RectJS.GameLoop()](#new-rectjsgameloopcallback-active-scene-absl)
 - [Loop.start()](#loopstart)
 - [Loop.stop()](#loopstop)
+- [new RectJS.Interval()](#new-rectjsintervalcallback-timeout-active-scene)
+- [new RectJS.Wait()](#new-rectjswaitcallback-delay-active-scene-absl)
 - [new RectJS.Texture](#new-rectjstexturesrc-scale-custom_size)
 - [new Texture.tiled()](#new-texturetiledsize)
 - [new Texture.crop()](#new-texturecroppos-size)
 - [new RectJS.Animation()](#new-rectjsanimationoptions)
+- [RectJS.loadFont()](#rectjsloadfontname-src)
+- [new RectJS.Sound()](#new-rectjssoundsrc-distance)
+- [Sound.play()](#soundplay)
+- [Sound.stop()](#soundstop)
+- [Sound.reset()](#soundreset)
+- [Sound.restart()](#soundrestart)
+- [Sound.getDuration()](#soundgetduration)
+- [Sound.setTime()](#soundsettimetime)
+- [Sound.getTime()](#soundgettime)
+- [Sound.setVolume()](#soundsetvolumevolume)
+- [Sound.getVolume()](#soundgetvolume)
+- [Sound.bindObject](#soundbindobject)
+- [Sound.unbindObject()](#soundunbindobject)
 - [new RectJS.Click()](#new-rectjsclickcallback-active-scene-target)
 - [new RectJS.RightClick()](#new-rectjsrightclickcallback-active-scene-target)
 - [new RectJS.MouseDown()](#new-rectjsmousedowncallback-active-scene-target)
@@ -123,6 +142,79 @@ rjs
 - [Event.start()](#eventstart)
 - [Event.stop()](#eventstop)
 - [RectJS.KeyPressed()](#rectjskeypressedkey)
+- [new RectJS.Mouse()](#new-rectjsmouse)
+- [Mouse.get()](#mousegetlayer-scale-parallax)
+- [new RectJS.Touch()](#new-rectjstouch)
+- [Touch[index].get()](#touchindexgetlayer)
+- [new RectJS.Family()](#new-rectjsfamily)
+- [Family.get()](#familygetid)
+- [Family.getByIndex()](#familygetbyindexindex)
+- [Family.isset()](#familyisseto)
+- [Family.for()](#familyforcallback)
+- [Family.forNearTo()](#familyforneartopos-callback-dist-chunk_mode-chunk_dist)
+- [Family.count()](#familycount)
+- [Family.add()](#familyaddobject)
+- [Family.remove()](#familyremoveobject)
+- [new RectJS.Asset()](#new-rectjsassetoptions)
+- [new Asset()](#new-assetoptions)
+- [RectJS.Collision()](#rectjscollisiona-b)
+- [RectJS.getBoundingBox()](#rectjsgetboundingboxobject-calc_angle)
+- [RectJS.AABB()](#rectjsaabba-b)
+- [RectJS.MouseOver()](#rectjsmouseoverobject)
+- [RectJS.sourceHOST](#rectjssourcehost)
+- [RectJS.engineSource](#rectjsenginesource)
+- [RectJS.pluginSource](#rectjspluginsource)
+- [RectJS.container](#rectjscontainer)
+- [RectJS.WebGL_Canvas](#rectjswebgl_canvas)
+- [RectJS.ctx2D_Canvas](#rectjsctx2d_canvas)
+- [RectJS.eventDetector](#rectjseventdetector)
+- [RectJS.gl](#rectjsgl)
+- [RectJS.ctx](#rectjsctx)
+- [RectJS.client.w](#rectjsclientw)
+- [RectJS.client.h](#rectjsclienth)
+- [RectJS.canvas_width](#rectjscanvas_width)
+- [RectJS.canvas_height](#rectjscanvas_height)
+- [RectJS.con_width](#rectjscon_width)
+- [RectJS.con_height](#rectjscon_height)
+- [RectJS.CLEAR_COLOR](#rectjsclear_color)
+- [RectJS.BG_COLOR](#rectjsbg_color)
+- [RectJS.scenes](#rectjsscenes)
+- [RectJS.currentScene](#rectjscurrentscene)
+- [RectJS.layers](#rectjslayers)
+- [RectJS.sources](#rectjssources)
+- [RectJS.images](#rectjsimages)
+- [RectJS.textures](#rectjstextures)
+- [RectJS.LOADER_MODE](#rectjsloader_mode)
+- [RectJS.sourceLoaded](#rectjssourceloaded)
+- [RectJS.timeStep](#rectjstimestep)
+- [RectJS.animations](#rectjsanimations)
+- [RectJS.cameras](#rectjscameras)
+- [RectJS.currentCamera](#rectjscurrentcamera)
+- [RectJS.waits](#rectjswaits)
+- [RectJS.gameLoops](#rectjsgameloops)
+- [RectJS.CUT_FPS](#rectjscut_fps)
+- [RectJS.MAX_FPS](#rectjsmax_fps)
+- [RectJS.SFRM](#rectjssfrm)
+- [RectJS.events](#rectjsevents)
+- [RectJS.MousePressed](#rectjsmousepressed)
+- [RectJS.RightMousePressed](#rectjsrightmousepressed)
+- [RectJS.families](#rectjsfamilies)
+- [RectJS.FPS](#rectjsfps)
+- [RectJS.render](#rectjsrender)
+- [RectJS.renderTools](#rectjsrendertools)
+- [RectJS.renderer](#rectjsrenderer)
+- [RectJS.renderer.ACTIVE](#rectjsrendereractive)
+- [RectJS.renderer.DRAWING_MODE](#rectjsrendererdrawing_mode)
+- [RectJS.renderer.DEBUG_MODE](#rectjsrendererdebug_mode)
+- [RectJS.renderer.CHUNKS_MODE](#rectjsrendererchunks_mode)
+- [RectJS.renderer.CHUNKS_SIZE](#rectjsrendererchunks_size)
+- [RectJS.renderer.CHUNKS_VIEWPORTrenderer.](#rectjsrendererchunks_viewport)
+- [RectJS.renderer.AUTO_CHUNKS_VIEWPORT_UPDATE](#rectjsrendererauto_chunks_viewport_update)
+- [RectJS.renderer.CHUNKS_VIEWPORT_MODIFER](#rectjsrendererchunks_viewport_modifer)
+- [RectJS.renderer.DCPF](#rectjsrendererdcpf)
+- [new RectJS.Plugin()](#new-rectjspluginname-params)
+
+
 
 ## Инициализация
 
@@ -863,7 +955,7 @@ log(box2.size.x);
 
 Возвращает `true` если bounding box'ы пересекаются.
 
-### RectJS.isMouseOver(object)
+### RectJS.MouseOver(object)
 
 - __object__ `<object>` (`<RectJS.Polygon> | <RectJS.Sprite> | <RectJS.Text>`) - игровой объект
 
@@ -986,7 +1078,7 @@ log(box2.size.x);
 ### RectJS.families
 `<array>` - массив, хранящий все семьи
 
-### RectJS.families
+### RectJS.sounds
 `<array>` - массив, хранящий все звуки
 
 ### RectJS.FPS
@@ -1004,32 +1096,32 @@ log(box2.size.x);
 ### RectJS.renderer.ACTIVE
 `<boolean>` __*Default:*__ `true` - наличие отрисовки
 
-### RectJS.DRAWING_MODE
+### RectJS.renderer.DRAWING_MODE
 `<string>` __*Default:*__ `mipmap` - режим отрисовки текстур
 
 - `mipmap` - сглаженое отображение (более ресурсозатратно)
 - `linear` - билинейная интерполяция (рекомендовано для оптимизации)
 - `pixel` - отсутствие интерполяции (для игр с пиксельартом)
 
-### RectJS.DEBUG_MODE
+### RectJS.renderer.DEBUG_MODE
 `<boolean>` __*Default:*__ `false` - остановка игры по средствам консоли после отрисовки кадра
 
-### RectJS.CHUNKS_MODE
+### RectJS.renderer.CHUNKS_MODE
 `<boolean>` __*Default:*__ `false` - все объекты на сцене (кроме тех у которых `.enable_chunks = false`) распределяются по участкам заданных размеров и не отрисовываются когда находятся за пределами видимости игрока. Рекомендовано для больших сцен с множеством объектов за пределами кадра.
 
-### RectJS.CHUNKS_SIZE
+### RectJS.renderer.CHUNKS_SIZE
 `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(256, 256)` - размер чанка
 
-### RectJS.CHUNKS_VIEWPORT
+### RectJS.renderer.CHUNKS_VIEWPORT
 `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - область отрисовки (в чанках)
 
-### RectJS.AUTO_CHUNKS_VIEWPORT_UPDATE
-`<boolean>` __*Default:*__ `false` - автоматическое обновление __RectJS.CHUNKS_VIEWPORT__ в зависимости от скейлинга слоёв (рекомендовано)
+### RectJS.renderer.AUTO_CHUNKS_VIEWPORT_UPDATE
+`<boolean>` __*Default:*__ `false` - автоматическое обновление __RectJS.renderer.CHUNKS_VIEWPORT__ в зависимости от скейлинга слоёв (рекомендовано)
 
-### RectJS.CHUNKS_VIEWPORT_MODIFER
-`<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(3, 2)` - параметры автоматического обновления. Эти значения добавляются к значениям __RectJS.CHUNKS_VIEWPORT__, полученым алгоритмом.
+### RectJS.renderer.CHUNKS_VIEWPORT_MODIFER
+`<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(3, 2)` - параметры автоматического обновления. Эти значения добавляются к значениям __RectJS.renderer.CHUNKS_VIEWPORT__, полученым алгоритмом.
 
-### RectJS.DCPF
+### RectJS.renderer.DCPF
 **D**raw **C**all **P**er **F**rame
 `<number>` - текущее количество вызовов отрисовки на кадр
 
