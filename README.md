@@ -603,14 +603,14 @@ __ВНИМАНИЕ!__ Система событий в RE-5 немного не 
 
 Возвращает количество объектов в семье.
 
-### Family.add(o)
+### Family.add(object)
 
-- __o__ `<object>` (`<RectJS.Polygon> | <RectJS.Sprite> | <RectJS.Text>`) - игровой объект
+- __object__ `<object>` (`<RectJS.Polygon> | <RectJS.Sprite> | <RectJS.Text>`) - игровой объект
 
 Добавляет объект в семью.
 
-### Family.remove(o)
+### Family.remove(object)
 
-- __o__ `<object>` (`<RectJS.Polygon> | <RectJS.Sprite> | <RectJS.Text>`) - игровой объект
+- __object__ `<object>` (`<RectJS.Polygon> | <RectJS.Sprite> | <RectJS.Text>`) - игровой объект
 
 Удаляет объект из семьи.
