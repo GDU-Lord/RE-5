@@ -1020,6 +1020,18 @@ log(box2.size.x);
 ### RectJS.CHUNKS_SIZE
 `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(256, 256)` - размер чанка
 
+### RectJS.CHUNKS_VIEWPORT
+`<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - область отрисовки (в чанках)
+
+### RectJS.AUTO_CHUNKS_VIEWPORT_UPDATE
+`<boolean>` __*Default:*__ `false` - автоматическое обновление __RectJS.CHUNKS_VIEWPORT__ в зависимости от скейлинга слоёв (рекомендовано)
+
+### RectJS.CHUNKS_VIEWPORT_MODIFER
+`<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(3, 2)` - параметры автоматического обновления. Эти значения добавляются к значениям __RectJS.CHUNKS_VIEWPORT__, полученым алгоритмом.
+
+### RectJS.DCPF
+**D**raw **C**all **P**er **F**rame
+`<number>` - текущее количество вызовов отрисовки на кадр
 
 # Плагины
 
