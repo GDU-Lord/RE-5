@@ -299,11 +299,15 @@ console.log(color.toStringCSS());
 
 Возвращает копию одномерного JavaScript-объекта (ассоциативного массива).
 
-### RectJS.isObject(object )
+### RectJS.isObject(object)
 
 - __object__ `<object>` - JavaScript-объект
 
 Возвращает `true` если аргумент является игровым объектом.
+
+### RectJS.checkSourceLoaded()
+
+В режиме ожидания загрузки ресурсов `RectJS.LOADER_MODE` проверяет наличие незагруженых ресурсов. Если таковы имеются `RectJS.sourceLoaded` устанавливается на `false`, если нет - `true`.
 
 ## Камеры и слои
 
@@ -867,19 +871,155 @@ log(box2.size.x);
 
 # Параметры движка
 
-- __callback__ `<function>` - принимает объект экземпляра движка перед его инициализацие
-- __sourceHOST__ `<string>` __*Default:*__ `""` - относительный путь от файла __*index.html*__ к файлу __*main.js*__, папкам движка и проекта.
-- __engineSource__ `<string>` __*Default:*__ `"Engine/"` - путь из установленной в __sourceHOST__ папки к папке движка.
-- __pluginSource__ `<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __sourceHOST__ папки к папке с плагинами.
-
 ### RectJS.sourceHOST
-`<string>` __*Default:*__ `""` - Относительный путь от файла __*index.html*__ к файлу __*main.js*__, папкам движка и проекта.
+`<string>` __*Default:*__ `""` - Относительный путь от файла __*index.html*__ к файлу __*main.js*__, папкам движка и проекта
 
 ### RectJS.engineSource
-`<string>` __*Default:*__ `"Engine/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке движка.
+`<string>` __*Default:*__ `"Engine/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке движка
 
 ### RectJS.pluginSource
-`<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке с плагинами.
+`<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке с плагинами
+
+### RectJS.container
+`<DOM>` - div, хранящий все елементы для отрисовки и прослушивания событий
+
+### RectJS.WebGL_Canvas
+`<DOM>` - canvas где отрисовываются все игровые объекты
+
+### RectJS.ctx2D_Canvas
+`<DOM>` - canvas где отрисовываются все тексты
+
+### RectJS.eventDetector
+`<DOM>` - div, что находится поверх canvas'ов и прослушивает события мыш
+
+### RectJS.gl
+`<object>` - WebGL2RenderingContext
+
+### RectJS.ctx
+`<object>` - CanvasRenderingContext2D
+
+### RectJS.client.w
+`<number>` __*Default:*__ `1920` - ширина области отрисовки в условных единицах, что используются для позиционирования и указания размеров объектов
+
+### RectJS.client.h
+`<number>` __*Default:*__ `1080` - высота области отрисовки в условных единицах, что используются для позиционирования и указания размеров объектов
+
+### RectJS.canvas_width
+`<number>` - текущая ширина canvas'а
+
+### RectJS.canvas_height
+`<number>` - текущая высота canvas'а
+
+### RectJS.con_width
+`<number>` - текущая ширина контейнера
+
+### RectJS.con_height
+`<number>` - текущая высота контейнера
+
+### RectJS.CLEAR_COLOR
+`<object>` (`<rgba>`) - цвет заднего фона области отрисовки
+
+### RectJS.BG_COLOR
+`<object>` (`<rgba>`) - цвет заднего страници
+
+### RectJS.scenes
+`<object>` - объект, хранящий все сцены
+
+### RectJS.currentScene
+`<object>` (`<RectJS.Scene>`) - текущая сцена
+
+### RectJS.layers
+`<object>` - объект, хранящий все слои всех сцен
+
+### RectJS.sources
+`<object>` - объект, хранящий все загруженные ресурсы (кроме шрифтов)
+
+### RectJS.images
+`<object>` - объект, хранящий все первичные текстуры
+
+### RectJS.textures
+`<object>` - объект, хранящий все первичные и вторичные текстуры (созданные путём обрезания или закливания первичных), а также анимации
+
+### RectJS.LOADER_MODE
+`<boolean>` __*Default:*__ `false` - режим ожидания загрузки ресурсов
+
+### RectJS.sourceLoaded
+`<boolean>` - отсутствие незагружённых ресурсов
+
+### RectJS.timeStep
+ `<number>` (`<integer>`) __*Default:*__ `1` - целое число тиков на 1 вызов requestAnimationFrame()
+ 
+### RectJS.animations
+`<object>` - объект, хранящий все анимации
+
+### RectJS.cameras
+`<object>` - объект, хранящий все камеры
+
+### RectJS.currentCamera
+`<object>` (`<RectJS.camera>`) - текущая камера
+
+### RectJS.waits
+`<array>` - массив, хранящий все задержки
+
+### RectJS.gameLoops
+`<array>` - массив, хранящий все игровые циклы
+
+### RectJS.CUT_FPS
+`<boolean>` __*Default:*__ `false` - ограничение FPS (не рекомендуется)
+
+### RectJS.MAX_FPS
+`<number>` (`<integer>`) __*Default:*__ `60` - максимальный FPS
+
+### RectJS.SFRM
+**S**ingle **F**rame **R**eqest **M**ode
+`<boolean>` __*Default:*__ `true` - режим единичного запроса на отрисовку кадра. Если его отключить рендеринг будет вызываться отдельным от перезапуска глобального игрового цикла вызовом requestAnimationFrame(). В редких случаях его отключение повышает оптимизацию, в остальных же - понижает.
+
+### RectJS.events
+`<array>` - массив, хранящий все события мыши, клавиатуры и нажатий
+
+### RectJS.MousePressed
+`<boolean>` - указатель нажата ли кнопка мыши
+
+### RectJS.RightMousePressed
+`<boolean>` - указатель нажата ли правая кнопка мыши
+
+### RectJS.families
+`<array>` - массив, хранящий все семьи
+
+### RectJS.families
+`<array>` - массив, хранящий все звуки
+
+### RectJS.FPS
+`<number>` - текущий FPS
+
+### RectJS.render
+`<function>` - функция отрисовки
+
+### RectJS.renderTools
+`<object>` - объект, хранящий методы и свойства отрисовки графики
+
+### RectJS.renderer
+`<object>` - интерфейс системы рендеринга
+
+### RectJS.renderer.ACTIVE
+`<boolean>` __*Default:*__ `true` - наличие отрисовки
+
+### RectJS.DRAWING_MODE
+`<string>` __*Default:*__ `mipmap` - режим отрисовки текстур
+
+- `mipmap` - сглаженое отображение (более ресурсозатратно)
+- `linear` - билинейная интерполяция (рекомендовано для оптимизации)
+- `pixel` - отсутствие интерполяции (для игр с пиксельартом)
+
+### RectJS.DEBUG_MODE
+`<boolean>` __*Default:*__ `false` - остановка игры по средствам консоли после отрисовки кадра
+
+### RectJS.CHUNKS_MODE
+`<boolean>` __*Default:*__ `false` - все объекты на сцене (кроме тех у которых `.enable_chunks = false`) распределяются по участкам заданных размеров и не отрисовываются когда находятся за пределами видимости игрока. Рекомендовано для больших сцен с множеством объектов за пределами кадра.
+
+### RectJS.CHUNKS_SIZE
+`<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(256, 256)` - размер чанка
+
 
 # Плагины
 
