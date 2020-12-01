@@ -125,7 +125,7 @@ rjs
 - [Sound.getVolume()](#soundgetvolume)
 - [Sound.bindObject](#soundbindobject)
 - [Sound.unbindObject()](#soundunbindobject)
-### [Мышь и клавиатура](#мишь-и-клавиатура-1)
+### [Мышь и клавиатура](#мышь-и-клавиатура-1)
 - [new RectJS.Click()](#new-rectjsclickcallback-active-scene-target)
 - [new RectJS.RightClick()](#new-rectjsrightclickcallback-active-scene-target)
 - [new RectJS.MouseDown()](#new-rectjsmousedowncallback-active-scene-target)
