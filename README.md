@@ -128,7 +128,7 @@ rjs
 
 ### new RectJS(callback[, sourceHOST[, engineSource[, pluginSource]]])
 
-- __callback__ `<function>` - принимает объект экземпляра движка перед его инициализацие
+- __callback__ `<function>` - принимает объект экземпляра движка перед его инициализацией
 - __sourceHOST__ `<string>` __*Default:*__ `""` - относительный путь от файла __*index.html*__ к файлу __*main.js*__, папкам движка и проекта.
 - __engineSource__ `<string>` __*Default:*__ `"Engine/"` - путь из установленной в __sourceHOST__ папки к папке движка.
 - __pluginSource__ `<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __sourceHOST__ папки к папке с плагинами.
