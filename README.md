@@ -126,9 +126,12 @@ rjs
 
 ## Инициализация
 
-### new RectJS(callback)
+### new RectJS(callback[, sourceHOST[, engineSource[, pluginSource]]])
 
 - __callback__ `<function>` - принимает объект экземпляра движка перед его инициализацие
+- __sourceHOST__ `<string>` __*Default:*__ `""` - относительный путь от файла __*index.html*__ к файлу __*main.js*__, папкам движка и проекта.
+- __engineSource__ `<string>` __*Default:*__ `"Engine/"` - путь из установленной в __sourceHOST__ папки к папке движка.
+- __pluginSource__ `<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __sourceHOST__ папки к папке с плагинами.
 
 Инициализация движка
 
@@ -861,6 +864,22 @@ log(box2.size.x);
 - __object__ `<object>` (`<RectJS.Polygon> | <RectJS.Sprite> | <RectJS.Text>`) - игровой объект
 
 Возвращает `true` если курсор мыши касается объекта.
+
+# Параметры движка
+
+- __callback__ `<function>` - принимает объект экземпляра движка перед его инициализацие
+- __sourceHOST__ `<string>` __*Default:*__ `""` - относительный путь от файла __*index.html*__ к файлу __*main.js*__, папкам движка и проекта.
+- __engineSource__ `<string>` __*Default:*__ `"Engine/"` - путь из установленной в __sourceHOST__ папки к папке движка.
+- __pluginSource__ `<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __sourceHOST__ папки к папке с плагинами.
+
+### RectJS.sourceHOST
+`<string>` __*Default:*__ `""` - Относительный путь от файла __*index.html*__ к файлу __*main.js*__, папкам движка и проекта.
+
+### RectJS.engineSource
+`<string>` __*Default:*__ `"Engine/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке движка.
+
+### RectJS.pluginSource
+`<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке с плагинами.
 
 # Плагины
 
