@@ -85,6 +85,7 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 - [colorRGBA.toStringCSS()](#colorrgbatostringcss)
 - [count()](#countobject)
 - [copy()](#copyobject)
+- [log()](#log)
 - [RectJS.isObject()](#rectjsisobjectobject)
 - [RectJS.checkSourceLoaded()](#rectjschecksourceloaded)
 ### [Камеры и слои](#камеры-и-слои-1)
@@ -398,6 +399,10 @@ console.log(color.toStringCSS());
 - __object__ `<object>` - JavaScript-объект
 
 Возвращает копию одномерного JavaScript-объекта (ассоциативного массива).
+
+### log()
+
+То же что и __console.log()__.
 
 ### RectJS.isObject(object)
 
