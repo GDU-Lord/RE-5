@@ -5,6 +5,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.engineSource = engineSource;
 	this.sourceHOST = sourceHOST;
 	this.pluginSource = pluginSource;
+	this.MATRIX_MODE = true;
 
 	//Sources
 	this.src = function (src) {
@@ -162,7 +163,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.pack = pack;
 		this.code = code;
 		this.engine = rjs;
-		var res = this.code(this);
+		this.fnc = this.code;
+		var res = this.fnc(this);
 		this.res = typeof res != 'undefined' ? res : null;
 		rjs.plugins[this.pack.name] = this;
 		for(let i in this.global) {
@@ -288,6 +290,17 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			}
 		}
 	}
+	
+	
+	
+	
+	
+	
+	//Fonts
+	
+	this.fonts = [];
+	
+	
 	
 	//Scenes
 	this.scenes = {};
@@ -987,7 +1000,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.waits = [];
 	this.gameLoops = [];
 
-	this.Wait = function (fnc = () => {}, delay = 1, active =  true, scene = null, absl = false) {
+	this.Wait = function (fnc = () => {}, delay = 1, type = "tick", active =  true, scene = null, absl = false) {
 
 		this.fnc = fnc;
 		this.delay = delay;
@@ -1149,11 +1162,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.correction = 5;
 		this.md = new rjs.MouseDown((e) => {
 			click.pos = vec2(rjs._mouse.x, rjs._mouse.y);
-		});
+		}, active, scene, target);
 		this.mu = new rjs.MouseUp((e) => {
 			if(Math.abs(click.pos.x-rjs._mouse.x) < click.correction && Math.abs(click.pos.y-rjs._mouse.y) < click.correction)
 				fnc(e);
-		});
+		}, active, scene, target);
 		this.event = click.mu;
 		return this.event;
 	};
@@ -1409,7 +1422,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		x: 0,
 		y: 0,
 		touchID: 0,
-		get: function (layer = new Object(), scale = false, parallax = false) {
+		get: function (layer, scale = false, parallax = false) {
 			scale = scale || layer.scale;
 			parallax = parallax || layer.parallax;
 			var m = vec2(rjs._mouse.x / scale.x, rjs._mouse.y / scale.y);
@@ -1594,13 +1607,13 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	
 	this.sounds = [];
 	
-	this.Sound = function (src, distanse = 100) {
+	this.Sound = function (src) {
 		this.audio = new Audio();
 		this.audio.src = rjs.src(src);
 		this.id = rjs.sounds.length;
 		this.object = 'none';
 		this.volume = 100;
-		this.distanse = distanse;
+		this.distanse = 100;
 		this.load = false;
 		var th2 = this;
 		this.audio.onloadedmetadata = function (e) {
