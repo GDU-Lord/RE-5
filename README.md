@@ -1160,7 +1160,7 @@ log(box2.size.x);
 (plugin) => {
 
 	
-	var exorts = plugin.exports = {}; // интерфейс плагина
+	var exports = plugin.exports = {}; // интерфейс плагина
 	var rjs = plugin.engine; // ссылка на движок
 	var pack = plugin.pack; // объект загруженный из package.json
 	var sets = plugin.pack.settings; // настройки плагина
