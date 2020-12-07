@@ -216,7 +216,7 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 - [RectJS.renderer.DEBUG_MODE](#rectjsrendererdebug_mode)
 - [RectJS.renderer.CHUNKS_MODE](#rectjsrendererchunks_mode)
 - [RectJS.renderer.CHUNKS_SIZE](#rectjsrendererchunks_size)
-- [RectJS.renderer.CHUNKS_VIEWPORTrenderer.](#rectjsrendererchunks_viewport)
+- [RectJS.renderer.CHUNKS_VIEWPORT](#rectjsrendererchunks_viewport)
 - [RectJS.renderer.AUTO_CHUNKS_VIEWPORT_UPDATE](#rectjsrendererauto_chunks_viewport_update)
 - [RectJS.renderer.CHUNKS_VIEWPORT_MODIFER](#rectjsrendererchunks_viewport_modifer)
 - [RectJS.renderer.DCPF](#rectjsrendererdcpf)
