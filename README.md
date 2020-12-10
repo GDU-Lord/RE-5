@@ -68,7 +68,7 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 # Методы и свойства
 ## Содержание
 ### [Инициализация](#инициализация-1)
-- [new RectJS()](#new-rectjscallback)
+- [new RectJS()](#new-rectjscallback-sourcehost-enginesource-pluginsource)
 - [require()](#requiresrc-type)
 - [new RectJS.Scene()](#new-rectjssceneoptions)
 - [Scene.set()](#scenesetstartparams-endparams)
