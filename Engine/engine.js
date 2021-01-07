@@ -332,17 +332,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	
 	this.Scene.prototype.set = function (startParams = {}, endParams = {}) {
 		if(rjs.currentScene != null) {
-			for(var i in rjs.currentScene.layers) {
-				var textLayer = rjs.currentScene.layers[i];
-				break;
-			}
-			var texts = textLayer.objects;
-			for(var i in texts) {
-				if(texts[i].DOM != null) {
-					rjs.container.removeChild(texts[i].DOM);
-					texts[i].DOM = null;
-				}
-			}
 			rjs.currentScene.end(rjs.currentScene, endParams);
 		}
 		if(!this.inited) {
@@ -350,6 +339,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			this.init(this);
 			this.inited = true;
 		}
+		rjs.prevWindowSize = vec2(0,0);
 		this.start(this, startParams);
 		rjs.currentScene = this;
 		this.update();
@@ -858,10 +848,12 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.destroyed = true;
 	};
 	
-	this.ObjectsPrototype.getPoint = function (id) {
+	this.ObjectsPrototype.getPoint = function (id, angle) {
 		if(typeof this.points[id] == 'undefined')
 			throw `RectJS.getPoint(...) error: Point "${id}" is not defined!`;
 		var a = this.angle * Math.PI / 180;
+		if(typeof angle != "undefined")
+			a = angle * Math.PI / 180;
 		var cos = Math.cos(a);
 		var sin = Math.sin(a);
 		var p = this.points[id];
@@ -1000,11 +992,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.waits = [];
 	this.gameLoops = [];
 
-	this.Wait = function (fnc = () => {}, delay = 1, type = "tick", active =  true, scene = null, absl = false) {
+	this.Wait = function (fnc = () => {}, delay = 1, active =  true, scene = null, absl = false) {
 
 		this.fnc = fnc;
 		this.delay = delay;
-		this.type = type;
+		this.type = "tick";
 		this.active = active;
 		this.scene = scene;
 		this.absl = absl;
@@ -1013,7 +1005,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		/* absl --> Active Before Source Loaded */
 		
-		this.waits.push(this); 
+		rjs.waits[this.index] = this;
 
 	};
 	
@@ -1828,9 +1820,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		rjs.initGLOBAL();
 		
-		fnc(rjs);
+		
 		
 		rjs.loadRenderer();
+
+		fnc(rjs);
 
 		rjs.loadCollisionDetector();
 		rjs.initMouse();
