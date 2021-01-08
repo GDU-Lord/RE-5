@@ -385,10 +385,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	
 	this.Texture = function (src, scale = vec2(1, 1), custom_size = vec2(0, 0)) {
 		
-		var t = this;
+		let t = this;
 		
 		this.image = new Image();
-		this.src = `${rjs.src(src)}_${scale.x}x${scale.y}`;
+		this.src = this.id = `${rjs.src(src)}_${scale.x}x${scale.y}`;
 		this.image.src = rjs.src(src);
 		this.image.loaded = false;
 		this.image.funcs = [];
@@ -436,35 +436,41 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		var RectJS = rjs;
 
-		RectJS.Texture.prototype.tiled = function (size) {
+		RectJS.Texture.prototype.tiled = function () {
 
-			this.tex = t;
-			this.src = this.tex.src+'_'+rjs.tiledCounter;
-			this.size = size;
-			this.id = this.src;
-			this.type = 'tiled';
-			// rjs.images[this.src] = this;
-			rjs.textures[this.src] = this;
-			rjs.tiledCounter ++;
+			console.warn("Method RectJS.Texture.tiled() is outdated! Use RectJS.Tiled() instead of it!");
 
 		};
 
-		RectJS.Texture.prototype.crop = function (pos, size) {
+		RectJS.Texture.prototype.crop = function () {
 
-			this.tex = t;
-			this.src = this.tex.src+'_'+rjs.cropedCounter;
-			this.pos = pos;
-			this.size = size;
-			this.id = this.src;
-			this.type = 'croped';
-			// rjs.images[this.src] = this;
-			rjs.textures[this.src] = this;
-			rjs.tiledCounter ++;
+			console.warn("Method RectJS.Texture.crop() is outdated! Use RectJS.Crop() instead of it!");
 
 		};
 
 		
 		
+	};
+
+	this.Tiled = function (origin, size) {
+		this.tex = origin;
+		this.src = this.tex.src+'_'+rjs.tiledCounter;
+		this.size = size;
+		this.id = this.src;
+		this.type = 'tiled';
+		rjs.textures[this.src] = this;
+		rjs.tiledCounter ++;
+	};
+
+	this.Crop = function (origin, pos, size) {
+		this.tex = origin;
+		this.src = this.tex.src+'_'+rjs.cropedCounter;
+		this.pos = pos;
+		this.size = size;
+		this.id = this.src;
+		this.type = 'croped';
+		rjs.textures[this.src] = this;
+		rjs.tiledCounter ++;
 	};
 
 	this.TextureDOM = function (dom, scale = vec2(1, 1), custom_size = vec2(0, 0)) {

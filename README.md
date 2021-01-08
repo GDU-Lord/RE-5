@@ -108,8 +108,8 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 - [new RectJS.Wait()](#new-rectjswaitcallback-delay-active-scene-absl)
 ### [Ресурсы](#ресурсы-1)
 - [new RectJS.Texture](#new-rectjstexturesrc-scale-custom_size)
-- [new Texture.tiled()](#new-texturetiledsize)
-- [new Texture.crop()](#new-texturecroppos-size)
+- [new RectJS.Tiled()](#new-rectjstiledorigin-size)
+- [new RectJS.Crop()](#new-rectjscroporigin-pos-size)
 - [new RectJS.Animation()](#new-rectjsanimationoptions)
 - [RectJS.loadFont()](#rectjsloadfontname-src)
 - [new RectJS.Sound()](#new-rectjssoundsrc-distance)
@@ -603,14 +603,16 @@ console.log(object.test);
 
 Загрузка текстуры. Возвращает объект текстуры.
 
-### new Texture.tiled(size)
+### new RectJS.Tiled(origin, size)
 
+- __origin__ `<object>` (`RectJS.Texture`) - исходное изображение
 - __size__ `<object>` (`<RectJS.Vector2>`) - размер одного тайла на сцене
 
 Создание зацикленного изображения из тайлов заданных размеров. Возвращает объект текстуры.
 
-### new Texture.crop(pos, size)
+### new RectJS.Crop(origin, pos, size)
 
+- __origin__ `<object>` (`RectJS.Texture`) - исходное изображение
 - __pos__ `<object>` (`<RectJS.Vector2>`) - начальная позиция обрезания текстуры (левый верхний угол)
 - __size__ `<object>` (`<RectJS.Vector2>`) - размер обрезоной текстуры в пикселях
 
