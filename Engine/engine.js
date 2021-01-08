@@ -453,6 +453,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 
 	this.Tiled = function (origin, size) {
+		if(origin == null)
+			return null;
 		this.tex = origin;
 		this.src = this.tex.src+'_'+rjs.tiledCounter;
 		this.size = size;
@@ -463,6 +465,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 
 	this.Crop = function (origin, pos, size) {
+		if(origin == null)
+			return null;
 		this.tex = origin;
 		this.src = this.tex.src+'_'+rjs.cropedCounter;
 		this.pos = pos;
