@@ -955,12 +955,23 @@
     	let numFloatsForView = 16;
     	matrices[instance] = new Float32Array(matrixData.buffer, byteOffsetToMatrix, numFloatsForView);
 
+    	let round_k = (rjs.canvas_width/rjs.client.w);
+
+    	o_pos_x = Math.round(o.pos.x*round_k)/round_k;
+    	o_pos_y = Math.round(o.pos.y*round_k)/round_k;
+
+    	o_scale_s_x = Math.round(o.scale.x*sx*round_k)/round_k;
+    	o_scale_s_y = Math.round(o.scale.y*sy*round_k)/round_k;
+
+    	o_origin_s_x = Math.round(o.origin.x*round_k)/round_k/Math.abs(o_scale_s_x);
+    	o_origin_s_y = Math.round(o.origin.y*round_k)/round_k/Math.abs(o_scale_s_y);
+
     	// трансформация матрици
     	tools.scaling(2/rjs.client.w*o.layer.scale.x, -2/rjs.client.h*o.layer.scale.y, 1, matrices[instance]);
-    	tools.translate(matrices[instance], o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100, 0, matrices[instance]);
+    	tools.translate(matrices[instance], o_pos_x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o_pos_y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100, 0, matrices[instance]);
     	tools.zRotate(matrices[instance], o.angle*Math.PI/180, matrices[instance]);
-    	tools.scale(matrices[instance], o.scale.x*sx, o.scale.y*sy, 1, matrices[instance]);
-    	tools.translate(matrices[instance], -o.origin.x/sx, -o.origin.y/sy, 0, matrices[instance]);
+    	tools.scale(matrices[instance], o_scale_s_x, o_scale_s_y, 1, matrices[instance]);
+    	tools.translate(matrices[instance], -o_origin_s_x, -o_origin_s_y, 0, matrices[instance]);
 		
 		// подсчёт цвета
 		let color = rgba(o.color.r, o.color.g, o.color.b, (typeof o.color.a != 'undefined' ? o.color.a : 255));

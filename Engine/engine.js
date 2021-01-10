@@ -1,5 +1,5 @@
-const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine/', pluginSource = 'Plugins/', eventDetector) {
-
+const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine/', pluginSource = 'Plugins/') {
+	
 	var rjs = this;
 
 	this.engineSource = engineSource;
@@ -189,12 +189,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.ctx2D_Canvas.style.display = 'none';
 	this.container.appendChild(rjs.ctx2D_Canvas);
 
-	this.ed = this.eventDetector = document.createElement('div');
-	if(eventDetector != null) {
-		this.ed = eventDetector;
-	}
-	console.log(this.ed);
-
+	this.eventDetector = document.createElement('div');
 	this.container.appendChild(rjs.eventDetector);
 
 	document.body.style.userSelect = 'none';
@@ -1163,7 +1158,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.active = false;
 	};
 	
-	this.Click = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.Click = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		var click = this;
 		this.pos = vec2(0, 0);
 		this.correction = 5;
@@ -1178,12 +1173,12 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.RightClick = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.RightClick = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('contextmenu', fnc, active, scene, target);
 		return this.event;
 	};
 	
-	this.MouseDown = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.MouseDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('mousedown', function (e) {
 			if(e.button === 0)
 				fnc(e);
@@ -1191,7 +1186,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.MouseUp = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.MouseUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('mouseup', function (e) {
 			if(e.button === 0)
 				fnc(e);
@@ -1199,7 +1194,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.MouseRightDown = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.MouseRightDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('mousedown', function (e) {
 			if(e.button === 2)
 				fnc(e);
@@ -1207,7 +1202,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.MouseRightUp = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.MouseRightUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('mouseup', function (e) {
 			if(e.button === 2)
 				fnc(e);
@@ -1215,7 +1210,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.MouseWheelDown = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.MouseWheelDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('mousedown', function (e) {
 			if(e.button === 1)
 				fnc(e);
@@ -1223,7 +1218,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.MouseWheelUp = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.MouseWheelUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('mouseup', function (e) {
 			if(e.button === 1)
 				fnc(e);
@@ -1231,17 +1226,17 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.MouseMove = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.MouseMove = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('mousemove', fnc, active, scene, target);
 		return this.event;
 	};
 	
-	this.Wheel = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.Wheel = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('wheel', fnc, active, scene, target);
 		return this.event;
 	};
 	
-	this.WheelUp = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.WheelUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('wheel', function (e) {
 			if(e.deltaY > 0) {
 				fnc(e);
@@ -1250,7 +1245,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.WheelDown = function (fnc, active = true, scene = null, target = rjs.ed) {
+	this.WheelDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('wheel', function (e) {
 			if(e.deltaY < 0) {
 				fnc(e);
@@ -1259,7 +1254,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.TouchStart = function (fnc, id = null, active = true, scene = null, target = rjs.ed) {
+	this.TouchStart = function (fnc, id = null, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('touchstart', (e) => {
 			if(id == null || typeof e.changedTouches[id] != 'undefined') {
 				rjs.updateTouchMouse(e);
@@ -1269,7 +1264,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.TouchEnd = function (fnc, id = null, active = true, scene = null, target = rjs.ed) {
+	this.TouchEnd = function (fnc, id = null, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('touchend', (e) => {
 			if(id == null || typeof e.changedTouches[id] != 'undefined') {
 				rjs.updateTouchMouse(e);
@@ -1279,7 +1274,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.TouchMove = function (fnc, id = null, active = true, scene = null, target = rjs.ed) {
+	this.TouchMove = function (fnc, id = null, active = true, scene = null, target = rjs.eventDetector) {
 		this.event = new rjs.Event('touchmove', (e) => {
 			if(id == null || typeof e.changedTouches[id] != 'undefined') {
 				rjs.updateTouchMouse(e);
@@ -1800,10 +1795,10 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		rjs.mousePressDownLoop = new rjs.MouseDown((e) => {
 			rjs.MousePressed = true;
-		}, true, null, rjs.ed);
+		});
 		rjs.mousePressUpLoop = new rjs.MouseUp((e) => {
 			rjs.MousePressed = false;
-		}, true, null, rjs.ed);
+		});
 		
 	};
 
