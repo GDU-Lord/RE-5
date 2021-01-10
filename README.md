@@ -68,7 +68,7 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 # Методы и свойства
 ## Содержание
 ### [Инициализация](#инициализация-1)
-- [new RectJS()](#new-rectjscallback-sourcehost-enginesource-pluginsource)
+- [new RectJS()](#new-rectjscallback-sourcehost-enginesource-pluginsource-eventdetector)
 - [require()](#requiresrc-type)
 - [new RectJS.Scene()](#new-rectjssceneoptions)
 - [Scene.set()](#scenesetstartparams-endparams)
@@ -227,12 +227,13 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 
 ## Инициализация
 
-### new RectJS(callback[, sourceHOST[, engineSource[, pluginSource]]])
+### new RectJS(callback[, sourceHOST[, engineSource[, pluginSource[, eventDetector]]]])
 
 - __callback__ `<function>` - принимает объект экземпляра движка перед его инициализацией
 - __sourceHOST__ `<string>` __*Default:*__ `""` - относительный путь от файла __*index.html*__ к файлу __*main.js*__, папкам движка и проекта.
 - __engineSource__ `<string>` __*Default:*__ `"Engine/"` - путь из установленной в __sourceHOST__ папки к папке движка.
 - __pluginSource__ `<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __sourceHOST__ папки к папке с плагинами.
+- __pluginSource__ `<object>` __*Default:*__ `null` - Объект на странице, к которому привязываются все обработчики событий мыши. Если равно `null`, по умолчанию будет установлено __RectJS.eventDetector__.
 
 Инициализация движка
 
