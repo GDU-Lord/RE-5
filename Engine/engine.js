@@ -1,6 +1,9 @@
-const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine/', pluginSource = 'Plugins/') {
-	
-	var rjs = this;
+/* jshint -W117 */
+/* jshint -W080 */
+/* jshint -W083 */
+const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine/', pluginSource = 'Plugins/', eventDetector = null) {
+
+	const rjs = this;
 
 	this.engineSource = engineSource;
 	this.sourceHOST = sourceHOST;
@@ -61,9 +64,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 
 	this.Vector2.prototype.fromString = function (v) {
-		var arr = v.split('v')[1].split(';');
-		var x = parseFloat(arr[0]);
-		var y = parseFloat(arr[1]);
+		const arr = v.split('v')[1].split(';');
+		const x = parseFloat(arr[0]);
+		const y = parseFloat(arr[1]);
 		return new rjs.Vector2(x, y);
 	};
 	
@@ -105,27 +108,24 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		},
 		require: function (src, type = 'JS') {
 			type = type.toUpperCase();
-			var ajax = new XMLHttpRequest();
+			const ajax = new XMLHttpRequest();
 			ajax.open('GET', rjs.src(src), false);
 			ajax.send();
-			var text = ajax.responseText;
+			const text = ajax.responseText;
 			switch(type) {
 				case "TEXT" :
 					return text;
-					break;
 				case "JS" :
-					return eval(String(text));
-					break;
+					return eval(String(text)); // jshint ignore:line
 				case "JSON" :
 					return JSON.parse(text);
-					break;
 				default:
 					error('RectJS.require(): Unknown type of data!');
 			}
 		},
 		count: function (arr) {
-			var cnt = 0;
-			for(var i in arr) {
+			let cnt = 0;
+			for(let i in arr) {
 				cnt ++;
 			}
 			return cnt;
@@ -133,8 +133,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		copy: function (arr) {
 			if(arr instanceof rjs.Vector2)
 				return new rjs.Vector2(arr.x, arr.y);
-			var arr2 = {};
-			for(var i in arr) {
+			const arr2 = {};
+			for(let i in arr) {
 				arr2[i] = arr[i];
 			}
 			return arr2;
@@ -155,8 +155,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.plugins = {};
 
 	this.Plugin = function (name, ...params) {
-		var pack = require(rjs.pluginSource+name+'.rjs/package.json', 'json');
-		var code = require(rjs.pluginSource+name+'.rjs/'+pack.main);
+		const pack = require(rjs.pluginSource+name+'.rjs/package.json', 'json');
+		const code = require(rjs.pluginSource+name+'.rjs/'+pack.main);
 		this.params = params;
 		this.exports = undefined;
 		this.global = {};
@@ -164,7 +164,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.code = code;
 		this.engine = rjs;
 		this.fnc = this.code;
-		var res = this.fnc(this);
+		const res = this.fnc(this);
 		this.res = typeof res != 'undefined' ? res : null;
 		rjs.plugins[this.pack.name] = this;
 		for(let i in this.global) {
@@ -189,7 +189,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.ctx2D_Canvas.style.display = 'none';
 	this.container.appendChild(rjs.ctx2D_Canvas);
 
-	this.eventDetector = document.createElement('div');
+	this.ed = this.eventDetector = document.createElement('div');
+	if(eventDetector != null) {
+		this.ed = eventDetector;
+	}
+
 	this.container.appendChild(rjs.eventDetector);
 
 	document.body.style.userSelect = 'none';
@@ -214,21 +218,21 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.prevWindowSize = rjs._GLOBAL.vec2(0, 0);
 	
 	this.resizeCanvas = function () {
-		var prop = rjs.client.w / rjs.client.h;
-		var con = rjs.container;
-		var bg_color = rjs.BG_COLOR.toStringCSS();
-		var clear_color = rjs.CLEAR_COLOR.toStringCSS();
+		const prop = rjs.client.w / rjs.client.h;
+		const con = rjs.container;
+		const bg_color = rjs.BG_COLOR.toStringCSS();
+		const clear_color = rjs.CLEAR_COLOR.toStringCSS();
 		if(document.body.style.backgroundColor != bg_color)
 			document.body.style.backgroundColor = bg_color;
 		if(con.style.backgroundColor != clear_color)
 			con.style.backgroundColor = clear_color;
 		rjs.ctx.clearRect(0, 0, rjs.canvas_width, rjs.canvas_height);
 		if(rjs.prevWindowSize.x != window.innerWidth || rjs.prevWindowSize.y != window.innerHeight) {
-			rjs.prevWindowSize = vec2(window.innerWidth, window.innerHeight);
+			rjs.prevWindowSize = vec2(window.innerWidth, window.innerHeight); 
 			if(window.innerWidth > window.innerHeight * prop) {
 
-				var w = rjs.canvas_width = rjs.con_width = window.innerHeight * prop;
-				var h = rjs.canvas_height = rjs.con_height = window.innerHeight;
+				const w = rjs.canvas_width = rjs.con_width = window.innerHeight * prop;
+				const h = rjs.canvas_height = rjs.con_height = window.innerHeight;
 
 				con.style.width = w + 'px';
 				con.style.height = h + 'px';
@@ -236,7 +240,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				con.style.left = (window.innerWidth - w) / 2 + 'px';
 				con.style.top = 0 + 'px';
 
-				var cvs = con.getElementsByTagName('canvas');
+				const cvs = con.getElementsByTagName('canvas');
 
 				for(let i = 0; i < cvs.length; i ++) {
 					cvs[i].width = w;
@@ -246,7 +250,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 					cvs[i].style.top = '0px';
 				}
 
-				var div = con.getElementsByTagName('div');
+				const div = con.getElementsByTagName('div');
 
 				for(let i = 0; i < div.length; i ++) {
 					div[i].style.width = w + 'px';
@@ -259,8 +263,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			}
 			else {
 
-				var w = rjs.canvas_width = window.innerWidth;
-				var h = rjs.canvas_height = window.innerWidth / prop;
+				const w = rjs.canvas_width = window.innerWidth;
+				const h = rjs.canvas_height = window.innerWidth / prop;
 				
 				con.style.width = w + 'px';
 				con.style.height = h + 'px';
@@ -268,7 +272,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				con.style.left = 0 + 'px';
 				con.style.top = (window.innerHeight - h) / 2 + 'px';
 
-				var cvs = con.getElementsByTagName('canvas');
+				const cvs = con.getElementsByTagName('canvas');
 
 				for(let i = 0; i < cvs.length; i ++) {
 					cvs[i].width = w;
@@ -278,7 +282,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 					cvs[i].style.top = '0px';
 				}
 
-				var div = con.getElementsByTagName('div');
+				const div = con.getElementsByTagName('div');
 
 				for(let i = 0; i < div.length; i ++) {
 					div[i].style.width = w + 'px';
@@ -408,15 +412,15 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		this.image.addEventListener('load', (e) => {
 			t.image.loaded = true;
-			var ctx = t.canvas.getContext('2d');
+			const ctx = t.canvas.getContext('2d');
 			t.size.x = t.custom_size.x || Math.abs(t.image.width * t.scale.x);
 			t.size.y = t.custom_size.y || Math.abs(t.image.height * t.scale.y);
 			t.canvas.width = t.size.x * t.scale.x;
 			t.canvas.height = t.size.y * t.scale.y;
-			var tx = 0;
-			var ty = 0;
-			var sx = 1;
-			var sy = 1;
+			let tx = 0;
+			let ty = 0;
+			let sx = 1;
+			let sy = 1;
 			if(t.scale.x < 0) {
 				tx = t.size.x;
 				sx = -1;
@@ -428,13 +432,13 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			ctx.translate(tx, ty);
 			ctx.scale(sx, sy);
 			ctx.drawImage(t.image, 0, 0, t.size.x*t.scale.x, t.size.y*t.scale.y);
-			for(var i in t.image.funcs) {
+			for(let i in t.image.funcs) {
 				t.image.funcs[i](e);
 			}
 			rjs.checkSourceLoaded();
 		});
 
-		var RectJS = rjs;
+		const RectJS = rjs;
 
 		RectJS.Texture.prototype.tiled = function () {
 
@@ -479,7 +483,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 	this.TextureDOM = function (dom, scale = vec2(1, 1), custom_size = vec2(0, 0)) {
 		
-		var t = this;
+		const t = this;
 		
 		this.image = dom;
 		this.src = `${dom.src}_${scale.x}x${scale.y}`;
@@ -502,15 +506,15 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		else {
 			this.image.addEventListener('load', (e) => {
 				t.image.loaded = true;
-				var ctx = t.canvas.getContext('2d');
+				const ctx = t.canvas.getContext('2d');
 				t.size.x = t.custom_size.x || Math.abs(t.image.width * t.scale.x);
 				t.size.y = t.custom_size.y || Math.abs(t.image.height * t.scale.y);
 				t.canvas.width = t.size.x;
 				t.canvas.height = t.size.y;
-				var tx = 0;
-				var ty = 0;
-				var sx = 1;
-				var sy = 1;
+				let tx = 0;
+				let ty = 0;
+				let sx = 1;
+				let sy = 1;
 				if(t.scale.x < 0) {
 					tx = t.size.x;
 					sx = -1;
@@ -522,14 +526,14 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				ctx.translate(tx, ty);
 				ctx.scale(sx, sy);
 				ctx.drawImage(t.image, 0, 0, t.size.x, t.size.y);
-				for(var i in t.image.funcs) {
+				for(let i in t.image.funcs) {
 					t.image.funcs[i](e);
 				}
 				rjs.checkSourceLoaded();
 			});
 		}
 
-		var RectJS = rjs;
+		const RectJS = rjs;
 
 		RectJS.Texture.prototype.tiled = function (size) {
 
@@ -600,8 +604,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	this.animationLoop = function () {
-		for(var i in rjs.animations) {
-			var a = rjs.animations[i];
+		for(let i in rjs.animations) {
+			const a = rjs.animations[i];
 			
 			if(a.mode == 'frame-rate') {
 				a.fc ++;
@@ -655,7 +659,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		if(layer == null)
 			throw 'RectJS.Polygon(...) error: Layer is not defined';
 
-		for(var i in private) {
+		for(let i in private) {
 			this[i] = private[i];
 		}
 		
@@ -681,14 +685,14 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.destroyed = false;
 
 		this.colors = colors;
-		var verts = rjs.renderTools.getVerticesArray(this);
+		const verts = rjs.renderTools.getVerticesArray(this);
 		if(this.colors.length < verts.length/2) {
 			for(let i = 0; i < verts.length/2; i ++) {
 				this.colors[i] = typeof this.color[i] == 'undefined'? rgb(255, 255, 255) : this.color[i];
 			}
 		}
 
-		for(var i in families) {
+		for(let i in families) {
 			families[i].add(this);
 		}
 		
@@ -731,7 +735,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		if(layer == null)
 			throw 'RectJS.Sprite(...) error: Layer is not defined';
 
-		for(var i in private) {
+		for(let i in private) {
 			this[i] = private[i];
 		}
 		
@@ -762,7 +766,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.textOverlap = textOverlap;
 		this.destroyed = false;
 
-		for(var i in families) {
+		for(let i in families) {
 			families[i].add(this);
 		}
 		
@@ -802,7 +806,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		families = []
 	}) {
 
-		for(var i in private) {
+		for(let i in private) {
 			this[i] = private[i];
 		}
 		
@@ -828,7 +832,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.CSS = CSS;
 		this.destroyed = false;
 
-		for(var i in families) {
+		for(let i in families) {
 			families[i].add(this);
 		}
 
@@ -851,7 +855,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	
 	this.ObjectsPrototype.destroy = function () {
 		delete this.layer.objects[this.id];
-		for(var i in this.families) {
+		for(let i in this.families) {
 			this.families[i].remove(this);
 		}
 		rjs.renderer.deleteObject(this);
@@ -861,17 +865,17 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.ObjectsPrototype.getPoint = function (id, angle) {
 		if(typeof this.points[id] == 'undefined')
 			throw `RectJS.getPoint(...) error: Point "${id}" is not defined!`;
-		var a = this.angle * Math.PI / 180;
+		let a = this.angle * Math.PI / 180;
 		if(typeof angle != "undefined")
 			a = angle * Math.PI / 180;
-		var cos = Math.cos(a);
-		var sin = Math.sin(a);
-		var p = this.points[id];
-		var o = this.origin;
-		var px = this.scale.x * (p.x - o.x);
-		var py = this.scale.y * (p.y - o.y);
-		var x = (px) * cos - (py) * sin + this.pos.x;
-		var y = (px) * sin + (py) * cos + this.pos.y;
+		const cos = Math.cos(a);
+		const sin = Math.sin(a);
+		const p = this.points[id];
+		const o = this.origin;
+		const px = this.scale.x * (p.x - o.x);
+		const py = this.scale.y * (p.y - o.y);
+		const x = (px) * cos - (py) * sin + this.pos.x;
+		const y = (px) * sin + (py) * cos + this.pos.y;
 		return vec2(x, y);
 	};
 
@@ -941,7 +945,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 					}
 				}
 			}
-			var _origin = copy(p.origin);
+			const _origin = copy(p.origin);
 			p.origin = origin;
 			return new rjs[type]({
 				pos: typeof p.pos != 'undefined' ? p.pos : pos,
@@ -1139,7 +1143,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.events = [];
 	
 	this.Event = function (type, fnc, active = true, scene = null, target = window) {
-		var ev = this;
+		const ev = this;
 		this.fnc = fnc;
 		this.active = active;
 		this.scene = scene;
@@ -1158,8 +1162,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.active = false;
 	};
 	
-	this.Click = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
-		var click = this;
+	this.Click = function (fnc, active = true, scene = null, target = rjs.ed) {
+		const click = this;
 		this.pos = vec2(0, 0);
 		this.correction = 5;
 		this.md = new rjs.MouseDown((e) => {
@@ -1173,12 +1177,12 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.RightClick = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.RightClick = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('contextmenu', fnc, active, scene, target);
 		return this.event;
 	};
 	
-	this.MouseDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.MouseDown = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('mousedown', function (e) {
 			if(e.button === 0)
 				fnc(e);
@@ -1186,7 +1190,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.MouseUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.MouseUp = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('mouseup', function (e) {
 			if(e.button === 0)
 				fnc(e);
@@ -1194,7 +1198,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.MouseRightDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.MouseRightDown = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('mousedown', function (e) {
 			if(e.button === 2)
 				fnc(e);
@@ -1202,7 +1206,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.MouseRightUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.MouseRightUp = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('mouseup', function (e) {
 			if(e.button === 2)
 				fnc(e);
@@ -1210,7 +1214,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.MouseWheelDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.MouseWheelDown = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('mousedown', function (e) {
 			if(e.button === 1)
 				fnc(e);
@@ -1218,7 +1222,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.MouseWheelUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.MouseWheelUp = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('mouseup', function (e) {
 			if(e.button === 1)
 				fnc(e);
@@ -1226,17 +1230,17 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.MouseMove = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.MouseMove = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('mousemove', fnc, active, scene, target);
 		return this.event;
 	};
 	
-	this.Wheel = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.Wheel = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('wheel', fnc, active, scene, target);
 		return this.event;
 	};
 	
-	this.WheelUp = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.WheelUp = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('wheel', function (e) {
 			if(e.deltaY > 0) {
 				fnc(e);
@@ -1245,7 +1249,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 	
-	this.WheelDown = function (fnc, active = true, scene = null, target = rjs.eventDetector) {
+	this.WheelDown = function (fnc, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('wheel', function (e) {
 			if(e.deltaY < 0) {
 				fnc(e);
@@ -1254,7 +1258,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.TouchStart = function (fnc, id = null, active = true, scene = null, target = rjs.eventDetector) {
+	this.TouchStart = function (fnc, id = null, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('touchstart', (e) => {
 			if(id == null || typeof e.changedTouches[id] != 'undefined') {
 				rjs.updateTouchMouse(e);
@@ -1264,7 +1268,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.TouchEnd = function (fnc, id = null, active = true, scene = null, target = rjs.eventDetector) {
+	this.TouchEnd = function (fnc, id = null, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('touchend', (e) => {
 			if(id == null || typeof e.changedTouches[id] != 'undefined') {
 				rjs.updateTouchMouse(e);
@@ -1274,7 +1278,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return this.event;
 	};
 
-	this.TouchMove = function (fnc, id = null, active = true, scene = null, target = rjs.eventDetector) {
+	this.TouchMove = function (fnc, id = null, active = true, scene = null, target = rjs.ed) {
 		this.event = new rjs.Event('touchmove', (e) => {
 			if(id == null || typeof e.changedTouches[id] != 'undefined') {
 				rjs.updateTouchMouse(e);
@@ -1349,9 +1353,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	
 	this.keypressLoop = function () {
 		
-		for(var i in rjs.keypresses) {
+		for(let i in rjs.keypresses) {
 			
-			var k = rjs.keypresses[i];
+			const k = rjs.keypresses[i];
 			
 			if(k.active && (k.scene == rjs.currentScene || k.scene == null) && rjs.KeyPressed(k.key))
 				if(k.key == null)
@@ -1427,7 +1431,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		get: function (layer, scale = false, parallax = false) {
 			scale = scale || layer.scale;
 			parallax = parallax || layer.parallax;
-			var m = vec2(rjs._mouse.x / scale.x, rjs._mouse.y / scale.y);
+			const m = vec2(rjs._mouse.x / scale.x, rjs._mouse.y / scale.y);
 			return vec2(m.x + rjs.currentCamera.pos.x * parallax.x / 100, m.y + rjs.currentCamera.pos.y * parallax.y / 100);
 		}
 	};
@@ -1443,7 +1447,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	this.MouseOver = function (o) {
-		var m = vec2(rjs._mouse.x / o.layer.scale.x, rjs._mouse.y / o.layer.scale.y);
+		const m = vec2(rjs._mouse.x / o.layer.scale.x, rjs._mouse.y / o.layer.scale.y);
 		return rjs.collision(o, {
 			pos: vec2(m.x + rjs.currentCamera.pos.x * o.layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * o.layer.parallax.y / 100),
 			size: vec2(0, 0),
@@ -1475,7 +1479,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 
 	this.Family.prototype.getByIndex = function (index) {
-		var i = 0;
+		let i = 0;
 		for(let j in this.objects) {
 			if(i == index)
 				return this.objects[j];
@@ -1488,13 +1492,13 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	this.Family.prototype.for = function (fnc) {
-		for(var i in this.objects) {
+		for(let i in this.objects) {
 			fnc(this.objects[i]);
 		}
 	};
 	
 	this.Family.prototype.forNearTo = function (_pos, fnc, dist = 100, chunk_mode = false, chank_dist = vec2(2, 2)) {
-		var family = this;
+		const family = this;
 		if(!chunk_mode) {
 			family.for(o => {
 				let scale = rjs.currentScene.layers[o.layer.id].scale;
@@ -1507,9 +1511,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			});
 		}
 		else {
-			for(var l in rjs.currentScene.layers) {
-				var patterns = rjs.currentScene.layers[l].patterns;
-				for(var m in patterns) {
+			for(let l in rjs.currentScene.layers) {
+				let patterns = rjs.currentScene.layers[l].patterns;
+				for(let m in patterns) {
 					// var pattern = patterns[m];
 					// var scale = rjs.currentScene.layers[pattern.layerID].scale;
 					// var parallax = rjs.currentScene.layers[pattern.layerID].parallax;
@@ -1544,9 +1548,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 					for(let i = start.x; i < end.x + 1; i ++) {
 						for(let j = start.y; j < end.y + 1; j ++) {
 							try {
-								var chunk = pattern.chunks[i][j];
-								for(var k in chunk.textures) {
-									var objects = chunk.textures[k];
+								const chunk = pattern.chunks[i][j];
+								for(let k in chunk.textures) {
+									const objects = chunk.textures[k];
 									objects.forEach((o) => {
 										if(o.id in family.objects) fnc(o);
 									});
@@ -1563,8 +1567,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	this.Family.prototype.count = function () {
-		var count = 0;
-		for(var i in this.objects) {
+		let count = 0;
+		for(let i in this.objects) {
 			count ++;
 		}
 		return count;
@@ -1617,7 +1621,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.volume = 100;
 		this.distanse = 100;
 		this.load = false;
-		var th2 = this;
+		const th2 = this;
 		this.audio.onloadedmetadata = function (e) {
 			th2.load = true;
 		};
@@ -1668,16 +1672,16 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	
 	this.audioLoop = function () {
 		
-		for(var i in rjs.sounds) {
-			var s = rjs.sounds[i];
+		for(let i in rjs.sounds) {
+			const s = rjs.sounds[i];
 			if(s.load) {
 				if(s.object != 'none') {
 					
-					var c = rjs.currentCamera.pos;
+					const c = rjs.currentCamera.pos;
 					
-					var dist = Math.floor(rjs.getDistanse(vec2(c.x * s.object.layer.parallax.y / 100, c.y * s.object.layer.parallax.y / 100), s.object.pos));
+					const dist = Math.floor(rjs.getDistanse(vec2(c.x * s.object.layer.parallax.y / 100, c.y * s.object.layer.parallax.y / 100), s.object.pos));
 					
-					var volume = s.volume/dist*s.distanse;
+					let volume = s.volume/dist*s.distanse;
 					
 					if(volume > 100) volume = 100;
 					if(volume <= 1) volume = 0;
@@ -1689,14 +1693,14 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	this.getDistanse = function (a, b) {
-		var c = vec2(b.x - a.x, b.y - a.y);
+		const c = vec2(b.x - a.x, b.y - a.y);
 		return Math.sqrt(Math.pow(c.x, 2) + Math.pow(c.y, 2));
 	};
 	
 	
 	//initialization
 	this.initGLOBAL = function () {
-		for(var i in rjs._GLOBAL) {
+		for(let i in rjs._GLOBAL) {
 			window[i] = rjs._GLOBAL[i];
 		}
 	};
@@ -1706,11 +1710,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.initTouch = function () {
 		rjs.touchStart = new rjs.TouchStart((e) => {
 			for(let i = 0; i < e.changedTouches.length; i ++) {
-				var rect = rjs.eventDetector.getBoundingClientRect();
-				var prop = rjs.con_width / rjs.client.w;
+				const rect = rjs.eventDetector.getBoundingClientRect();
+				const prop = rjs.con_width / rjs.client.w;
 				rjs.touches[i] = {};
 				rjs.touches[i].get = function (layer) {
-					var m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
+					const m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
 					return vec2(m.x + rjs.currentCamera.pos.x * layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * layer.parallax.y / 100);
 				};
 				rjs.touches[i].x = (e.changedTouches[i].pageX-rect.x) / prop - rjs.client.w/2;
@@ -1719,11 +1723,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		});
 		rjs.touchMove = new rjs.TouchMove((e) => {
 			for(let i = 0; i < e.changedTouches.length; i ++) {
-				var rect = rjs.eventDetector.getBoundingClientRect();
-				var prop = rjs.con_width / rjs.client.w;
+				const rect = rjs.eventDetector.getBoundingClientRect();
+				const prop = rjs.con_width / rjs.client.w;
 				rjs.touches[i] = {};
 				rjs.touches[i].get = function (layer) {
-					var m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
+					const m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
 					return vec2(m.x + rjs.currentCamera.pos.x * layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * layer.parallax.y / 100);
 				};
 				rjs.touches[i].x = (e.changedTouches[i].pageX-rect.x) / prop - rjs.client.w/2;
@@ -1732,11 +1736,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		});
 		rjs.touchEnd = new rjs.TouchEnd((e) => {
 			for(let i = 0; i < e.changedTouches.length; i ++) {
-				var rect = rjs.eventDetector.getBoundingClientRect();
-				var prop = rjs.con_width / rjs.client.w;
+				const rect = rjs.eventDetector.getBoundingClientRect();
+				const prop = rjs.con_width / rjs.client.w;
 				rjs.touches[i] = {};
 				rjs.touches[i].get = function (layer) {
-					var m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
+					const m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
 					return vec2(m.x + rjs.currentCamera.pos.x * layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * layer.parallax.y / 100);
 				};
 				rjs.touches[i].x = (e.changedTouches[i].pageX-rect.x) / prop - rjs.client.w/2;
@@ -1751,11 +1755,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 	this.updateTouchMouse = function (e) {
 		for(let i = 0; i < e.changedTouches.length; i ++) {
-			var rect = rjs.eventDetector.getBoundingClientRect();
-			var prop = rjs.con_width / rjs.client.w;
+			const rect = rjs.eventDetector.getBoundingClientRect();
+			const prop = rjs.con_width / rjs.client.w;
 			rjs.touches[i] = {};
 			rjs.touches[i].get = function (layer) {
-				var m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
+				const m = vec2(rjs.touches[i].x / layer.scale.x, rjs.touches[i].y / layer.scale.y);
 				return vec2(m.x + rjs.currentCamera.pos.x * layer.parallax.x / 100, m.y + rjs.currentCamera.pos.y * layer.parallax.y / 100);
 			};
 			rjs.touches[i].x = (e.changedTouches[i].pageX-rect.x) / prop - rjs.client.w/2;
@@ -1776,7 +1780,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		rjs.mosueLoop = new rjs.MouseMove((e) => {
 			
-			var prop = rjs.con_width / rjs.client.w;
+			const prop = rjs.con_width / rjs.client.w;
 			
 			rjs._mouse.x = e.offsetX / prop - rjs.client.w/2;
 			rjs._mouse.y = e.offsetY / prop - rjs.client.h/2;
@@ -1785,8 +1789,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		rjs.touchMouseLoop = new rjs.TouchMove((e) => {
 			
-			var rect = rjs.eventDetector.getBoundingClientRect();
-			var prop = rjs.con_width / rjs.client.w;
+			const rect = rjs.eventDetector.getBoundingClientRect();
+			const prop = rjs.con_width / rjs.client.w;
 
 			rjs._mouse.x = (e.changedTouches[rjs._mouse.touchID].pageX-rect.x) / prop - rjs.client.w/2;
 			rjs._mouse.y = (e.changedTouches[rjs._mouse.touchID].pageY-rect.y) / prop - rjs.client.h/2;
@@ -1795,14 +1799,14 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		rjs.mousePressDownLoop = new rjs.MouseDown((e) => {
 			rjs.MousePressed = true;
-		});
+		}, true, null, rjs.ed);
 		rjs.mousePressUpLoop = new rjs.MouseUp((e) => {
 			rjs.MousePressed = false;
-		});
+		}, true, null, rjs.ed);
 		
 	};
 
-	var lastCalledTime = 0;
+	let lastCalledTime = 0;
 
 	this.FPS = 0;
 
@@ -1818,11 +1822,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	this.loadCollisionDetector = function () {
-		require(rjs.engineSource+'collision.js')(rjs, {});
+		require(rjs.engineSource+'collision.js')(rjs, {}); // jshint ignore:line
 	};
 	
 	this.loadRenderer = function () {
-		rjs.renderer = require(rjs.engineSource+'renderer.js')(rjs);
+		rjs.renderer = require(rjs.engineSource+'renderer.js')(rjs); // jshint ignore:line
 		rjs.render = rjs.renderer.render;
 	};
 	
@@ -2022,7 +2026,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
    */
   Vector.prototype['scale'] = Vector.prototype.scale = function(x,y) {
     this['x'] *= x;
-    this['y'] *= typeof y != 'undefined' ? y : x;
+    this['y'] *= typeof y != 'undefined' ? y : x; // jshint ignore:line
     return this;
   };
 

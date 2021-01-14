@@ -1,14 +1,14 @@
 (rjs) => {
 
-	var tools = {};
+	const tools = {};
  	
  	// создание шейдера
 	tools.createShader = function (gl, type, code) {
-		var shader = gl.createShader(type);
+		const shader = gl.createShader(type);
 		gl.shaderSource(shader, code);
 		gl.compileShader(shader);
 		
-		var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+		const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
 		if(success) {
 			return shader;
 		}
@@ -21,7 +21,7 @@
 	// создание шейдерной программы
 	tools.createProgram = function (gl, vs, fs) {
 		
-		var program = gl.createProgram();
+		const program = gl.createProgram();
 		gl.attachShader(program, vs);
 		gl.attachShader(program, fs);
 		// установка индексов атрибутов
@@ -32,7 +32,7 @@
 		gl.bindAttribLocation(program, 4, "a_matrix");
 		gl.linkProgram(program);
 		
-		var success = gl.getProgramParameter(program, gl.LINK_STATUS);
+		const success = gl.getProgramParameter(program, gl.LINK_STATUS);
 		if(success) {
 			return program;
 		}
@@ -45,10 +45,10 @@
  	
  	// получение угла между двумя векторами
 	tools.getAtan = function (a, b, c) {
-		var A = vec2(a.x-c.x, a.y-c.y);
-		var B = vec2(b.x-c.x, b.y-c.y);
-		var a1 = Math.atan2(A.x, A.y) * 180 / Math.PI;
-		var a2 = Math.atan2(B.x, B.y) * 180 / Math.PI;
+		const A = vec2(a.x-c.x, a.y-c.y);
+		const B = vec2(b.x-c.x, b.y-c.y);
+		const a1 = Math.atan2(A.x, A.y) * 180 / Math.PI;
+		const a2 = Math.atan2(B.x, B.y) * 180 / Math.PI;
 		return a2 - a1;
 	}
 
@@ -83,13 +83,13 @@
 			return;
 		n = tools.getN(vertList, n);
 		if(typeof vertList[n] != 'undefined') {
-			var A_ID = tools.getVertID(vertList, n);
-			var C_ID = tools.getVertID(vertList, A_ID+1);
-			var B_ID = tools.getVertID(vertList, C_ID+1);
-			var A = vertList[A_ID];
-			var B = vertList[B_ID];
-			var C = vertList[C_ID];
-			var atan = tools.getAtan(A, B, C);
+			const A_ID = tools.getVertID(vertList, n);
+			const C_ID = tools.getVertID(vertList, A_ID+1);
+			const B_ID = tools.getVertID(vertList, C_ID+1);
+			const A = vertList[A_ID];
+			const B = vertList[B_ID];
+			const C = vertList[C_ID];
+			const atan = tools.getAtan(A, B, C);
 			if(atan < 180) {
 				triList.push(A);
 				triList.push(B);
@@ -104,14 +104,14 @@
 	// разбиение фигуры на триугольники
 	tools.triangulation = function (vertices = []) {
 
-		var vertList = [];
+		const vertList = [];
 
-		for(var i in vertices) {
+		for(let i in vertices) {
 			vertList[i] = vertices[i];
 		}
 		
-		var triList = [];
-		var n = 0;
+		const triList = [];
+		let n = 0;
 
 		tools.triStep(vertList, triList, n);
 
@@ -122,16 +122,16 @@
 	// получение массива вершин
 	tools.getVerticesArray = function (o) {
 		
-		var vertices = [];
+		const vertices = [];
 		
-		var vert;
+		let vert;
 		if(o.type == 'polygon') {
 			vert = tools.triangulation(o.vertices);
 		}
 
 		else if(o.type == 'sprite') {
-			var w = o.size.x/2;
-			var h = o.size.y/2;
+			const w = o.size.x/2;
+			const h = o.size.y/2;
 			vert = [
 				vec2(-w, -h),
 				vec2(w, -h),
@@ -145,7 +145,7 @@
 			vert = [];
 		}
 		
-		for(var i = 0; i < vert.length; i ++) {
+		for(let i = 0; i < vert.length; i ++) {
 			vertices[i*2+0] = vert[i].x;
 			vertices[i*2+1] = vert[i].y;
 		}
@@ -157,25 +157,22 @@
 	// получение координат текстуры
 	tools.getTexcoordArray = function (o, vertices, texture = null) {
 		
-		var texcoord = [];
+		const texcoord = [];
 		
-		var bb = tools.getBoundingBox(vertices);
-
-		var mx = 1;
-		var my = 1;
+		const bb = tools.getBoundingBox(vertices);
 
 		if(texture == null) {
-			for(var i = 0; i < vertices.length; i += 2) {
-				var x = (vertices[i] - bb.minX) / bb.w;
-				var y = (vertices[i+1] - bb.minY) / bb.h;
+			for(let i = 0; i < vertices.length; i += 2) {
+				const x = (vertices[i] - bb.minX) / bb.w;
+				const y = (vertices[i+1] - bb.minY) / bb.h;
 				texcoord[i] = x;
 				texcoord[i+1] = y;
 			}
 		}
 
 		else if(texture.type == 'tiled') {
-			var mx = 1;
-			var my = 1;
+			let mx = 1;
+			let my = 1;
 			if(o.type == 'sprite') {
 				mx = o.size.x;
 				my = o.size.y;
@@ -186,21 +183,21 @@
 				bb.w *= mx;
 				bb.h *= my;
 			}
-			var tx = typeof texture.size.x == 'number' ? texture.size.x : bb.w;
-			var ty = typeof texture.size.y == 'number' ? texture.size.y : bb.h;
-			var size = vec2(tx, ty);
-			for(var i = 0; i < vertices.length; i += 2) {
-				var x = (vertices[i]*mx - bb.minX) / size.x;
-				var y = (vertices[i+1]*my - bb.minY) / size.y;
+			const tx = typeof texture.size.x == 'number' ? texture.size.x : bb.w;
+			const ty = typeof texture.size.y == 'number' ? texture.size.y : bb.h;
+			const size = vec2(tx, ty);
+			for(let i = 0; i < vertices.length; i += 2) {
+				const x = (vertices[i]*mx - bb.minX) / size.x;
+				const y = (vertices[i+1]*my - bb.minY) / size.y;
 				texcoord[i] = x;
 				texcoord[i+1] = y;
 			}
 		}
 
 		else if(texture.type == 'croped') {
-			for(var i = 0; i < vertices.length; i += 2) {
-				var x = ((vertices[i] - bb.minX) / bb.w + texture.pos.x / (texture.size.x)) / (texture.tex.canvas.width/texture.size.x);// + texture.pos.x / (texture.tex.image.width/texture.size.x)) / (texture.tex.image.width/texture.size.x);
-				var y = ((vertices[i+1] - bb.minY) / bb.h + texture.pos.y / (texture.size.y)) / (texture.tex.canvas.height/texture.size.y);// + texture.pos.y / (texture.tex.image.width/texture.size.x))  / (texture.tex.image.height/texture.size.y);
+			for(let i = 0; i < vertices.length; i += 2) {
+				const x = ((vertices[i] - bb.minX) / bb.w + texture.pos.x / (texture.size.x)) / (texture.tex.canvas.width/texture.size.x);// + texture.pos.x / (texture.tex.image.width/texture.size.x)) / (texture.tex.image.width/texture.size.x);
+				const y = ((vertices[i+1] - bb.minY) / bb.h + texture.pos.y / (texture.size.y)) / (texture.tex.canvas.height/texture.size.y);// + texture.pos.y / (texture.tex.image.width/texture.size.x))  / (texture.tex.image.height/texture.size.y);
 				texcoord[i] = x;
 				texcoord[i+1] = y;
 			}
@@ -212,11 +209,11 @@
 	
 	// получение bounding box'а
 	tools.getBoundingBox = function (vertices) {
-		var minX = vertices[0];
-		var minY = vertices[1];
-		var maxX = vertices[0];
-		var maxY = vertices[1];
-		for(var i = 0; i < vertices.length; i += 2) {
+		let minX = vertices[0];
+		let minY = vertices[1];
+		let maxX = vertices[0];
+		let maxY = vertices[1];
+		for(let i = 0; i < vertices.length; i += 2) {
 			if(vertices[i] < minX)
 				minX = vertices[i];
 			if(vertices[i+1] < minY)
@@ -239,38 +236,38 @@
 	// умножение матриц
 	tools.multiply = function (a, b, dst) {
 		dst = dst || new Float32Array(16);
-		var b00 = b[0 * 4 + 0];
-		var b01 = b[0 * 4 + 1];
-		var b02 = b[0 * 4 + 2];
-		var b03 = b[0 * 4 + 3];
-		var b10 = b[1 * 4 + 0];
-		var b11 = b[1 * 4 + 1];
-		var b12 = b[1 * 4 + 2];
-		var b13 = b[1 * 4 + 3];
-		var b20 = b[2 * 4 + 0];
-		var b21 = b[2 * 4 + 1];
-		var b22 = b[2 * 4 + 2];
-		var b23 = b[2 * 4 + 3];
-		var b30 = b[3 * 4 + 0];
-		var b31 = b[3 * 4 + 1];
-		var b32 = b[3 * 4 + 2];
-		var b33 = b[3 * 4 + 3];
-		var a00 = a[0 * 4 + 0];
-		var a01 = a[0 * 4 + 1];
-		var a02 = a[0 * 4 + 2];
-		var a03 = a[0 * 4 + 3];
-		var a10 = a[1 * 4 + 0];
-		var a11 = a[1 * 4 + 1];
-		var a12 = a[1 * 4 + 2];
-		var a13 = a[1 * 4 + 3];
-		var a20 = a[2 * 4 + 0];
-		var a21 = a[2 * 4 + 1];
-		var a22 = a[2 * 4 + 2];
-		var a23 = a[2 * 4 + 3];
-		var a30 = a[3 * 4 + 0];
-		var a31 = a[3 * 4 + 1];
-		var a32 = a[3 * 4 + 2];
-		var a33 = a[3 * 4 + 3];
+		const b00 = b[0 * 4 + 0];
+		const b01 = b[0 * 4 + 1];
+		const b02 = b[0 * 4 + 2];
+		const b03 = b[0 * 4 + 3];
+		const b10 = b[1 * 4 + 0];
+		const b11 = b[1 * 4 + 1];
+		const b12 = b[1 * 4 + 2];
+		const b13 = b[1 * 4 + 3];
+		const b20 = b[2 * 4 + 0];
+		const b21 = b[2 * 4 + 1];
+		const b22 = b[2 * 4 + 2];
+		const b23 = b[2 * 4 + 3];
+		const b30 = b[3 * 4 + 0];
+		const b31 = b[3 * 4 + 1];
+		const b32 = b[3 * 4 + 2];
+		const b33 = b[3 * 4 + 3];
+		const a00 = a[0 * 4 + 0];
+		const a01 = a[0 * 4 + 1];
+		const a02 = a[0 * 4 + 2];
+		const a03 = a[0 * 4 + 3];
+		const a10 = a[1 * 4 + 0];
+		const a11 = a[1 * 4 + 1];
+		const a12 = a[1 * 4 + 2];
+		const a13 = a[1 * 4 + 3];
+		const a20 = a[2 * 4 + 0];
+		const a21 = a[2 * 4 + 1];
+		const a22 = a[2 * 4 + 2];
+		const a23 = a[2 * 4 + 3];
+		const a30 = a[3 * 4 + 0];
+		const a31 = a[3 * 4 + 1];
+		const a32 = a[3 * 4 + 2];
+		const a33 = a[3 * 4 + 3];
 		dst[ 0] = b00 * a00 + b01 * a10 + b02 * a20 + b03 * a30;
 		dst[ 1] = b00 * a01 + b01 * a11 + b02 * a21 + b03 * a31;
 		dst[ 2] = b00 * a02 + b01 * a12 + b02 * a22 + b03 * a32;
@@ -318,22 +315,22 @@
 	tools.translate = function(m, tx, ty, tz, dst) {
 		dst = dst || new Float32Array(16);
 
-		var m00 = m[0];
-		var m01 = m[1];
-		var m02 = m[2];
-		var m03 = m[3];
-		var m10 = m[1 * 4 + 0];
-		var m11 = m[1 * 4 + 1];
-		var m12 = m[1 * 4 + 2];
-		var m13 = m[1 * 4 + 3];
-		var m20 = m[2 * 4 + 0];
-		var m21 = m[2 * 4 + 1];
-		var m22 = m[2 * 4 + 2];
-		var m23 = m[2 * 4 + 3];
-		var m30 = m[3 * 4 + 0];
-		var m31 = m[3 * 4 + 1];
-		var m32 = m[3 * 4 + 2];
-		var m33 = m[3 * 4 + 3];
+		const m00 = m[0];
+		const m01 = m[1];
+		const m02 = m[2];
+		const m03 = m[3];
+		const m10 = m[1 * 4 + 0];
+		const m11 = m[1 * 4 + 1];
+		const m12 = m[1 * 4 + 2];
+		const m13 = m[1 * 4 + 3];
+		const m20 = m[2 * 4 + 0];
+		const m21 = m[2 * 4 + 1];
+		const m22 = m[2 * 4 + 2];
+		const m23 = m[2 * 4 + 3];
+		const m30 = m[3 * 4 + 0];
+		const m31 = m[3 * 4 + 1];
+		const m32 = m[3 * 4 + 2];
+		const m33 = m[3 * 4 + 3];
 
 		if (m !== dst) {
 			dst[ 0] = m00;
@@ -361,8 +358,8 @@
 	// создание матрици поворота
 	tools.zRotation = function(angleInRadians, dst) {
 		dst = dst || new Float32Array(16);
-		var c = Math.cos(angleInRadians);
-		var s = Math.sin(angleInRadians);
+		const c = Math.cos(angleInRadians);
+		const s = Math.sin(angleInRadians);
 
 		dst[ 0] = c;
 		dst[ 1] = s;
@@ -388,16 +385,16 @@
 	tools.zRotate = function(m, angleInRadians, dst) {
 		dst = dst || new Float32Array(16);
 
-		var m00 = m[0 * 4 + 0];
-		var m01 = m[0 * 4 + 1];
-		var m02 = m[0 * 4 + 2];
-		var m03 = m[0 * 4 + 3];
-		var m10 = m[1 * 4 + 0];
-		var m11 = m[1 * 4 + 1];
-		var m12 = m[1 * 4 + 2];
-		var m13 = m[1 * 4 + 3];
-		var c = Math.cos(angleInRadians);
-		var s = Math.sin(angleInRadians);
+		const m00 = m[0 * 4 + 0];
+		const m01 = m[0 * 4 + 1];
+		const m02 = m[0 * 4 + 2];
+		const m03 = m[0 * 4 + 3];
+		const m10 = m[1 * 4 + 0];
+		const m11 = m[1 * 4 + 1];
+		const m12 = m[1 * 4 + 2];
+		const m13 = m[1 * 4 + 3];
+		const c = Math.cos(angleInRadians);
+		const s = Math.sin(angleInRadians);
 
 		dst[ 0] = c * m00 + s * m10;
 		dst[ 1] = c * m01 + s * m11;
@@ -520,7 +517,7 @@
 	
 	// загрузка текстуры в буфер видеокарты
 	tools.setTexture = function (t, buffer = 0) {
-		var gl = rjs.gl;
+		const gl = rjs.gl;
 		if(t != null && (t.type == 'tiled' || t.type == 'croped')) {
 			t = t.tex;
 		}
@@ -594,30 +591,30 @@
 		if(typeof t == 'undefined' || !t.render)
 			return false;
 		if(rjs.renderer.TEXT_RENDER_MODE == '2D') {
-			var ctx = rjs.ctx;
+			const ctx = rjs.ctx;
 
 			// получение параметров отрисовки текста
-			var prop = rjs.canvas_width / rjs.client.w;
-			var x = ((t.pos.x+t.offset.x*t.scale.x) * t.layer.scale.x + rjs.client.w/2 - rjs.currentCamera.pos.x * t.layer.scale.x * t.layer.parallax.x/100) * prop;
-			var y = ((t.pos.y+t.offset.y*t.scale.y) * t.layer.scale.y + rjs.client.h/2 - rjs.currentCamera.pos.y * t.layer.scale.y * t.layer.parallax.y/100) * prop;
-			var size = t.size * prop;
-			var ox = t.origin.split('-')[0].trim();
-			var oy = t.origin.split('-')[1].trim();
-			var text = t.text.toString();
-			var angle = t.angle * Math.PI / 180;
+			const prop = rjs.canvas_width / rjs.client.w;
+			const x = ((t.pos.x+t.offset.x*t.scale.x) * t.layer.scale.x + rjs.client.w/2 - rjs.currentCamera.pos.x * t.layer.scale.x * t.layer.parallax.x/100) * prop;
+			const y = ((t.pos.y+t.offset.y*t.scale.y) * t.layer.scale.y + rjs.client.h/2 - rjs.currentCamera.pos.y * t.layer.scale.y * t.layer.parallax.y/100) * prop;
+			const size = t.size * prop;
+			const ox = t.origin.split('-')[0].trim();
+			const oy = t.origin.split('-')[1].trim();
+			const text = t.text.toString();
+			const angle = t.angle * Math.PI / 180;
 
-			var color = rgba(t.color.r, t.color.g, t.color.b, (typeof t.color.a ? t.color.a : 255));
-			for(var k in t.filters) {
+			const color = rgba(t.color.r, t.color.g, t.color.b, (typeof t.color.a ? t.color.a : 255));
+			for(let k in t.filters) {
 				color.r *= t.filters[k].r/255;
 				color.g *= t.filters[k].g/255;
 				color.b *= t.filters[k].b/255;
 				color.a *= t.filters[k].a/255;
 			}
 
-			var lines = text.split('\n');
+			const lines = text.split('\n');
 
 			// отрисовка строчек текста
-			for(var i in lines) {
+			for(let i in lines) {
 				let modY;
 
 				if(oy == 'top') {
@@ -721,7 +718,7 @@
 		if(rjs.currentCamera == null)
 			return;
 
-		var gl = rjs.gl;
+		const gl = rjs.gl;
 
 		// создание массива вершин
 		if(pattern.type == 'sprite')
@@ -730,9 +727,9 @@
 			pattern.verticesArray = tools.getVerticesArray(pattern);
 		}
 
-		var vertices = pattern.verticesArray;
+		const vertices = pattern.verticesArray;
 		
-		var texcoordChanged = true;
+		let texcoordChanged = true;
 		// загрузка массива вершин
 		if(pattern.type == 'sprite') {
 			if(tools.posBuffer != 'sprite_position') {
@@ -748,7 +745,7 @@
 
 		// отрисовка объектов в видимых чанках в чанковом режиме
 		if(rjs.renderer.CHUNKS_MODE) {
-			var textures = {};
+			const textures = {};
 			let chunks = pattern.chunks;
 			let cam = rjs.currentCamera;
 			// выделение области отрисовки чанков
@@ -930,8 +927,8 @@
 
 	tools.uniform2f = function (name, v2) {
 		// загрузка двухмерного вектора в видеокарту
-		var gl = rjs.gl;
-		var uv = tools.uniform2f_values;
+		const gl = rjs.gl;
+		const uv = tools.uniform2f_values;
 		if(typeof uv[name] != 'object' || uv[name].x != v2.x || uv[name].y != v2.y) {
 			uv[name] = v2;
 			gl.uniform2f(tools.uniforms[name], v2.x, v2.y);
@@ -955,23 +952,12 @@
     	let numFloatsForView = 16;
     	matrices[instance] = new Float32Array(matrixData.buffer, byteOffsetToMatrix, numFloatsForView);
 
-    	let round_k = (rjs.canvas_width/rjs.client.w);
-
-    	o_pos_x = Math.round(o.pos.x*round_k)/round_k;
-    	o_pos_y = Math.round(o.pos.y*round_k)/round_k;
-
-    	o_scale_s_x = Math.round(o.scale.x*sx*round_k)/round_k;
-    	o_scale_s_y = Math.round(o.scale.y*sy*round_k)/round_k;
-
-    	o_origin_s_x = Math.round(o.origin.x*round_k)/round_k/Math.abs(o_scale_s_x);
-    	o_origin_s_y = Math.round(o.origin.y*round_k)/round_k/Math.abs(o_scale_s_y);
-
     	// трансформация матрици
     	tools.scaling(2/rjs.client.w*o.layer.scale.x, -2/rjs.client.h*o.layer.scale.y, 1, matrices[instance]);
-    	tools.translate(matrices[instance], o_pos_x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o_pos_y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100, 0, matrices[instance]);
+    	tools.translate(matrices[instance], o.pos.x-rjs.currentCamera.pos.x * o.layer.parallax.x / 100, o.pos.y-rjs.currentCamera.pos.y * o.layer.parallax.y / 100, 0, matrices[instance]);
     	tools.zRotate(matrices[instance], o.angle*Math.PI/180, matrices[instance]);
-    	tools.scale(matrices[instance], o_scale_s_x, o_scale_s_y, 1, matrices[instance]);
-    	tools.translate(matrices[instance], -o_origin_s_x, -o_origin_s_y, 0, matrices[instance]);
+    	tools.scale(matrices[instance], o.scale.x*sx, o.scale.y*sy, 1, matrices[instance]);
+    	tools.translate(matrices[instance], -o.origin.x/sx, -o.origin.y/sy, 0, matrices[instance]);
 		
 		// подсчёт цвета
 		let color = rgba(o.color.r, o.color.g, o.color.b, (typeof o.color.a != 'undefined' ? o.color.a : 255));
@@ -1031,14 +1017,14 @@
 
 	// получение позции чанка
 	tools.getChunkPos = function (pos) {
-		var x = Math.floor(pos.x/rjs.renderer.CHUNKS_SIZE.x);
-		var y = Math.floor(pos.y/rjs.renderer.CHUNKS_SIZE.y);
+		const x = Math.floor(pos.x/rjs.renderer.CHUNKS_SIZE.x);
+		const y = Math.floor(pos.y/rjs.renderer.CHUNKS_SIZE.y);
 		return vec2(x, y);
 	};
 
 	// создание чанка
 	tools.createChunk = function (o) {
-		var chunk = {};
+		const chunk = {};
 		chunk.x = Math.floor(o.pos.x/rjs.renderer.CHUNKS_SIZE.x);
 		chunk.y = Math.floor(o.pos.y/rjs.renderer.CHUNKS_SIZE.y);
 		chunk.textures = {
@@ -1046,10 +1032,10 @@
 		};
 		// добавление объекта в чанк
 		chunk.add = function (o) {
-			var tex = o.texture != null ? o.texture.src : 'default';
+			const tex = o.texture != null ? o.texture.src : 'default';
 			if(typeof chunk.textures[tex] == 'undefined')
 				chunk.textures[tex] = [];
-			var id = chunk.textures[tex].length;
+			const id = chunk.textures[tex].length;
 			chunk.textures[tex][id] = o;
 			o.patternLoc.chunkX = chunk.x;
 			o.patternLoc.chunkY = chunk.y;
@@ -1060,7 +1046,7 @@
 
 	// создание шаблона
 	tools.createPattern = function (o, id) {
-		var pattern = {};
+		const pattern = {};
 		pattern.textures = {
 			default: []
 		};
@@ -1088,10 +1074,10 @@
 
 		// добавление объекта в шаблон
 		pattern.add = function (o) {
-			var tex = o.texture != null ? o.texture.src : 'default';
+			const tex = o.texture != null ? o.texture.src : 'default';
 			if(typeof pattern.textures[tex] == 'undefined')
 				pattern.textures[tex] = [];
-			var id = pattern.textures[tex].length;
+			const id = pattern.textures[tex].length;
 			pattern.textures[tex][id] = o;
 			o.patternLoc.textureID = tex;
 			o.patternLoc.objectIndex = id;
@@ -1101,21 +1087,21 @@
 			if(rjs.renderer.CHUNKS_MODE) {
 				if(o.enable_chunks) {
 					// добавление объекта в чанк
-					var c = tools.getChunkPos(o.pos);
+					const c = tools.getChunkPos(o.pos);
 					if(typeof pattern.chunks[c.x] == 'undefined')
 						pattern.chunks[c.x] = [];
 					if(typeof pattern.chunks[c.x][c.y] == 'undefined') {
 						pattern.chunks[c.x][c.y] = tools.createChunk(o);
 					}
-					var chunk = pattern.chunks[c.x][c.y];
+					const chunk = pattern.chunks[c.x][c.y];
 					chunk.add(o);
 				}
 				else {
 					// добавление объекта шаблон вне чанка
-					var tex = o.texture != null ? o.texture.src : 'default';
+					const tex = o.texture != null ? o.texture.src : 'default';
 					if(typeof pattern.no_chunks[tex] == 'undefined')
 						pattern.no_chunks[tex] = [];
-					var id = pattern.no_chunks[tex].length;
+					const id = pattern.no_chunks[tex].length;
 					pattern.no_chunks[tex][id] = o;
 					o.patternLoc.chunkObjectIndex = id;
 				}
@@ -1199,14 +1185,14 @@
 
 	// загрузка данных в буфер
 	tools.bufferData = function (buffer, data) {
-		var gl = rjs.gl;
+		const gl = rjs.gl;
 		gl.bindBuffer(gl.ARRAY_BUFFER, tools.buffers[buffer]);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
 	}
 
 	// привязка буфера
 	tools.bindBuffer = function (buffer, attrib, p = 2) {
-		var gl = rjs.gl;
+		const gl = rjs.gl;
 		if(attrib == 'position')
 			tools.posBuffer = buffer;
 		else if(attrib == 'texcoord')
@@ -1229,10 +1215,6 @@
 
 	tools.textBuffer = {};
 
-	for(var i in tools) {
-		eval(`var ${i} = tools['${i}']`);
-	}
-
 	// объединение тектср в тайлмапы (в разработке)
 	tools.tilemaps = [];
 	tools.tilemapCount = 0;
@@ -1250,7 +1232,7 @@
 		//document.body.appendChild(this.canvas);
 		this.id = tools.tilemapCount;
 		tools.tilemaps[this.id] = this;
-		var dir = -1;
+		const dir = -1;
 		for(let i in this.images) {
 			let image = this.images[i];
 			let size = vec2(`${image.size}*${image.scale}`);
@@ -1267,7 +1249,7 @@
 		}
 		this.canvas.loaded = true;
 		this.canvas.src = 'TILEMAP_'+tools.tilemapCount;
-		var dom = new rjs.TextureDOM(this.canvas, vec2(1, 1), vec2(this.canvas.width, this.canvas.height));
+		const dom = new rjs.TextureDOM(this.canvas, vec2(1, 1), vec2(this.canvas.width, this.canvas.height));
 		for(let i in this.images) {
 			this.images[i].tex = dom;
 		}
@@ -1278,18 +1260,18 @@
 
 	tools.getImageCoords = function (image, map, dir) {
 
-		var coords = copy(map.coords);
-		var sizes = copy(map.sizes);
-		var size = vec2(`${image.size}*${image.scale}`);
+		const coords = copy(map.coords);
+		const sizes = copy(map.sizes);
+		const size = vec2(`${image.size}*${image.scale}`);
 
 		if(dir < 0) {
 
-			let pos = vec2(map.canvas.width, 0);
+			const pos = vec2(map.canvas.width, 0);
 			let cnt = 0;
 
-			let coordsList = {};
-			let sizesList = {};
-			let dxList = {};
+			const coordsList = {};
+			const sizesList = {};
+			const dxList = {};
 
 			while(true) {
 
@@ -1324,13 +1306,13 @@
 
 				}
 
-				for(var i in coordsList) {
+				for(let i in coordsList) {
 
-					let coord = coordsList[i];
-					let sz = sizesList[i];
-					let dx = dxList[i];
+					const coord = coordsList[i];
+					const sz = sizesList[i];
+					const dx = dxList[i];
 
-					let yColl = pos.y < coord.y + sz.y && pos.y + size.y > coord.y;
+					const yColl = pos.y < coord.y + sz.y && pos.y + size.y > coord.y;
 
 					if(yColl) {
 						D = dx;
@@ -1354,19 +1336,19 @@
 
 	// интерфейс рендерера
 	
-	var RENDERER =  {
+	const RENDERER =  {
 		
 		// инициализация рендеринга
 		init: function () {
 
-			var gl = rjs.gl;
+			const gl = rjs.gl;
 
 			// создание шейдерной программы
-			var vertexShaderCode = require(rjs.engineSource+'Shaders/vertex-shader.glsl', 'text');
-			var fragmentShaderCode = require(rjs.engineSource+'Shaders/fragment-shader.glsl', 'text');
+			const vertexShaderCode = require(rjs.engineSource+'Shaders/vertex-shader.glsl', 'text');
+			const fragmentShaderCode = require(rjs.engineSource+'Shaders/fragment-shader.glsl', 'text');
 
-			var vertexShader = tools.createShader(gl, gl.VERTEX_SHADER, vertexShaderCode);
-			var fragmentShader = tools.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderCode);
+			const vertexShader = tools.createShader(gl, gl.VERTEX_SHADER, vertexShaderCode);
+			const fragmentShader = tools.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderCode);
 
 			tools.programs.def = tools.createProgram(gl, vertexShader, fragmentShader);
 
@@ -1464,16 +1446,16 @@
 		// обновление шабонов сцены
 		updatePatterns: function (scene = rjs.currentScene) {
 
-			var layers = scene.layers;
+			const layers = scene.layers;
 
 			// обновление слоёв
 			for(let i in layers) {
-				let layer = layers[i];
+				const layer = layers[i];
 				layer.patterns = [];
-				let patterns = layer.patterns;
+				const patterns = layer.patterns;
 				// обноление объектов
 				for(let j in layer.objects) {
-					let o = layer.objects[j];
+					const o = layer.objects[j];
 					o.patternLoc = {
 						layerID: null,
 						patternID: null,
@@ -1485,7 +1467,7 @@
 					};
 					let inPattern = false;
 					for(let k in patterns) {
-						let pattern = patterns[k];
+						const pattern = patterns[k];
 						// добавление объекта в шаблон
 						if(!inPattern && pattern.belong(o)) {
 							pattern.add(o);
@@ -1494,9 +1476,9 @@
 					}
 					// создание нового шаблона
 					if(!inPattern) {
-						let id = patterns.length;
+						const id = patterns.length;
 						patterns[id] = tools.createPattern(o, id);
-						let pattern = patterns[id];
+						const pattern = patterns[id];
 						pattern.add(o);
 						inPattern = true;
 					}
@@ -1511,10 +1493,10 @@
 			if(rjs.renderer.deleteObject(o) == "ERROR")
 				return;
 
-			var layer = o.layer;
-			var patterns = layer.patterns;
+			const layer = o.layer;
+			const patterns = layer.patterns;
 
-			var inPattern = false;
+			let inPattern = false;
 
 			o.patternLoc = {
 				layerID: null,
@@ -1529,7 +1511,7 @@
 			// добавление объекта в шаблон
 
 			for(let i in patterns) {
-				let pattern = patterns[i];
+				const pattern = patterns[i];
 				if(pattern.belong(o) && !inPattern) {
 					pattern.add(o);
 					inPattern = true;
@@ -1538,9 +1520,9 @@
 
 			// создание шаблона
 			if(!inPattern) {
-				let id = patterns.length;
+				const id = patterns.length;
 				patterns[id] = tools.createPattern(o, id);
-				let pattern = patterns[id];
+				const pattern = patterns[id];
 				pattern.add(o);
 				inPattern = true;
 			}
@@ -1553,13 +1535,13 @@
 			if(typeof o.patternLoc == 'undefined')
 				return;
 			
-			var patternID = o.patternLoc.patternID;
-			var textureID = o.patternLoc.textureID;
-			var objectIndex = o.patternLoc.objectIndex;
-			var layerID = o.patternLoc.layerID;
-			var chunkX = o.patternLoc.chunkX;
-			var chunkY = o.patternLoc.chunkY;
-			var chunkObjectIndex = o.patternLoc.chunkObjectIndex;
+			const patternID = o.patternLoc.patternID;
+			const textureID = o.patternLoc.textureID;
+			const objectIndex = o.patternLoc.objectIndex;
+			const layerID = o.patternLoc.layerID;
+			const chunkX = o.patternLoc.chunkX;
+			const chunkY = o.patternLoc.chunkY;
+			const chunkObjectIndex = o.patternLoc.chunkObjectIndex;
 
 			try {
 
@@ -1592,13 +1574,13 @@
 				// исправление ошибки в случае её возникновения
 				log("Error in RectJS.Object.update(). Fixed automatically");
 				for(let i in rjs.currentScene.layers) {
-					let layer = rjs.currentScene.layers[i];
+					const layer = rjs.currentScene.layers[i];
 					for(let j in layer.patterns) {
-						let pattern = layer.patterns[j];
+						const pattern = layer.patterns[j];
 						for(let k in pattern.textures) {
-							let texture = pattern.textures[k]
+							const texture = pattern.textures[k]
 							for(let l in texture) {
-								let obj = texture[l];
+								const obj = texture[l];
 								if(obj.id == o.id) {
 									o.patternLoc.layerID = i;
 									o.patternLoc.patternID = j;
@@ -1620,12 +1602,12 @@
 			if(!rjs.renderer.ACTIVE)
 				return false;
 			
-			var scene = rjs.currentScene;
+			const scene = rjs.currentScene;
 
 			if(scene == null)
 				return;
 
-			var layers = scene.layers;
+			const layers = scene.layers;
 
 			// подготовка параметров
 			rjs.renderer.DCPF = 0;
@@ -1662,7 +1644,7 @@
 				let minScaleY = 1;
 				let cnt = 0;
 				for(let i in layers) {
-					let layer = layers[i];
+					const layer = layers[i];
 					if(cnt == 0) {
 						minScaleX = layer.scale.x;
 						minScaleY = layer.scale.y;
@@ -1673,18 +1655,18 @@
 						minScaleY = layer.scale.y;
 					cnt ++;
 				}
-				let vx = Math.floor((rjs.client.w+rjs.renderer.CHUNKS_SIZE.x)/rjs.renderer.CHUNKS_SIZE.x/minScaleX)+rjs.renderer.CHUNKS_VIEWPORT_MODIFER.x;
-				let vy = Math.floor((rjs.client.h+rjs.renderer.CHUNKS_SIZE.y)/rjs.renderer.CHUNKS_SIZE.y/minScaleY)+rjs.renderer.CHUNKS_VIEWPORT_MODIFER.y;
+				const vx = Math.floor((rjs.client.w+rjs.renderer.CHUNKS_SIZE.x)/rjs.renderer.CHUNKS_SIZE.x/minScaleX)+rjs.renderer.CHUNKS_VIEWPORT_MODIFER.x;
+				const vy = Math.floor((rjs.client.h+rjs.renderer.CHUNKS_SIZE.y)/rjs.renderer.CHUNKS_SIZE.y/minScaleY)+rjs.renderer.CHUNKS_VIEWPORT_MODIFER.y;
 				rjs.renderer.CHUNKS_VIEWPORT = vec2(vx, vy);
 			}
 
 			// отрисовка слоёв
 			for(let i in layers) {
-				let layer = layers[i];
+				const layer = layers[i];
 				tools.textBuffer = {};
 				// отрисовка шаблонов
 				for(let j in layer.patterns) {
-					let pattern = layer.patterns[j];
+					const pattern = layer.patterns[j];
 					tools.drawPattern(pattern);
 				}
 			}
@@ -1702,7 +1684,7 @@
 			tools.posBuffer = null;
 			tools.texBuffer = null;
 			if(rjs.renderer.DEBUG_MODE)
-				debugger;
+				debugger; // jshint ignore:line
 		}
 	}
 
