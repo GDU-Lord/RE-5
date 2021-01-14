@@ -12,14 +12,14 @@
 
 	//создание спрайта
 
-	var box = new rjs.Sprite({
+	const box = new rjs.Sprite({
 		pos: vec2(),
 		size: vec2(256, 256),
 		color: rgb(150, 0, 150),
 		layer: new_main
 	});
 
-	var loop = new rjs.GameLoop(() => {
+	const loop = new rjs.GameLoop(() => {
 
 		// скрипт выполняется каждый раз перед отрисовкой сцены
 		// поворот спрайта вправо
