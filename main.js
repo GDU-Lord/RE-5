@@ -3,7 +3,7 @@
 window.addEventListener('load', (e) => {
 
 	// инициализация Rect Engine 5
-	rjs = new RectJS((rjs) => {
+	rjs = new RectJS(rjs => {
 
 		// код выполняется перед инициализацией движка
 		// здесь подключается большенство плагинов
@@ -24,6 +24,6 @@ window.addEventListener('load', (e) => {
 	});
 
 	// переход на сцену "new"
-	new_scene.set("Hello World!");
+	new_scene.set();
 
 });

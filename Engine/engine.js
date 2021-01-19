@@ -186,7 +186,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.container.appendChild(rjs.WebGL_Canvas);
 
 	this.ctx2D_Canvas = document.createElement('canvas');
-	this.ctx2D_Canvas.style.display = 'none';
+	//this.ctx2D_Canvas.style.display = 'none';
 	this.container.appendChild(rjs.ctx2D_Canvas);
 
 	this.ed = this.eventDetector = document.createElement('div');
@@ -212,7 +212,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.con_width = 0;
 	this.con_height = 0;
 
-	this.CLEAR_COLOR = rjs._GLOBAL.rgba(150, 150, 150, 255);
+	this.CLEAR_COLOR = rjs._GLOBAL.rgba(255, 255, 255, 255);
 	this.BG_COLOR = rjs._GLOBAL.rgba(0, 0, 0, 255);
 
 	this.prevWindowSize = rjs._GLOBAL.vec2(0, 0);
@@ -347,13 +347,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.start(this, startParams);
 		rjs.currentScene = this;
 		this.update();
-		rjs.renderTools.clearTextureBuffer();
+		rjs.renderCore.clearTextureBuffer();
 	};
 
 	this.Scene.prototype.update = function () {
-		if(rjs.currentScene == this) {
-			rjs.renderer.updatePatterns();
-		}
+		
 	};
 	
 	//Layers
@@ -402,7 +400,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		this.canvas = document.createElement('canvas');
 		
-		this.texture = rjs.renderer.createTexture();
+		this.texture = rjs.renderCore.createTexture();
 
 		rjs.sources[this.src] = this;
 		rjs.images[this.src] = this;
@@ -494,7 +492,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		
 		this.canvas = document.createElement('canvas');
 
-		this.texture = rjs.renderer.createTexture();
+		this.texture = rjs.renderCore.createTexture();
 
 		rjs.textures[this.src] = this;
 
@@ -643,8 +641,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		color = rgb(255, 255, 255),
 		filters = [],
 		colors = [],
+		colorMode = "SINGLE",
 		opacity = 100,
-		opacityGradient = vec2(),
 		render = true,
 		enable_chunks = true,
 		scene = undefined,
@@ -670,11 +668,17 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.origin = origin;
 		this.points = points;
 		this.opacity = opacity;
-		this.opacityGradient = opacityGradient;
 		this.render = render;
 		this.texture = texture;
 		this.color = color;
 		this.filters = filters;
+		this.colorMode = colorMode;
+		this.colors = colors;
+		if(this.colors.length < this.vertices.length) {
+			for(let i = 0; i < this.vertices.length; i ++) {
+				this.colors[i] = typeof this.colors[i] == 'undefined' ? rgb(255, 255, 255) : this.colors[i];
+			}
+		}
 		this.scene = (scene || layer.scene);
 		this.id = id;
 		this.layer = layer;
@@ -685,12 +689,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.destroyed = false;
 
 		this.colors = colors;
-		const verts = rjs.renderTools.getVerticesArray(this);
-		if(this.colors.length < verts.length/2) {
-			for(let i = 0; i < verts.length/2; i ++) {
-				this.colors[i] = typeof this.color[i] == 'undefined'? rgb(255, 255, 255) : this.color[i];
-			}
-		}
 
 		for(let i in families) {
 			families[i].add(this);
@@ -702,10 +700,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		if(typeof this.init == 'function')
 			this.init();
-
-		if(rjs.currentScene == this.scene) {
-			rjs.renderer.updateObject(this);
-		}
 		
 	};
 	
@@ -721,7 +715,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		filters = [],
 		colors = [],
 		opacity = 100,
-		opacityGradient = vec2(),
+		colorMode = "SINGLE",
 		render = true,
 		enable_chunks = true,
 		scene = undefined,
@@ -729,7 +723,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		id = `object_${rjs.objectCounter}`,
 		textOverlap = false,
 		private = {},
-		families = []
+		families = [],
+		program = rjs.renderCore.programs.DEFAULT
 	}) {
 		
 		if(layer == null)
@@ -746,15 +741,15 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.origin = origin;
 		this.points = points;
 		this.opacity = opacity;
-		this.opacityGradient = opacityGradient;
 		this.render = render;
 		this.texture = texture;
 		this.color = color;
 		this.filters = filters;
+		this.colorMode = colorMode;
 		this.colors = colors;
-		if(this.colors.length < 6) {
-			for(let i = 0; i < 6; i ++) {
-				this.colors[i] = typeof this.color[i] == 'undefined'? rgb(255, 255, 255) : this.color[i];
+		if(this.colors.length < 4) {
+			for(let i = 0; i < 4; i ++) {
+				this.colors[i] = typeof this.colors[i] == 'undefined' ? rgb(255, 255, 255) : this.colors[i];
 			}
 		}
 		this.scene = (scene || layer.scene);
@@ -766,6 +761,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.textOverlap = textOverlap;
 		this.destroyed = false;
 
+		this.program = program;
+
 		for(let i in families) {
 			families[i].add(this);
 		}
@@ -776,10 +773,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		if(typeof this.init == 'function')
 			this.init();
-
-		if(rjs.currentScene == this.scene) {
-			rjs.renderer.updateObject(this);
-		}
 		
 	};
 	
@@ -844,10 +837,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		if(typeof this.init == 'function')
 			this.init();
-
-		if(rjs.currentScene == this.scene) {
-			rjs.renderer.updateObject(this);
-		}
 		
 	};
 	
@@ -858,7 +847,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		for(let i in this.families) {
 			this.families[i].remove(this);
 		}
-		rjs.renderer.deleteObject(this);
 		this.destroyed = true;
 	};
 	
@@ -884,21 +872,35 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.layer = layer;
 		this.scene = layer.scene;
 		this.layer.objects[this.id] = this;
-		if(rjs.currentScene == this.scene) {
-			rjs.renderer.updateObject(this);
-		}
 	};
 
 	this.ObjectsPrototype.update = function () {
 		this.boundingBox = rjs.getBoundingBox(this);
-		if(rjs.currentScene == this.scene) {
-			rjs.renderer.updateObject(this);
-		}
 	};
 	
 	this.Polygon.prototype = rjs.ObjectsPrototype;
 	this.Sprite.prototype = rjs.ObjectsPrototype;
 	this.Text.prototype = rjs.ObjectsPrototype;
+
+	//Shaders
+
+	this.Shader = function (type, src, id) {
+
+		this.code = require(src, "text");
+		this.shader = rjs.renderCore.createShader(type, this.code, id);
+		this.id = this.shader.id;
+
+	};
+
+	this.Shader.prototype.toString = function () {
+		return this.id;
+	};
+
+	this.Program = function ({id = "DEFAULT", vertex = id || "DEFAULT", fragment = id || "DEFAULT"} = {}) { //jshint ignore:line
+
+		return rjs.renderCore.createProgram(id, vertex, fragment);
+
+	};
 	
 	//Assets
 	
@@ -909,11 +911,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		scale = undefined,
 		angle = undefined,
 		opacity = undefined,
-		opacityGradient = undefined,
 		render = undefined,
 		origin = undefined,
 		offset = undefined,
 		color = undefined,
+		colorMode = undefined,
 		filters = undefined,
 		colors = undefined,
 		points = undefined,
@@ -929,7 +931,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		textOverlap = undefined,
 		private = undefined,
 		init = undefined,
-		families = undefined
+		families = undefined,
+		program = undefined
 	}) {
 		return function (p) {
 			private_vars = {};
@@ -953,7 +956,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				scale: typeof p.scale != 'undefined' ? p.scale : scale,
 				angle: typeof p.angle != 'undefined' ? p.angle : angle,
 				opacity: typeof p.opacity != 'undefined' ? p.opacity : opacity,
-				opacityGradient: typeof p.opacityGradient != 'undefined' ? p.opacityGradient : opacityGradient,
 				render: typeof p.render != 'undefined' ? p.render : render,
 				origin: typeof p.origin != 'undefined' ? p.origin : origin,
 				offset: typeof p.offset != 'undefined' ? p.offset : offset,
@@ -963,6 +965,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				points: typeof p.points != 'undefined' ? p.points : points,
 				texture: typeof p.texture != 'undefined' ? p.texture : texture,
 				scene: typeof p.scene != 'undefined' ? p.scene : scene,
+				colorMode: typeof p.colorMode != 'undefined' ? p.colorMode : colorMode,
 				layer: typeof p.layer != 'undefined' ? p.layer : layer,
 				CSS: typeof p.CSS != 'undefined' ? p.CSS : CSS,
 				font: typeof p.font != 'undefined' ? p.font : font,
@@ -972,7 +975,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				textOverlap: typeof p.textOverlap != 'undefined' ? p.textOverlap : textOverlap,
 				private: private_vars,
 				init: typeof p.init != 'undefined' ? p.init : init,
-				families: typeof p.families != 'undefined' ? p.families : families
+				families: typeof p.families != 'undefined' ? p.families : families,
+				program: typeof p.program != 'undefined' ? p.program : program
 			});
 		};
 	};
@@ -1130,7 +1134,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		requestAnimationFrame(function () {
 			rjs.engineLoop(funcs);
-		});
+		}, 500);
 
 		
 		
@@ -1497,9 +1501,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		}
 	};
 	
-	this.Family.prototype.forNearTo = function (_pos, fnc, dist = 100, chunk_mode = false, chank_dist = vec2(2, 2)) {
+	this.Family.prototype.forNearTo = function (_pos, fnc, dist = 100) {
 		const family = this;
-		if(!chunk_mode) {
+		if(true) {
 			family.for(o => {
 				let scale = rjs.currentScene.layers[o.layer.id].scale;
 				let cam = rjs.currentCamera;
@@ -1509,59 +1513,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				if(Math.pow(pos.x-o.pos.x, 2) + Math.pow(pos.y-o.pos.y, 2) <= Math.pow(dist, 2))
 					fnc(o);
 			});
-		}
-		else {
-			for(let l in rjs.currentScene.layers) {
-				let patterns = rjs.currentScene.layers[l].patterns;
-				for(let m in patterns) {
-					// var pattern = patterns[m];
-					// var scale = rjs.currentScene.layers[pattern.layerID].scale;
-					// var parallax = rjs.currentScene.layers[pattern.layerID].parallax;
-					// var pos = vec2(Math.floor(_pos.x/scale.x/rjs.renderer.CHUNKS_SIZE.x), Math.floor(_pos.y/scale.y/rjs.renderer.CHUNKS_SIZE.y));
-					// for(var i = pos.x - dist.x; i <= pos.x + dist.x; i ++) {
-					// 	for(var j = pos.y - dist.y; j <= pos.y + dist.y; j ++) {
-					// 		try {
-					// 			var chunk = pattern.chunks[i][j];
-					// 			for(var k in chunk.textures) {
-					// 				var objects = chunk.textures[k];
-					// 				objects.forEach((o) => {
-					// 					if(o.id in family.objects) fnc(o);
-					// 				});
-					// 			}
-					// 		} catch (err) {
-									
-					// 		}
-					// 	}
-					// }
-					let pattern = patterns[m];
-					let scale = rjs.currentScene.layers[pattern.layerID].scale;
-					let cam = rjs.currentCamera;
-					let pos = vec2();
-					pos.x = _pos.x/scale.x+cam.pos.x;
-					pos.y = _pos.y/scale.y+cam.pos.y;
-					let start = rjs.renderTools.getChunkPos(pos);
-					start.x = Math.floor(start.x-dist.x);
-					start.y = Math.floor(start.y-dist.y);
-					let end = rjs.renderTools.getChunkPos(pos);
-					end.x = Math.floor(end.x+dist.x);
-					end.y = Math.floor(end.y+dist.y);
-					for(let i = start.x; i < end.x + 1; i ++) {
-						for(let j = start.y; j < end.y + 1; j ++) {
-							try {
-								const chunk = pattern.chunks[i][j];
-								for(let k in chunk.textures) {
-									const objects = chunk.textures[k];
-									objects.forEach((o) => {
-										if(o.id in family.objects) fnc(o);
-									});
-								}
-							} catch (err) {
-									
-							}
-						}
-					}
-				}
-			}
 		}
 		
 	};
@@ -1826,7 +1777,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	};
 	
 	this.loadRenderer = function () {
-		rjs.renderer = require(rjs.engineSource+'renderer.js')(rjs); // jshint ignore:line
+		//rjs.renderCore = require(rjs.engineSource+'renderCore.js')(rjs); // jshint ignore:line
+		rjs.renderer = require(rjs.engineSource+'renderer.js')(rjs);
 		rjs.render = rjs.renderer.render;
 	};
 	
