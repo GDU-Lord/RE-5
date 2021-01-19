@@ -130,7 +130,7 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 - [Sound.unbindObject()](#soundunbindobject)
 ### [Шейдеры](#шейдеры-1)
 - [new RectJS.Shader()](#new-rectjsshadertype-src-id)
-- [new RectJS.Program()](#new-rectjsshaderoptions)
+- [new RectJS.Program()](#new-rectjsprogramoptions)
 ### [Параметры вершинного шейдера](#параметры-вершинного-шейдера-1)
 - [VS attribute vertex](#attribute-vec2-vertex)
 - [VS attribute UV](#attribute-vec2-uv)
