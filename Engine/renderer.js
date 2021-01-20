@@ -53,8 +53,28 @@
 
             this.DRAWING_MODE = "pixel";
             this.TEXT_RENDER_MODE = "2D";
-            this.DPCF = 0;
+            this.DEBUG_MODE = false;
+            this.DEBUG_PREV_FRAME = -1;
+            this.DEBUG_CONSOLE_MODE = false;
+            this.DEBUG_FRAME = 0;
+            this.DCPF = 0;
+            this.DEBUG_TOTAL_DCPF = 0;
+            this.DEBUG_PREV_TOTAL_DCPF = 0;
 
+            this.debugLoop = new rjs.Interval(() => {
+                if(!this.DEBUG_CONSOLE_MODE)
+                    this.updateDebugger();
+            }, 100);
+
+        }
+
+        updateDebugger () {
+            RENDERER.DEBUG_FRAME = RENDERER.DCPF+1;
+            if(RENDERER.DEBUG_FRAME <= RENDERER.DEBUG_PREV_FRAME || RENDERER.DEBUG_TOTAL_DCPF < RENDERER.DEBUG_PREV_TOTAL_DCPF) {
+                RENDERER.DEBUG_FRAME = 0;
+            }
+            RENDERER.DEBUG_PREV_FRAME = RENDERER.DEBUG_FRAME;
+            RENDERER.DEBUG_PREV_TOTAL_DCPF = RENDERER.DEBUG_TOTAL_DCPF;
         }
 
         updatePatterns () {}
@@ -373,6 +393,9 @@
 
         draw () {
 
+            if(RENDERER.DEBUG_MODE && RENDERER.DEBUG_FRAME <= RENDERER.DCPF)
+                return RENDERER.DEBUG_TOTAL_DCPF ++;
+
             const matrixData = new Float32Array(INSTANCES.length * 9);
             const matrices = [];
 
@@ -435,7 +458,7 @@
             COLORS = [];
             DRAWN = _DRAWN = true;
 
-            this.DPCF ++;
+            this.DCPF ++;
         }
 
         init () {
@@ -474,7 +497,7 @@
             COLORS = [];
             COLOR_MODE = null;
 
-            RENDERER.DPCF = 0;
+            RENDERER.DCPF = 0;
 
             //TEXTURE = TEXTURE_BUFFER = NaN;
             
@@ -501,6 +524,12 @@
             Core.textureBufferUsed = {};
 
             //log(rjs.FPS);
+            if(RENDERER.DEBUG_MODE) {
+                if(RENDERER.DEBUG_CONSOLE_MODE) {
+                    RENDERER.updateDebugger();
+                    debugger; //jshint ignore:line
+                }
+            }
 
         }
 

@@ -234,6 +234,8 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 - [RectJS.renderer.ACTIVE](#rectjsrendereractive)
 - [RectJS.renderer.DRAWING_MODE](#rectjsrendererdrawing_mode)
 - [RectJS.renderer.DCPF](#rectjsrendererdcpf)
+- [RectJS.renderer.DEBUG_MODE](#rectjsrendererdebug_mode)
+- [RectJS.renderer.DEBUG_CONSOLE_MODE](#rectjsrendererdebug_console_mode)
 ### [Плагины](#плагины-1)
 - [new RectJS.Plugin()](#new-rectjspluginname-params)
 
@@ -1184,7 +1186,7 @@ log(box2.size.x);
 `<object>` - интерфейс системы рендеринга
 
 ### RectJS.renderer.DRAWING_MODE
-`<string>` __*Default:*__ `mipmap` - режим отрисовки текстур
+`<string>` __*Default:*__ `"mipmap"` - режим отрисовки текстур
 
 - `mipmap` - сглаженое отображение (более ресурсозатратно)
 - `linear` - билинейная интерполяция (рекомендовано для оптимизации)
@@ -1193,6 +1195,12 @@ log(box2.size.x);
 ### RectJS.renderer.DCPF
 **D**raw **C**all **P**er **F**rame
 `<number>` - текущее количество вызовов отрисовки на кадр
+
+### RectJS.renderer.DEBUG_MODE
+`<boolean>` __*Default:*__ `false` - режим отладки рендеринга. Позволяет увидеть как проходит рендеринг поэтапно, чтобы оптимиировать игру
+
+### RectJS.renderer.DEBUG_CONSOLE_MODE
+`<boolean>` __*Default:*__ `"false` - режим переключения кадров через консоль
 
 # Плагины
 

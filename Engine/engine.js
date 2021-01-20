@@ -1087,17 +1087,36 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		});
 
 	}
+
+	this.intervals = [];
 	
 	this.Interval = function (fnc, timeout, active = true, scene = null) {
 		this.scene = scene;
 		this.active = active;
 		this.fnc = fnc;
 		this.timeout = timeout;
-		this.interval = setInterval(() => {
-			if(this.active && (this.scene == null || rjs.currentScene == this.scene))
-				this.fnc();
-		}, this.timeout);
-	}
+		this.ticks = 0;
+		this.callback = () => {
+			
+			if(this.active && (this.scene == null || rjs.currentScene == this.scene)) {
+				this.ticks ++;
+				if(this.ticks >= this.timeout) {
+					this.fnc();
+					this.ticks = 0;
+				}
+			}
+		};
+		rjs.intervals.push(this);
+	};
+
+	this.intervalLoop = function () {
+		
+		for(let i in rjs.intervals) {
+			const interval = rjs.intervals[i];
+			interval.callback();
+		}
+
+	};
 
 	this.prevTime = Date.now();
 	this.CUT_FPS = false;
@@ -1802,7 +1821,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 			rjs.resizeCanvas, 
 			rjs.keypressLoop, 
-			rjs.mousepressLoop, 
+			rjs.mousepressLoop,
+			rjs.intervalLoop,
 			rjs.globalGameLoop, 
 			rjs.animationLoop, 
 			rjs.audioLoop,
