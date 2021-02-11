@@ -63,7 +63,7 @@ In the every folder of the scene there's 3 files:
 
 # Methods and properties
 ## Content
-### [Initialization](#инициализация-1)
+### [Initialization](#initialization-1)
 - [new RectJS()](#new-rectjscallback-sourcehost-enginesource-pluginsource-eventdetector)
 - [require()](#requiresrc-type)
 - [new RectJS.Scene()](#new-rectjssceneoptions)
