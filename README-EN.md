@@ -27,7 +27,7 @@ __WARNING!__ You can use any comfortable to you code editor, cause there's no na
 - __Scene__ (scenes)
 	- __new__ (scene files)
 		- __end.js__ (runs when the scene ends)
-		- __init.js__ (runs after the scene initialized)
+		- __init.js__ (runs after the scene is initialized)
 		- __start.js__ (runs every time when the scene starts)
 - __Scripts__ (scripts)
 	- __assets.js__ (for setting up assets)
@@ -57,19 +57,19 @@ In the __*assets.js*__ script there's all assets initializations.
 You can add your own scripts in __*Scripts*__ folder or in the folders of the scenes and include it wherever and whenever you want.
 
 In the every folder of the scene there's 3 files:
-- __*init.js*__ - the script runs only at ones after the scene initialized, there you have to create cameras, layers, most of the game objects, game loop for the scene and initialize all needed event listeners.
+- __*init.js*__ - the script runs only at ones after the scene is initialized, there you have to create cameras, layers, most of the game objects, game loop for the scene and initialize all needed event listeners.
 - __*start.js*__ - the script runs every single time when the scene starts, here the game switches to the necessary camera, the engine settings change, the level starts, for example enemy takes their places on the level.
 - __*end.js*__ - the script runs every single time when the scene ends, game engine settings turns back to normal, the game progress could be saved.
 
-# Методы и свойства
-## Содержание
-### [Инициализация](#инициализация-1)
+# Methods and properties
+## Content
+### [Initialization](#инициализация-1)
 - [new RectJS()](#new-rectjscallback-sourcehost-enginesource-pluginsource-eventdetector)
 - [require()](#requiresrc-type)
 - [new RectJS.Scene()](#new-rectjssceneoptions)
 - [Scene.set()](#scenesetstartparams-endparams)
 - [Scene.update()](#sceneupdate)
-### [Специальные функции](#специальные-функции-1)
+### [Special methods](#специальные-функции-1)
 - [new RectJS.Vector2()](#new-rectjsvector2x-y)
 - [Vector2.toString()](#vector2tostring)
 - [Vector2.fromString()](#vector2fromstringv)
@@ -84,11 +84,11 @@ In the every folder of the scene there's 3 files:
 - [log()](#log)
 - [RectJS.isObject()](#rectjsisobjectobject)
 - [RectJS.checkSourceLoaded()](#rectjschecksourceloaded)
-### [Камеры и слои](#камеры-и-слои-1)
+### [Cameras and layers](#камеры-и-слои-1)
 - [new RectJS.Camera()](#new-rectjscameraoptions)
 - [Camera.set()](#cameraset)
 - [new RectJS.Layer()](#new-rectjslayerscene-parallax-scale-id-options)
-### [Игровые объекты](#игровые-объекты-1)
+### [Game objects](#игровые-объекты-1)
 - [new RectJS.Polygon()](#new-rectjspolygonoptions)
 - [new RectJS.Sprite()](#new-rectjsspriteoptions)
 - [new RectJS.Text()](#new-rectjstextoptions)
@@ -96,13 +96,13 @@ In the every folder of the scene there's 3 files:
 - [Object.setLayer()](#objectsetlayerlayer)
 - [Object.getPoint()](#objectgetpointid)
 - [Object.update()](#objectupdate)
-### [Циклы](#циклы-1)
+### [Game loops](#циклы-1)
 - [new RectJS.GameLoop()](#new-rectjsgameloopcallback-active-scene-absl)
 - [Loop.start()](#loopstart)
 - [Loop.stop()](#loopstop)
 - [new RectJS.Interval()](#new-rectjsintervalcallback-timeout-active-scene)
 - [new RectJS.Wait()](#new-rectjswaitcallback-delay-active-scene-absl)
-### [Ресурсы](#ресурсы-1)
+### [Sources](#ресурсы-1)
 - [new RectJS.Texture](#new-rectjstexturesrc-scale-custom_size)
 - [new RectJS.Tiled()](#new-rectjstiledorigin-size)
 - [new RectJS.Crop()](#new-rectjscroporigin-pos-size)
@@ -120,10 +120,10 @@ In the every folder of the scene there's 3 files:
 - [Sound.getVolume()](#soundgetvolume)
 - [Sound.bindObject](#soundbindobject)
 - [Sound.unbindObject()](#soundunbindobject)
-### [Шейдеры](#шейдеры-1)
+### [Shaders](#шейдеры-1)
 - [new RectJS.Shader()](#new-rectjsshadertype-src-id)
 - [new RectJS.Program()](#new-rectjsprogramoptions)
-### [Параметры вершинного шейдера](#параметры-вершинного-шейдера-1)
+### [Vertex shader parameters](#параметры-вершинного-шейдера-1)
 - [VS attribute vertex](#attribute-vec2-vertex)
 - [VS attribute UV](#attribute-vec2-uv)
 - [VS attribute matrix](#attribute-mat3-matrix)
@@ -132,11 +132,11 @@ In the every folder of the scene there's 3 files:
 - [VS varying vUV](#varying-vec2-vuv)
 - [VS uniform colorMode](#uniform-bool-colormode)
 - [VS uniform uColor](#uniform-vec4-ucolor)
-### [Параметры фрагментного шейдера](#параметры-фрагментного-шейдера-1)
+### [Fragment shader parameters](#параметры-фрагментного-шейдера-1)
 - [FS uniform tex](#uniform-sampler2d-tex)
 - [FS varying vColor](#varying-vec4-vcolor-1)
 - [FS varying vUV](#varying-vec2-vuv-1)
-### [Мышь и клавиатура](#мышь-и-клавиатура-1)
+### [Mouse and keyboard](#мышь-и-клавиатура-1)
 - [new RectJS.Click()](#new-rectjsclickcallback-active-scene-target)
 - [new RectJS.RightClick()](#new-rectjsrightclickcallback-active-scene-target)
 - [new RectJS.MouseDown()](#new-rectjsmousedowncallback-active-scene-target)
@@ -163,7 +163,7 @@ In the every folder of the scene there's 3 files:
 - [Mouse.get()](#mousegetlayer-scale-parallax)
 - [new RectJS.Touch()](#new-rectjstouch)
 - [Touch[index].get()](#touchindexgetlayer)
-### [Семьи и ассеты](#семьи-и-ассеты-1)
+### [Families and assets](#семьи-и-ассеты-1)
 - [new RectJS.Family()](#new-rectjsfamily)
 - [Family.get()](#familygetid)
 - [Family.getByIndex()](#familygetbyindexindex)
@@ -175,12 +175,12 @@ In the every folder of the scene there's 3 files:
 - [Family.remove()](#familyremoveobject)
 - [new RectJS.Asset()](#new-rectjsassetoptions)
 - [new Asset()](#new-assetoptions)
-### [Обработка столкновений](#обработка-столкновений-1)
+### [Collision detection](#обработка-столкновений-1)
 - [RectJS.Collision()](#rectjscollisiona-b)
 - [RectJS.getBoundingBox()](#rectjsgetboundingboxobject-calc_angle)
 - [RectJS.AABB()](#rectjsaabba-b)
 - [RectJS.MouseOver()](#rectjsmouseoverobject)
-### [Параметры движка](#параметры-движка-1)
+### [Engine properties](#параметры-движка-1)
 - [RectJS.sourceHOST](#rectjssourcehost)
 - [RectJS.engineSource](#rectjsenginesource)
 - [RectJS.pluginSource](#rectjspluginsource)
@@ -228,50 +228,50 @@ In the every folder of the scene there's 3 files:
 - [RectJS.renderer.DCPF](#rectjsrendererdcpf)
 - [RectJS.renderer.DEBUG_MODE](#rectjsrendererdebug_mode)
 - [RectJS.renderer.DEBUG_CONSOLE_MODE](#rectjsrendererdebug_console_mode)
-### [Плагины](#плагины-1)
+### [Plugins](#плагины-1)
 - [new RectJS.Plugin()](#new-rectjspluginname-params)
 
 
 
-## Инициализация
+## Initialization
 
 ### new RectJS(callback[, sourceHOST[, engineSource[, pluginSource[, eventDetector]]]])
 
-- __callback__ `<function>` - принимает объект экземпляра движка перед его инициализацией
-- __sourceHOST__ `<string>` __*Default:*__ `""` - относительный путь от файла __*index.html*__ к файлу __*main.js*__, папкам движка и проекта.
-- __engineSource__ `<string>` __*Default:*__ `"Engine/"` - путь из установленной в __sourceHOST__ папки к папке движка.
-- __pluginSource__ `<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __sourceHOST__ папки к папке с плагинами.
-- __eventDetector__ `<object>` __*Default:*__ `null` - Объект на странице, к которому привязываются все обработчики событий мыши. Если равно `null`, по умолчанию будет установлено __RectJS.eventDetector__.
+- __callback__ `<function>` - this function takes the game engine instance as an argument
+- __sourceHOST__ `<string>` __*Default:*__ `""` - the realtive path from the __*index.html*__ to __*main.js*__, engine and project folders.
+- __engineSource__ `<string>` __*Default:*__ `"Engine/"` - the path from the folder set up in __sourceHOST__ to the engine folder.
+- __pluginSource__ `<string>` __*Default:*__ `"Plugins/"` - the path from the folder set up in __sourceHOST__ to the plugins folder.
+- __eventDetector__ `<object>` __*Default:*__ `null` - DOM element on the page to which all mouse event listeners is bound. If equal `null`, it sets by default to __RectJS.eventDetector__.
 
-Инициализация движка
+Engine initialization
 
 ### require(src[, type])
 
-- __src__ `<string>` - относительный путь к файлу
-- __type__ `<string>` __*Default:*__ `"JS"` - тип файла
-	- __"JS"__ - JavaScript. Метод возвращает функцию из скрипта.
-	- __"JSON"__ - JSON файл. Метод возвращает JavaScript-объект из JSON файла.
-	- __"TEXT"__ - Текстовый файл. Метод возвращает текст файла в виде строки.
+- __src__ `<string>` - relative path to the file
+- __type__ `<string>` __*Default:*__ `"JS"` - file type
+	- __"JS"__ - JavaScript. The method returns an arrow function from the script.
+	- __"JSON"__ - JSON file. The method returns JavaScript-object from the JSON file.
+	- __"TEXT"__ - Simple text. The method returns a text from the file as a string.
 
-__ВНИМАНИЕ!__ Каждый скрипт являет собою либо стрелочную функцию:
+__ВНИМАНИЕ!__ All available scripts actually are the arrow functions:
 ```javascript
 (params) => {
-	// код скрипта
+	// code here
 }
 ```
-либо функцию взятую в скобки:
+or the function taken in the brackets:
 ```javascript
 (function (params) {
-	// код скрипта
+	// code here
 })
 ```
 
-__ВНИМАНИЕ!__ Чтобы переменная была доступна во всех скриптах она должна быть глобальной. Есть 3 способа сделать переменную глобальной:
-- создать переменную без использования ключевого слова в любом скрипте (рекомендовано)
+__WARNING!__ If you want variable to be accessible form all of the scripts it need to be global. There's 3 ways to do that:
+- declare the variable missing the keyword ('const', 'let' or 'var') (recommended)
 `variable = 1;`
-- задать переменную как свойство объекта __window__
-`window.variable = 1`
-- создать переменную за пределами слушателя события "onload" в файле __*main.js*__
+- declare the variable as a property of the __window__
+`window.variable = 1;`
+- declare the variable beyound the "onload" event listener in the __*main.js*__ script
 ```javascript
 var variable = 1;
 
@@ -282,15 +282,15 @@ window.addEventListener('load', e => {
 ### new RectJS.Scene(options)
 
 - __options__ `<object>`
-	- __id__ `<string>` __*Default:*__ `"scene_{номер сцены}"` - идентификатор сцены
-	- __init__ `<function>` __*Default:*__ `() => {}` - скрипт, что выполнится при инициализации сцены, принимает объект сцены
-	- __start__ `<function>` __*Default:*__ `() => {}` - скрипт, что выполнится при переходе на сцену, принимает объект сцены и объект с параметрами зауска сцены.
-	- __end__ `<function>` __*Default:*__ `() => {}` - скрипт, что выполнится при переходе с этой сцены на другую, принимает объект сцены и объект с параметрами зауска окончания сцены.
+	- __id__ `<string>` __*Default:*__ `"scene_{scene number}"` - scene indentifier
+	- __init__ `<function>` __*Default:*__ `() => {}` - script runs after the scene is initialized, takes scene instance as an argument
+	- __start__ `<function>` __*Default:*__ `() => {}` - script runs when the scene starts, takes scene instance and the start parameters as arguments.
+	- __end__ `<function>` __*Default:*__ `() => {}` - script runs when the scene ends, takes scene instance and the end parameters as arguments.
 	- __initOnload__ `<boolean>` __*Default:*__ `true`
-		- __true__ - скрипт инициализации сцены запускается сразу после её создания
-		- __false__ - скрипт инициализации сцены запускается перед сразу перед её первым запуском
+		- __true__ - initialization script runs emmidiately after the scene is declared
+		- __false__ - initialization script runs right before the first scene start
 		
-Создание сцены. Возвращает объект сцены.
+Scene initializer. Returns the scene instance.
 
 Пример скрипта инициализации сцены:
 ```javascript
