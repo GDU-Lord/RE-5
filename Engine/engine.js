@@ -15,60 +15,169 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return String(rjs.sourceHOST+src);
 	};
 
-	this.Vector2 = function (x, y) {
+	this.Vector2 = class {
 
-		if(typeof x == 'string' && parseFloat(x).toString() == NaN.toString()) {
-			let expression = x;
-			let plus = expression.split('+');
-			let minus = expression.split('--');
-			let multiply = expression.split('*');
-			let divide = expression.split('/');
-			let power = expression.split('^');
-			if(plus.length > 1) {
-				let a = this.fromString(plus[0]);
-				let b = this.fromString(plus[1]);
-				return new rjs.Vector2(a.x+b.x, a.y+b.y);
+		constructor (x = 0, y = x) {
+
+			if(x instanceof this.constructor) {
+				y = x.y;
+				x = x.x;
 			}
-			else if(minus.length > 1) {
-				let a = this.fromString(minus[0]);
-				let b = this.fromString(minus[1]);
-				return new rjs.Vector2(a.x-b.x, a.y-b.y);
-			}
-			else if(multiply.length > 1) {
-				let a = this.fromString(multiply[0]);
-				let b = this.fromString(multiply[1]);
-				return new rjs.Vector2(a.x*b.x, a.y*b.y);
-			}
-			else if(divide.length > 1) {
-				let a = this.fromString(divide[0]);
-				let b = this.fromString(divide[1]);
-				return new rjs.Vector2(a.x/b.x, a.y/b.y);
-			}
-			else if(power.length > 1) {
-				let a = this.fromString(power[0]);
-				let b = this.fromString(power[1]);
-				return new rjs.Vector2(Math.pow(a.x, b.x), Math.pow(a.y, b.y));
+			if(typeof x == 'string' && parseFloat(x)+"" == NaN+"") {
+				let expression = x;
+				let plus = expression.split('+');
+				let minus = expression.split('--');
+				let multiply = expression.split('*');
+				let divide = expression.split('/');
+				let power = expression.split('^');
+				if(plus.length > 1) {
+					let a = this.fromString(plus[0]);
+					let b = this.fromString(plus[1]);
+					return new this.constructor(a.x+b.x, a.y+b.y);
+				}
+				else if(minus.length > 1) {
+					let a = this.fromString(minus[0]);
+					let b = this.fromString(minus[1]);
+					return new this.constructor(a.x-b.x, a.y-b.y);
+				}
+				else if(multiply.length > 1) {
+					let a = this.fromString(multiply[0]);
+					let b = this.fromString(multiply[1]);
+					return new this.constructor(a.x*b.x, a.y*b.y);
+				}
+				else if(divide.length > 1) {
+					let a = this.fromString(divide[0]);
+					let b = this.fromString(divide[1]);
+					return new this.constructor(a.x/b.x, a.y/b.y);
+				}
+				else if(power.length > 1) {
+					let a = this.fromString(power[0]);
+					let b = this.fromString(power[1]);
+					return new this.constructor(Math.pow(a.x, b.x), Math.pow(a.y, b.y));
+				}
+				else {
+					return this.fromString(expression);
+				}
 			}
 			else {
-				return this.fromString(expression);
+				this.x = parseFloat(x);
+				this.y = parseFloat(y);
 			}
-		}
-		else {
-			this.x = x;
-			this.y = y;
-		}
-	};
 
-	this.Vector2.prototype.toString = function () {
-		return "v"+this.x+";"+this.y;
-	};
+		}
 
-	this.Vector2.prototype.fromString = function (v) {
-		const arr = v.split('v')[1].split(';');
-		const x = parseFloat(arr[0]);
-		const y = parseFloat(arr[1]);
-		return new rjs.Vector2(x, y);
+		toString () {
+			return "v"+this.x+";"+this.y;
+		}
+
+		fromString (v) {
+			const arr = v.split('v')[1].split(';');
+			const x = parseFloat(arr[0]);
+			const y = parseFloat(arr[1]);
+			return new this.constructor(x, y);
+		}
+
+		get len () {
+			return Math.sqrt(this.x**2+this.y**2);
+		}
+
+		add (x = 0, y = x) {
+			const v = new this.constructor(x, y);
+			return new this.constructor(this.x+v.x, this.y+v.y);
+		}
+
+		sub (x = 0, y = x) {
+			const v = new this.constructor(x, y);
+			return new this.constructor(this.x-v.x, this.y-v.y);
+		}
+
+		mult (x = 0, y = x) {
+			const v = new this.constructor(x, y);
+			return new this.constructor(this.x*v.x, this.y*v.y);
+		}
+
+		div (x = 0, y = x) {
+			const v = new this.constructor(x, y);
+			return new this.constructor(this.x/v.x, this.y/v.y);
+		}
+
+		dot (x = 0, y = x) {
+			const v = new this.constructor(x, y);
+			return this.x*v.x+this.y*v.y;
+		}
+
+		norm () {
+			return this.div(this.len);
+		}
+
+		get angle () {
+			let a = Math.atan2(this.x, -this.y)*180/Math.PI-90;
+			while(a < 0)
+				a += 360;
+			while(a > 360)
+				a -= 360;
+			return a;
+		}
+
+		rot (angle) {
+			const a = (this.angle+angle)*Math.PI/180;
+			const l = this.len;
+			const x = (Math.cos(a)*l).toFixed(10);
+			const y = (Math.sin(a)*l).toFixed(10);
+			return new this.constructor(x, y);
+		}
+
+		abs () {
+			return vec2(Math.abs(this.x), Math.abs(this.y));
+		}
+
+	}
+
+	this.globals = {
+		_GLOBAL: [],
+		literas: {},
+		keyword: "window.",
+		symbol: "$"
 	};
+	
+    const literas = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz_$0123456789";
+
+    for(let i in literas) {
+        rjs.globals.literas[literas[i]] = i;
+    }
+
+	this.Convert = function (char) {
+
+        let changed = false;
+        let res = "";
+        let readWordMode = false;
+        let word = "";
+
+        for(let i in char) {
+            const index = parseFloat(i);
+            if(readWordMode) {
+                if(char[i] in rjs.globals.literas)
+                    word += char[i];
+                else {
+                    rjs.globals._GLOBAL.push(word);
+                    word = "";
+                    readWordMode = false;
+                }
+            }
+            if((typeof char[index-1] == "undefined" || char[index-1] == " " || char[index-1] == ";" || char[index-1] == "\t" || char[index-1] == "\v" || char[index-1] == "(" || char[index-1] == "{") && char[index] == rjs.globals.symbol && char[index+1] in rjs.globals.literas) {
+               
+                res += rjs.globals.keyword;
+                readWordMode = true;
+                changed = true;
+            }
+            else
+                res += char[index];
+        }
+        // if(changed)
+        //     log(res);
+        return res;
+
+    };
 	
 	//global methods
 	this._GLOBAL = {
@@ -116,7 +225,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				case "TEXT" :
 					return text;
 				case "JS" :
-					return eval(String(text)); // jshint ignore:line
+					return eval(rjs.Convert(String(text))); // jshint ignore:line
 				case "JSON" :
 					return JSON.parse(text);
 				default:
@@ -216,28 +325,47 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.BG_COLOR = rjs._GLOBAL.rgba(0, 0, 0, 255);
 
 	this.prevWindowSize = rjs._GLOBAL.vec2(0, 0);
+	this.resolution = {
+		w: this.client.w*0.8,
+		h: this.client.h*0.8
+	};
+	this.getResolution = function (horiz) {
+		let res_scale = 1;
+		if(horiz)
+			res_scale = rjs.resolution.w/window.innerHeight;
+		else
+			res_scale = rjs.resolution.h/window.innerWidth;
+		return {
+			innerWidth: window.innerWidth*res_scale,
+			innerHeight: window.innerHeight*res_scale,
+		}
+	};
 	
 	this.resizeCanvas = function () {
 		const prop = rjs.client.w / rjs.client.h;
 		const con = rjs.container;
 		const bg_color = rjs.BG_COLOR.toStringCSS();
 		const clear_color = rjs.CLEAR_COLOR.toStringCSS();
+		const res = rjs.getResolution(window.innerWidth > window.innerHeight * prop);
 		if(document.body.style.backgroundColor != bg_color)
 			document.body.style.backgroundColor = bg_color;
 		if(con.style.backgroundColor != clear_color)
 			con.style.backgroundColor = clear_color;
 		rjs.ctx.clearRect(0, 0, rjs.canvas_width, rjs.canvas_height);
-		if(rjs.prevWindowSize.x != window.innerWidth || rjs.prevWindowSize.y != window.innerHeight) {
-			rjs.prevWindowSize = vec2(window.innerWidth, window.innerHeight); 
+		if(rjs.prevWindowSize.x != res.innerWidth || rjs.prevWindowSize.y != res.innerHeight) {
+			rjs.prevWindowSize = vec2(res.innerWidth, res.innerHeight);
 			if(window.innerWidth > window.innerHeight * prop) {
 
-				const w = rjs.canvas_width = rjs.con_width = window.innerHeight * prop;
-				const h = rjs.canvas_height = rjs.con_height = window.innerHeight;
+				const w = rjs.canvas_width = res.innerHeight * prop;
+				const h = rjs.canvas_height = res.innerHeight;
 
-				con.style.width = w + 'px';
-				con.style.height = h + 'px';
+				const cw = rjs.con_width = window.innerHeight * prop;
+				const ch = rjs.con_height = window.innerHeight;
+
+				con.style.width = cw + 'px';
+				con.style.height = ch + 'px';
 				con.style.position = 'absolute';
-				con.style.left = (window.innerWidth - w) / 2 + 'px';
+				con.style.left = (window.innerWidth - cw) / 2 + 'px';
 				con.style.top = 0 + 'px';
 
 				const cvs = con.getElementsByTagName('canvas');
@@ -245,6 +373,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				for(let i = 0; i < cvs.length; i ++) {
 					cvs[i].width = w;
 					cvs[i].height = h;
+					cvs[i].style.width = cw + "px";
+					cvs[i].style.height = ch + "px";
 					cvs[i].style.position = 'absolute';
 					cvs[i].style.left = '0px';
 					cvs[i].style.top = '0px';
@@ -253,8 +383,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				const div = con.getElementsByTagName('div');
 
 				for(let i = 0; i < div.length; i ++) {
-					div[i].style.width = w + 'px';
-					div[i].style.height = h + 'px';
+					div[i].style.width = cw + 'px';
+					div[i].style.height = ch + 'px';
 					div[i].style.position = 'absolute';
 					div[i].style.left = '0px';
 					div[i].style.top = '0px';
@@ -263,20 +393,25 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			}
 			else {
 
-				const w = rjs.canvas_width = window.innerWidth;
-				const h = rjs.canvas_height = window.innerWidth / prop;
+				const w = rjs.canvas_width = res.innerWidth;
+				const h = rjs.canvas_height = res.innerWidth / prop;
+
+				const cw = rjs.con_width = window.innerWidth;
+				const ch = rjs.con_height = window.innerWidth / prop;
 				
-				con.style.width = w + 'px';
-				con.style.height = h + 'px';
+				con.style.width = cw + 'px';
+				con.style.height = ch + 'px';
 				con.style.position = 'absolute';
 				con.style.left = 0 + 'px';
-				con.style.top = (window.innerHeight - h) / 2 + 'px';
+				con.style.top = (window.innerHeight - ch) / 2 + 'px';
 
 				const cvs = con.getElementsByTagName('canvas');
 
 				for(let i = 0; i < cvs.length; i ++) {
 					cvs[i].width = w;
 					cvs[i].height = h;
+					cvs[i].style.width = cw + "px";
+					cvs[i].style.height = ch + "px";
 					cvs[i].style.position = 'absolute';
 					cvs[i].style.left = '0px';
 					cvs[i].style.top = '0px';
@@ -285,15 +420,15 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 				const div = con.getElementsByTagName('div');
 
 				for(let i = 0; i < div.length; i ++) {
-					div[i].style.width = w + 'px';
-					div[i].style.height = h + 'px';
+					div[i].style.width = cw + 'px';
+					div[i].style.height = ch + 'px';
 					div[i].style.position = 'absolute';
 					div[i].style.left = '0px';
 					div[i].style.top = '0px';
 				}
 			}
 		}
-	}
+	};
 	
 	
 	
@@ -311,26 +446,50 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.sceneCounter = 0;
 	this.currentScene = null;
 	
-	this.Scene = function ({ id = `scene_${rjs.sceneCounter}`, init = () => {}, start = () => {}, end = () => {}, initOnload = true}) {
+	// this.Scene = function ({ id = `scene_${rjs.sceneCounter}`, init = () => {}, start = () => {}, end = () => {}, initOnload = true}) {
 		
+	// 	this.id = id;
+	// 	this.layers = {};
+	// 	this.inited = false;
+		
+	// 	this.init = init;
+	// 	this.start = start;
+	// 	this.end = end;
+		
+	// 	rjs.scenes[this.id] = this;
+		
+	// 	rjs.sceneCounter ++;
+		
+	// 	if(initOnload) {
+	// 		//new rjs.Layer(this);
+	// 		this.init(this);
+	// 		this.inited = true;
+	// 	}
+
+
+	// };
+
+	this.scenePath = "Scenes/";
+
+	this.Scene = function (name, initOnload = true, id = `scene_${rjs.sceneCounter}`) {
+
+		this.init = require(rjs.scenePath+name+'/init.js');
+		this.start = require(rjs.scenePath+name+'/start.js');
+		this.end = require(rjs.scenePath+name+'/end.js');
+		
+		this.name = name;
+
 		this.id = id;
 		this.layers = {};
 		this.inited = false;
 		
-		this.init = init;
-		this.start = start;
-		this.end = end;
-		
 		rjs.scenes[this.id] = this;
-		
 		rjs.sceneCounter ++;
 		
 		if(initOnload) {
-			//new rjs.Layer(this);
 			this.init(this);
 			this.inited = true;
 		}
-
 
 	};
 	
@@ -353,6 +512,31 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.Scene.prototype.update = function () {
 		
 	};
+
+	this.scriptPath = "Scripts/";
+	this.Script = function (src) {
+		return require(rjs.scriptPath+src, 'js');
+	};
+
+	this.jsonPath = "Sources/json/";
+	this.JSON = function (src) {
+		return require(rjs.jsonPath+src, 'json');
+	};
+
+	this.imagePath = "Sources/images/";
+	this.Image = function (src, ...params) {
+		return new rjs.Texture(rjs.imagePath+src, ...params);
+	};
+
+	this.audioPath = "Sources/audio/";
+	this.Audio = function (src) {
+		return new rjs.Sound(rjs.audioPath+src);
+	};
+
+	this.fontPath = "Sources/fonts/";
+	this.Font = function (name, src) {
+		return rjs.loadFont(name, rjs.fontPath+src);
+	};
 	
 	//Layers
 	
@@ -369,12 +553,65 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.scale = scale;
 		this.blend = blend;
 		this.mode = mode;
+		this.groups = {};
+		
+		new rjs.Group(this, "DEFAULT");
 
 		rjs.layers[this.id] = this;
 		scene.layers[this.id] = this;
 		rjs.layerCounter ++;
 
 		rjs.renderer.initLayer(this);
+
+	};
+
+	// groups
+
+	let groupCnt = 0;
+
+	this.Group = function (layer, id = "group_"+groupCnt) {
+		this.objects = {};
+		this.id = id;
+		this.layer = layer;
+		layer.groups[this.id] = this;
+		groupCnt ++;
+	};
+
+	this.Group.prototype.isset = function (o) {
+		return o.id in this.objects;
+	};
+
+	this.Group.prototype.add = function (o) {
+		
+		this.objects[o.id] = o;
+		o.groups.push(this);
+
+	};
+
+	this.Group.prototype.set = function (o) {
+
+		for(let i in o.groups) {
+			o.groups[i].remove(o);
+		}
+		
+		this.objects[o.id] = o;
+		o.groups.push(this);
+
+	};
+
+	this.Group.prototype.remove = function (o) {
+		
+		if(this.isset(o)) {
+
+			delete this.objects[o.id];
+			for(let i in o.groups) {
+				if(o.groups[i].id == this.id) {
+					delete o.groups[i];
+					return;
+				}
+			}
+
+		}
 
 	};
 
@@ -460,7 +697,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.tex = origin;
 		this.src = this.tex.src+'_'+rjs.tiledCounter;
 		this.size = size;
-		this.id = this.src;
+		this.id = this.src+this.size;
 		this.type = 'tiled';
 		rjs.textures[this.src] = this;
 		rjs.tiledCounter ++;
@@ -473,8 +710,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.src = this.tex.src+'_'+rjs.cropedCounter;
 		this.pos = pos;
 		this.size = size;
-		this.id = this.src;
-		this.type = 'croped';
+		this.id = this.src+this.pos+this.size;
+		this.type = 'cropped';
 		rjs.textures[this.src] = this;
 		rjs.tiledCounter ++;
 	};
@@ -650,7 +887,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		id = `object_${rjs.objectCounter}`,
 		textOverlap = false,
 		private = {},
-		families = []
+		families = [],
+		groups = []
 		
 	}) {
 		
@@ -683,6 +921,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.id = id;
 		this.layer = layer;
 		this.families = [];
+		this.groups = [];
 		this.enable_chunks = enable_chunks;
 		this.type = 'polygon';
 		this.textOverlap = textOverlap;
@@ -692,6 +931,13 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		for(let i in families) {
 			families[i].add(this);
+		}
+
+		if(groups.length == 0)
+			groups = [this.layer.groups.DEFAULT];
+
+		for(let i in groups) {
+			groups[i].add(this);
 		}
 		
 		layer.objects[id] = this;
@@ -724,6 +970,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		textOverlap = false,
 		private = {},
 		families = [],
+		groups = [],
 		program = rjs.renderCore.programs.DEFAULT
 	}) {
 		
@@ -756,6 +1003,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.id = id;
 		this.layer = layer;
 		this.families = [];
+		this.groups = [];
 		this.enable_chunks = enable_chunks;
 		this.type = 'sprite';
 		this.textOverlap = textOverlap;
@@ -765,6 +1013,13 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		for(let i in families) {
 			families[i].add(this);
+		}
+
+		if(groups.length == 0)
+			groups = [this.layer.groups.DEFAULT];
+
+		for(let i in groups) {
+			groups[i].add(this);
 		}
 		
 		layer.objects[id] = this;
@@ -796,7 +1051,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		layer = null,
 		id = `object_${rjs.objectCounter}`,
 		private = {},
-		families = []
+		families = [],
+		groups = []
 	}) {
 
 		for(let i in private) {
@@ -819,6 +1075,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.scene = (scene || layer.scene);
 		this.id = id;
 		this.families = [];
+		this.groups = [];
 		this.enable_chunks = enable_chunks;
 		this.type = 'text';
 		this.layer = layer;
@@ -827,6 +1084,13 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 		for(let i in families) {
 			families[i].add(this);
+		}
+
+		if(groups.length == 0)
+			groups = [this.layer.groups.DEFAULT];
+
+		for(let i in groups) {
+			groups[i].add(this);
 		}
 
 		this.DOM = null;
@@ -846,6 +1110,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		delete this.layer.objects[this.id];
 		for(let i in this.families) {
 			this.families[i].remove(this);
+		}
+		for(let i in this.groups) {
+			this.groups[i].remove(this);
 		}
 		this.destroyed = true;
 	};
@@ -869,6 +1136,11 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 
 	this.ObjectsPrototype.setLayer = function (layer) {
 		delete this.layer.objects[this.id];
+		for(let i in this.groups) {
+			this.groups[i].remove(this);
+		}
+		this.groups = [this.layer.groups.DEFAULT];
+		this.layer.groups.DEFAULT.add(this);
 		this.layer = layer;
 		this.scene = layer.scene;
 		this.layer.objects[this.id] = this;
@@ -948,8 +1220,6 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 					}
 				}
 			}
-			const _origin = copy(p.origin);
-			p.origin = origin;
 			return new rjs[type]({
 				pos: typeof p.pos != 'undefined' ? p.pos : pos,
 				size: typeof p.size != 'undefined' ? p.size : size,
@@ -990,7 +1260,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.Camera = function ({
 		pos = vec2(0, 0),
 		id = `camera_${rjs.cameraCounter}`
-	}) {
+	} = {}) {
 		
 		this.pos = pos;
 		this.id = id;
@@ -1493,6 +1763,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		this.id = id;
 		this.objects = {};
 		this.type = 'family';
+		this.onadd = [];
+		this.onrem = [];
 		rjs.families[id] = this;
 		rjs.familyCount ++;
 	};
@@ -1524,6 +1796,8 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		const family = this;
 		if(true) {
 			family.for(o => {
+				if(o.scene != rjs.currentScene)
+					return;
 				let scale = rjs.currentScene.layers[o.layer.id].scale;
 				let cam = rjs.currentCamera;
 				let pos = vec2();
@@ -1547,12 +1821,22 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.Family.prototype.add = function (o) {
 		this.objects[o.id] = o;
 		o.families[this.id] = this;
+		this.onadd.forEach(c => c(o));
 	};
 	
 	this.Family.prototype.remove = function (o) {
 		delete this.objects[o.id];
 		delete o.families[this.id];
+		this.onrem.forEach(c => c(o));
 	};
+
+	this.Family.prototype.onAdd = function (callback) {
+		this.onadd.push(callback);
+	};
+
+	this.Family.prototype.onRem = function (callback) {
+		this.onrem.push(callback);
+	};	
 	
 	//Fonts
 	

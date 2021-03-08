@@ -1,16 +1,16 @@
 (scene) => {
 
-	// скрипт запускается после инициализации сцены
+	// script runs after the scene initialization
 	
-	// создание камеры
-	new_cam = new rjs.Camera({});
+	// camrea creation
+	$new_cam = new rjs.Camera();
 
-	// создание слоёв
-	new_bg = new rjs.Layer(scene);
-	new_main = new rjs.Layer(scene);
-	new_ui = new rjs.Layer(scene, vec2(0, 0));
+	// layers initialization
+	$new_bg = new rjs.Layer(scene);
+	$new_main = new rjs.Layer(scene);
+	$new_ui = new rjs.Layer(scene, vec2(0, 0));
 
-	//создание объектов
+	//setting up some objects
 
 	const bg = new rjs.Sprite({
 		pos: vec2(0, 0),
@@ -39,8 +39,8 @@
 
 	const loop = new rjs.GameLoop(() => {
 
-		// скрипт выполняется каждый раз перед отрисовкой сцены
-		// поворот спрайта вправо
+		// the script runs every single frame before the rendering
+		// box rotation
 		box.angle ++;
 
 	}, true, scene);

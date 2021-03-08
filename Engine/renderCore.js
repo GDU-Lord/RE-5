@@ -151,7 +151,7 @@
             const program = this.Program;
 
             const loc = program.attribs[name];
-            const buffer = program.buffers[buffer_name]
+            const buffer = program.buffers[buffer_name];
 
             this.bindBuffer(buffer);
             gl.vertexAttribPointer(loc, buffer.iSize, gl.FLOAT, false, 0, 0)

@@ -1,6 +1,6 @@
 (scene, params) => {
 	
-	// скрипт запускается после перехода с этой сцены на другую
-	// params - набор параметров окончания сцены
+	// the script runs after leaving the scene
+	// params - scene end parameters
 
 }

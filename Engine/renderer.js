@@ -31,8 +31,10 @@
     ];
 
     let VERTEX_TYPE = null;
+    let TEXTURE_TYPE = null;
     let VERTICES = [];
     let UVs = [];
+    let COMPLEX_TEXTURE = null;
 
     let INSTANCES = [];
 
@@ -207,7 +209,7 @@
             if(t != null)
                 type = t.type || "plain";
 
-            if(t != null && (t.type == 'tiled' || t.type == 'croped')) {
+            if(t != null && (t.type == 'tiled' || t.type == 'cropped')) {
                 t = t.tex;
             }
 
@@ -261,18 +263,41 @@
 
             const program = Core.Program;
 
-            
+            let texture_type = "plain";
 
-            if(VERTEX_TYPE == o.type || ae(VERTICES, (o.vertices || null))) {
+            if(texture != null)
+                texture_type = texture.type || "plain";
+            if(texture_type == "tiled" || texture_type == "cropped")
+                texture_type = "complex";
+
+            let complex = (COMPLEX_TEXTURE == null || texture_type == "plain");
+
+            if(!complex) {
+                complex = texture.id == COMPLEX_TEXTURE.id;
+            }
+
+            if(TEXTURE_TYPE == texture_type && complex && (VERTEX_TYPE == o.type || ae(VERTICES, (o.vertices || null)))) {
                 return;
             }
+
+            COMPLEX_TEXTURE = texture;
 
             if(o.type == "sprite") {
                 if(!DRAWN)
                     RENDERER.draw();
 
                 Core.attribPointer("vertex", "SPRITE_VERTEX");
-                Core.attribPointer("UV", "SPRITE_UV");
+
+                if(texture_type == "plain") {
+                    Core.attribPointer("UV", "SPRITE_UV");
+                }
+                else {
+                    const UVs = Vert.getUV_Array(o, SPRITE_VERTEX, texture);
+                    Core.bufferData(program.buffers.UV, UVs, 2);
+                    Core.attribPointer("UV", "UV");
+                }
+
+                TEXTURE_TYPE = texture_type;
 
                 Core.bufferData(program.buffers.SPRITE_INDEX, SPRITE_INDEX, 0, { BIND: gl.ELEMENT_ARRAY_BUFFER, ARRAY: Uint16Array, iNum: SPRITE_INDEX.length });
 
@@ -351,10 +376,19 @@
 
             let c = 0;
 
-            for(let i in layer.objects) {
-                const object = layer.objects[i];
-                RENDERER.drawObject(object);
+            for(let i in layer.groups) {
+                const group = layer.groups[i];
+                RENDERER.drawGroup(group);
                 c ++;
+            }
+
+        }
+
+        drawGroup (group) {
+
+            for(let i in group.objects) {
+                const object = group.objects[i];
+                RENDERER.drawObject(object);
             }
 
         }
@@ -368,7 +402,8 @@
 
                 this.setProgram(o);
                 
-                const { buffer, texture } = this.setTexture(o);
+                this.setTexture(o);
+                const texture = this.getTexture(o);
                 this.setVertices(o, texture);
                 this.setColors(o);
 

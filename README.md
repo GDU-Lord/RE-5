@@ -74,6 +74,7 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 ### [Инициализация](#инициализация-1)
 - [new RectJS()](#new-rectjscallback-sourcehost-enginesource-pluginsource-eventdetector)
 - [require()](#requiresrc-type)
+- [RectJS.Script()](#rectjsscriptsrc)
 - [new RectJS.Scene()](#new-rectjssceneoptions)
 - [Scene.set()](#scenesetstartparams-endparams)
 - [Scene.update()](#sceneupdate)
@@ -81,6 +82,16 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 - [new RectJS.Vector2()](#new-rectjsvector2x-y)
 - [Vector2.toString()](#vector2tostring)
 - [Vector2.fromString()](#vector2fromstringv)
+- [Vector2.len](#vector2len)
+- [Vector2.angle](#vector2angle)
+- [Vector2.add()](#vector2addv)
+- [Vector2.sub()](#vector2subv)
+- [Vector2.mult()](#vector2multv)
+- [Vector2.div()](#vector2divv)
+- [Vector2.dot()](#vector2dotv)
+- [Vector2.norm()](#vector2norm)
+- [Vector2.rot()](#vector2rota)
+- [Vector2.abs()](#vector2abs)
 - [vec2()](#vec2x-y)
 - [rgb()](#rgbr-g-b)
 - [rgba()](#rgbar-g-b-a)
@@ -112,11 +123,15 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 - [new RectJS.Wait()](#new-rectjswaitcallback-delay-active-scene-absl)
 ### [Ресурсы](#ресурсы-1)
 - [new RectJS.Texture](#new-rectjstexturesrc-scale-custom_size)
+- [RectJS.Image](#rectjsimagesrc-scale-custom_size)
 - [new RectJS.Tiled()](#new-rectjstiledorigin-size)
 - [new RectJS.Crop()](#new-rectjscroporigin-pos-size)
 - [new RectJS.Animation()](#new-rectjsanimationoptions)
 - [RectJS.loadFont()](#rectjsloadfontname-src)
+- [RectJS.Font()](#rectjsfontname-src)
+- [RectJS.JSON()](#rectjsjsonsrc)
 - [new RectJS.Sound()](#new-rectjssoundsrc-distance)
+- [RectJS.Audio()](#rectjsaudiosrc-distance)
 - [Sound.play()](#soundplay)
 - [Sound.stop()](#soundstop)
 - [Sound.reset()](#soundreset)
@@ -192,6 +207,13 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 - [RectJS.sourceHOST](#rectjssourcehost)
 - [RectJS.engineSource](#rectjsenginesource)
 - [RectJS.pluginSource](#rectjspluginsource)
+- [RectJS.Path](#rectjspath)
+- [RectJS.scenePath](#rectjsscenepath)
+- [RectJS.scriptPath](#rectjsscriptpath)
+- [RectJS.jsonPath](#rectjsjsonpath)
+- [RectJS.imagePath](#rectjsimagepath)
+- [RectJS.audioPath](#rectjsaudiopath)
+- [RectJS.fontPath](#rectjsfontpath)
 - [RectJS.container](#rectjscontainer)
 - [RectJS.WebGL_Canvas](#rectjswebgl_canvas)
 - [RectJS.ctx2D_Canvas](#rectjsctx2d_canvas)
@@ -200,6 +222,8 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 - [RectJS.ctx](#rectjsctx)
 - [RectJS.client.w](#rectjsclientw)
 - [RectJS.client.h](#rectjsclienth)
+- [RectJS.resolution.w](#rectjsresolutionw)
+- [RectJS.resolution.h](#rectjsresolutionh)
 - [RectJS.canvas_width](#rectjscanvas_width)
 - [RectJS.canvas_height](#rectjscanvas_height)
 - [RectJS.con_width](#rectjscon_width)
@@ -261,6 +285,8 @@ __ВНИМАНИЕ!__ Разработку можно вести из любог
 	- __"JSON"__ - JSON файл. Метод возвращает JavaScript-объект из JSON файла.
 	- __"TEXT"__ - Текстовый файл. Метод возвращает текст файла в виде строки.
 
+Загрузка скрипта, возвращает функцию.
+
 __ВНИМАНИЕ!__ Каждый скрипт являет собою либо стрелочную функцию:
 ```javascript
 (params) => {
@@ -274,29 +300,34 @@ __ВНИМАНИЕ!__ Каждый скрипт являет собою либо
 })
 ```
 
-__ВНИМАНИЕ!__ Чтобы переменная была доступна во всех скриптах она должна быть глобальной. Есть 3 способа сделать переменную глобальной:
-- создать переменную без использования ключевого слова в любом скрипте (рекомендовано)
+__ВНИМАНИЕ!__ Чтобы переменная была доступна во всех скриптах она должна быть глобальной. Есть 4 способа сделать переменную глобальной:
+- создать переменную используя приставку `$` в начале имени переменной. __Не работает в `main.js`__. (рекомендовано)
+`$variable = 1;`
+- создать переменную без использования ключевого слова в любом скрипте (рекомендовано только в скрипте `main.js`)
 `variable = 1;`
 - задать переменную как свойство объекта __window__
 `window.variable = 1`
 - создать переменную за пределами слушателя события "onload" в файле __*main.js*__
 ```javascript
-var variable = 1;
+let variable = 1;
 
 window.addEventListener('load', e => {
 ...
 ```
 
-### new RectJS.Scene(options)
+### RectJS.Script(src)
 
-- __options__ `<object>`
-	- __id__ `<string>` __*Default:*__ `"scene_{номер сцены}"` - идентификатор сцены
-	- __init__ `<function>` __*Default:*__ `() => {}` - скрипт, что выполнится при инициализации сцены, принимает объект сцены
-	- __start__ `<function>` __*Default:*__ `() => {}` - скрипт, что выполнится при переходе на сцену, принимает объект сцены и объект с параметрами зауска сцены.
-	- __end__ `<function>` __*Default:*__ `() => {}` - скрипт, что выполнится при переходе с этой сцены на другую, принимает объект сцены и объект с параметрами зауска окончания сцены.
-	- __initOnload__ `<boolean>` __*Default:*__ `true`
-		- __true__ - скрипт инициализации сцены запускается сразу после её создания
-		- __false__ - скрипт инициализации сцены запускается перед сразу перед её первым запуском
+- __src__ `<string>` - путь к скрипту относительно папки со скриптами (`RectJS.scriptPath`, по стандарту `Scripts/`)
+
+Загрузка скрипта, возвращает функцию.
+
+### new RectJS.Scene(name[, initOnload[, id]])
+
+- __name__ `<string>` - название папки с файлами сцены в папке со сценами (`RectJS.scenePath`, по стандарту `Scenes/`)
+- __initOnload__ `<boolean>` __*Default:*__ `true`
+	- __true__ - скрипт инициализации сцены запускается сразу после её создания
+	- __false__ - скрипт инициализации сцены запускается перед сразу перед её первым запуском
+- __id__ `<string>` __*Default:*__ `"scene_{номер сцены}"` - идентификатор сцены
 		
 Создание сцены. Возвращает объект сцены.
 
@@ -356,6 +387,73 @@ new rjs.Vector2(1, 3).toString() = "v1;3";
 ```javascript
 Vector2.fromString("v1;3") = new rjs.Vector2(1; 3);
 ```
+
+### Vector2.len
+
+Возвращает длинну вектора.
+
+### Vector2.angle
+
+Возвращает угол вектора относительно X+.
+
+### Vector2.add(v)
+### Vector2.add([x[, y]])
+
+- __v__ `<object>` (`<Vector2>`) - вектор
+- __x__ `<number>` __*Default:*__ `0` - x координата вектора
+- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+
+Возвращает сумму векторов в виде вектора.
+
+### Vector2.sub(v)
+### Vector2.sub(x[, y])
+
+- __v__ `<object>` (`<Vector2>`) - вектор
+- __x__ `<number>` __*Default:*__ `0` - x координата вектора
+- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+
+Возвращает разницу векторов в виде вектора.
+
+### Vector2.mult(v)
+### Vector2.mult(x[, y])
+
+- __v__ `<object>` (`<Vector2>`) - вектор
+- __x__ `<number>` __*Default:*__ `0` - x координата вектора
+- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+
+Возвращает произведение векторов в виде вектора.
+
+### Vector2.div(v)
+### Vector2.div(x[, y])
+
+- __v__ `<object>` (`<Vector2>`) - вектор
+- __x__ `<number>` __*Default:*__ `0` - x координата вектора
+- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+
+Возвращает отношение векторов в виде вектора.
+
+### Vector2.dot(v)
+### Vector2.dot(x[, y])
+
+- __v__ `<object>` (`<Vector2>`) - вектор
+- __x__ `<number>` __*Default:*__ `0` - x координата вектора
+- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+
+Возвращает скалярное произведение векторов в виде числа.
+
+### Vector2.norm()
+
+Возвращает нормализованый вектор.
+
+### Vector2.rot(a)
+
+- __a__ `<number>` - угол в градусах
+
+Возвращает вектор повёрнутый на заданный угол в виде вектора.
+
+### Vector2.abs()
+
+Возвращает возвращает вектор с положительными значениями `x` и `y`
 
 ### vec2([x, y])
 
@@ -457,6 +555,47 @@ console.log(color.toStringCSS());
 Создание слоя.
 __ВНИМАНИЕ!__ Слои отрисовываются в порядке инициализации.
 
+### new RectJS.Group(layer[, id])
+
+- __layer__ - слой на котором находятся объекты группы
+- __id__ __*Default:*__ `"group_{номер группы}"`
+
+Возвращает группу отрисовки. Группы отрисовки помогают повысить оптимизацию и сократить кол-во вызовов отрисовки. Если у вас на одном слое есть много разных объектов, добавьте объекты с похожими свойствами в свои группы отрисовки, чтобы упорядочить рендеринг. Нужно обратить внимание на такие свойства объекта как:
+
+- Текстура
+- Шейдер
+- Вершины
+- Цвет
+- Режим наложения цвета
+
+__!!!ВНИМАНИЕ!!!__ Если вы в коде переносите объект с одного слоя на другой убедитесь что вы удалили его из всех групп предыдущего слоя, во избежании багов отрисовки.
+
+### Group.isset(o)
+
+- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - игровой объект
+
+Возвращает `true` если данный объект есть в группе, иначе возвращает `false`.
+
+### Group.add(o)
+
+- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - игровой объект
+
+Добавляет объект в группу.
+
+__!!!ВНИМАНИЕ!!!__ Не стоит использовать этот метод если вы не хотите чтобы объект рисовался несколько раз. Убедитесь что вы знаете что делаете.
+
+### Group.set(o)
+
+- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - игровой объект
+
+Добавляет объект в данную группу и удаляет из всех остальных.
+
+### Group.remove(o)
+
+- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - игровой объект
+
+Удаляет объект из группы.
+
 ## Игровые объекты
 
 ### new RectJS.Polygon(options)
@@ -483,7 +622,7 @@ __ВНИМАНИЕ!__ Слои отрисовываются в порядке и
 	- __id__ `<string>` __*Default:*__ `"object_{номер объекта}"` - индентификатор объекта
 	- __textOverlap__ `<boolean>` __*Default:*__ `false` - перекрыте текстов объектом
 	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - семьи к которым принадлежит объект
-	- __program__ `<object>` (`<RectJS.Program>`) __*Default:*__ `rjs.renderer.programs["DEFAULT"]` - шейдерная программа (большое их количество понижает производительность)
+	- __program__ `<object>` (`<RectJS.Program>`) __*Default:*__ `RectJS.renderer.programs["DEFAULT"]` - шейдерная программа (большое их количество понижает производительность)
 	- __private__ `<object>` __*Default:*__ `new Object()` - объект с дополнительными параметрами объекта и методами.
 		- __init__ `<function>` __*Default:*__ `undefined` - срабатывает после создания объекта
 
@@ -531,7 +670,7 @@ console.log(object.test);
 	- __id__ `<string>` __*Default:*__ `"object_{номер объекта}"` - индентификатор объекта
 	- __textOverlap__ `<boolean>` __*Default:*__ `false` - перекрыте текстов объектом
 	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - семьи к которым принадлежит объект
-	- __program__ `<object>` (`<RectJS.Program>`) __*Default:*__ `rjs.renderer.programs["DEFAULT"]` - шейдерная программа (большое их количество понижает производительность)
+	- __program__ `<object>` (`<RectJS.Program>`) __*Default:*__ `RectJS.renderer.programs["DEFAULT"]` - шейдерная программа (большое их количество понижает производительность)
 	- __private__ `<object>` __*Default:*__ `new Object()` - объект с дополнительными параметрами объекта и методами.
 		- __init__ `<function>` __*Default:*__ `undefined` - срабатывает после создания объекта
 		
@@ -629,6 +768,14 @@ console.log(object.test);
 
 Загрузка текстуры. Возвращает объект текстуры.
 
+### RectJS.Image(src[, scale[, custom_size]])
+
+- __src__ `<string>` - путь к изображению относительно папки с изображениями (`RectJS.imagePath`, по стандарту `Sources/images/`)
+- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг исходной текстуры, влияет на разрешение текстуры
+- __custom_size__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - размер исходной текстуры в пикселях, влияет на разрешение текстуры. Если равен нулю - размер подстроится под размер загруженого изображения
+
+Загрузка текстуры. Возвращает объект текстуры.
+
 ### new RectJS.Tiled(origin, size)
 
 - __origin__ `<object>` (`RectJS.Texture`) - исходное изображение
@@ -665,9 +812,29 @@ __ВНИМАНИЕ!__ Анимации в RE-5 ещё не доработаны.
 
 Загрузка шрифта. Возвращает уникальное имя шрифта в виде строки.
 
+### RectJS.Font(name, src)
+
+- __name__ `<string>` - уникальное имя шрифта
+- __src__ `<string>` - путь к шрифту относительно папки со шрифтами (`RectJS.fontPath`, по стандарту `Sources/fonts/`)
+
+Загрузка шрифта. Возвращает уникальное имя шрифта в виде строки.
+
+### RectJS.JSON(src)
+
+- __src__ `<string>` - путь к файлу относительно папки с .json файлами (`RectJS.jsonPath`, по стандарту `Sources/json/`)
+
+Загрузка json файла. Возвращает содержимое файла в виде объекта.
+
 ### new RectJS.Sound(src[, distance])
 
 - __src__ `<string>` - путь к аудиофайлу
+- __distance__ `<number>` __*Default*__ `100` - коеффициент громкости привязанного к объекту звука
+
+Загрузка музыки. Возвращает объект звука.
+
+### RectJS.Audio(src[, distance])
+
+- __src__ `<string>` - путь к аудиофайлу относительно папки с аудиофайлами (`RectJS.audioPath`, по стандарту `Sources/audio/`)
 - __distance__ `<number>` __*Default*__ `100` - коеффициент громкости привязанного к объекту звука
 
 Загрузка музыки. Возвращает объект звука.
@@ -1062,6 +1229,24 @@ log(box2.size.x);
 ### RectJS.pluginSource
 `<string>` __*Default:*__ `"Plugins/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке с плагинами
 
+### RectJS.scenePath
+`<string>` __*Default:*__ `"Scenes/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке со сценами
+
+### RectJS.scriptPath
+`<string>` __*Default:*__ `"Scripts/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке со скриптами
+
+### RectJS.imagePath
+`<string>` __*Default:*__ `"Sources/images/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке с изображениями
+
+### RectJS.jsonPath
+`<string>` __*Default:*__ `"Sources/json/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке с .json файлами
+
+### RectJS.fontPath
+`<string>` __*Default:*__ `"Sources/fonts/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке со шрифтами
+
+### RectJS.audioPath
+`<string>` __*Default:*__ `"Sources/audio/"` - путь из установленной в __RectJS.sourceHOST__ папки к папке с аудиофайлами
+
 ### RectJS.container
 `<DOM>` - div, хранящий все елементы для отрисовки и прослушивания событий
 
@@ -1085,6 +1270,12 @@ log(box2.size.x);
 
 ### RectJS.client.h
 `<number>` __*Default:*__ `1080` - высота области отрисовки в условных единицах, что используются для позиционирования и указания размеров объектов
+
+### RectJS.resolution.w
+`<number>` __*Default:*__ `1536` - кол-во пикселей от центра области отрисовки до её края по горизонтали
+
+### RectJS.resolution.h
+`<number>` __*Default:*__ `864` - кол-во пикселей от центра области отрисовки до её края по вертикали
 
 ### RectJS.canvas_width
 `<number>` - текущая ширина canvas'а

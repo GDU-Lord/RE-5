@@ -115,7 +115,7 @@
             
             const bb = this.getBoundingBox(vertices);
 
-            if(texture == null || (texture.type != 'tiled' && texture.type != 'croped')) {
+            if(texture == null || (texture.type != 'tiled' && texture.type != 'cropped')) {
                 for(let i = 0; i < vertices.length; i += 2) {
                     const x = (vertices[i] - bb.minX) / bb.w;
                     const y = (vertices[i+1] - bb.minY) / bb.h;
@@ -146,8 +146,7 @@
                     UV[i+1] = y;
                 }
             }
-
-            else if(texture.type == 'croped') {
+            else if(texture.type == 'cropped') {
                 for(let i = 0; i < vertices.length; i += 2) {
                     const x = ((vertices[i] - bb.minX) / bb.w + texture.pos.x / (texture.size.x)) / (texture.tex.canvas.width/texture.size.x);// + texture.pos.x / (texture.tex.image.width/texture.size.x)) / (texture.tex.image.width/texture.size.x);
                     const y = ((vertices[i+1] - bb.minY) / bb.h + texture.pos.y / (texture.size.y)) / (texture.tex.canvas.height/texture.size.y);// + texture.pos.y / (texture.tex.image.width/texture.size.x))  / (texture.tex.image.height/texture.size.y);

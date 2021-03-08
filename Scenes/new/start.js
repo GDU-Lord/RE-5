@@ -1,9 +1,9 @@
 (scene, params) => {
 	
-	// скрипт запускается после перехода на сцену
-	// params -  набор параметров запуска сцены
+	// the script runs 
+	// params - the start parameters
 	
-	// переключение на камеру "new_cam"
+	// switching to the camera "new_cam"
 	new_cam.set();
 
 }

@@ -1,29 +1,25 @@
-// код запускается после загрузки страници
+// code runs when the page just loaded
 
 window.addEventListener('load', (e) => {
 
-	// инициализация Rect Engine 5
+	// Rect Engine 5 initialization
 	rjs = new RectJS(rjs => {
 
-		// код выполняется перед инициализацией движка
-		// здесь подключается большенство плагинов
+		// code runs right before the game engine initializtion
+		// usually this is the place for inmplement some plugins
 
 	});
 
-	// подключение скриптов
-	require("Scripts/config.js")();
-	require("Scripts/families.js")();
-	require("Scripts/sources.js")();
-	require("Scripts/assets.js")();
+	// attach some scripts
+	rjs.Script("config.js")();
+	rjs.Script("families.js")();
+	rjs.Script("sources.js")();
+	rjs.Script("assets.js")();
 
-	// создание сцены "new"
-	new_scene = new rjs.Scene({
-		init: require("Scenes/new/init.js"),
-		start: require("Scenes/new/start.js"),
-		end: require("Scenes/new/end.js")
-	});
+	// scene "new" initialization
+	new_scene = new rjs.Scene("new");
 
-	// переход на сцену "new"
+	// going to the scene "new"
 	new_scene.set();
 
 });
