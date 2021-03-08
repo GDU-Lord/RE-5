@@ -70,7 +70,7 @@ In the every folder of the scene there's 3 files:
 - [new RectJS.Scene()](#new-rectjsscenename-initonload-id])
 - [Scene.set()](#scenesetstartparams-endparams)
 - [Scene.update()](#sceneupdate)
-### [Special methods](#специальные-функции-1)
+### [Special methods](#special-methods-1)
 - [new RectJS.Vector2()](#new-rectjsvector2x-y)
 - [Vector2.toString()](#vector2tostring)
 - [Vector2.fromString()](#vector2fromstringv)
@@ -95,7 +95,7 @@ In the every folder of the scene there's 3 files:
 - [log()](#log)
 - [RectJS.isObject()](#rectjsisobjectobject)
 - [RectJS.checkSourceLoaded()](#rectjschecksourceloaded)
-### [Cameras and layers](#камеры-и-слои-1)
+### [Cameras and layers](#cameras-and-layers-1)
 - [new RectJS.Camera()](#new-rectjscameraoptions)
 - [Camera.set()](#cameraset)
 - [new RectJS.Layer()](#new-rectjslayerscene-parallax-scale-id-options)
@@ -104,7 +104,7 @@ In the every folder of the scene there's 3 files:
 - [Group.add()](#groupaddo)
 - [Group.set()](#groupseto)
 - [Group.remove()](#groupremoveo)
-### [Game objects](#игровые-объекты-1)
+### [Game objects](#game-objects-1)
 - [new RectJS.Polygon()](#new-rectjspolygonoptions)
 - [new RectJS.Sprite()](#new-rectjsspriteoptions)
 - [new RectJS.Text()](#new-rectjstextoptions)
@@ -326,302 +326,306 @@ Loading external script. Returns a function.
 		
 Scene initializer. Returns the scene instance.
 
-Пример скрипта инициализации сцены:
+__!!!WARNING!!!__ To create a new scene you need to make a new folder with the name of the scene in `Scenes/` directory and put 3 script files there:
+
+- __init.js__ - runs after the scene was initialized
+- __start.js__ - runs when the player go to the scene
+- __end.js__ - runs when the player leave the scene
+
+These files will load automaticaly.
+
+The __init.js__ script example:
 ```javascript
 (scene) => {
 	
-	// создание камеры
+	// create a camera
 	
-	// создание слоёв
+	// create some layers
 	
-	// создание объектов и циклов, игровая логика
+	// objects, loops, listeners and game logics
 	
 }
 ```
-Пример скрипта запуска и окончания сцены:
+The __start.js__ or __end.js__ script example:
 ```javascript
 (scene, params) => {
 	
-	// код
+	// some code
 	
 }
 ```
 
 ### Scene.set([startParams[ ,endParams]])
 
-- __startParams__ `<object>` - параметры, что передаются в скрипт запуска сцены
-- __endParams__ `<object>` - параметры, что передаются в скрипт окончания сцены
+- __startParams__ `<object>` - parameters passes to the __start.js__ script of the scene
+- __endParams__ `<object>` - parameters passes to the __end.js__ script of a scene
 
-Переход на сцену
+Switching to the scene
 
-### Scene.update()
-
-## Специальные функции
-
-Обновление объектов на сцене. Выполняется автоматически при переходе на сцену.
+## Special methods
 
 ### new RectJS.Vector2([x, y])
 
-- __x__ `<number>` | `<string>` __*Default:*__ `0` - горизонтальная координата вектора
-- __y__ `<number>` | `<string>` __*Default:*__ `0` - вертикальная координата вектора
+- __x__ `<number>` | `<string>` __*Default:*__ `0` - x coordinate of the vector
+- __y__ `<number>` | `<string>` __*Default:*__ `0` - y coordinate of the vector
 
-Создание двухмерного вектора. Возвращает вектор в виде объекта.
+2D vector creation. Returns the Vector2 object.
 
 ### Vector2.toString()
 
-Перевод вектора в формат строки. Возвращает вектор в виде строки. `"v{координата X};{координата Y}"`
+Converting the vector into a string. `"v{X coordinate};{Y coordinate}"`
 ```javascript
 new rjs.Vector2(1, 3).toString() = "v1;3";
 ```
 
 ### Vector2.fromString(v)
 
-- __v__ `<string>` - вектор в виде строки
+- __v__ `<string>` - vector in the form of string
 
-Перевод вектора из строки в объект. Возвращает вектор в виде объекта.
+Converting vector from string into a Vector2 object.
 ```javascript
 Vector2.fromString("v1;3") = new rjs.Vector2(1; 3);
 ```
 
 ### Vector2.len
 
-Возвращает длинну вектора.
+Returns the length of the vector.
 
 ### Vector2.angle
 
-Возвращает угол вектора относительно X+.
+Returns the angle between source vector and X+ axis.
 
 ### Vector2.add(v)
 ### Vector2.add([x[, y]])
 
-- __v__ `<object>` (`<Vector2>`) - вектор
-- __x__ `<number>` __*Default:*__ `0` - x координата вектора
-- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+- __v__ `<object>` (`<Vector2>`) - vector
+- __x__ `<number>` __*Default:*__ `0` - x coordinate
+- __y__ `<number>` __*Default:*__ `x` - y coordinate
 
-Возвращает сумму векторов в виде вектора.
+Returns the total of the vectors.
 
 ### Vector2.sub(v)
 ### Vector2.sub(x[, y])
 
-- __v__ `<object>` (`<Vector2>`) - вектор
-- __x__ `<number>` __*Default:*__ `0` - x координата вектора
-- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+- __v__ `<object>` (`<Vector2>`) - vector
+- __x__ `<number>` __*Default:*__ `0` - x coordinate
+- __y__ `<number>` __*Default:*__ `x` - y coordinate
 
-Возвращает разницу векторов в виде вектора.
+Returns the difference of the vectors.
 
 ### Vector2.mult(v)
 ### Vector2.mult(x[, y])
 
-- __v__ `<object>` (`<Vector2>`) - вектор
-- __x__ `<number>` __*Default:*__ `0` - x координата вектора
-- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+- __v__ `<object>` (`<Vector2>`) - vector
+- __x__ `<number>` __*Default:*__ `0` - x coordinate
+- __y__ `<number>` __*Default:*__ `x` - y coordinate
 
-Возвращает произведение векторов в виде вектора.
+Returns the product of the vectors.
 
 ### Vector2.div(v)
 ### Vector2.div(x[, y])
 
-- __v__ `<object>` (`<Vector2>`) - вектор
-- __x__ `<number>` __*Default:*__ `0` - x координата вектора
-- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+- __v__ `<object>` (`<Vector2>`) - vector
+- __x__ `<number>` __*Default:*__ `0` - x coordinate
+- __y__ `<number>` __*Default:*__ `x` - y coordinate
 
-Возвращает отношение векторов в виде вектора.
+Returns the division of the vectors.
 
 ### Vector2.dot(v)
 ### Vector2.dot(x[, y])
 
-- __v__ `<object>` (`<Vector2>`) - вектор
-- __x__ `<number>` __*Default:*__ `0` - x координата вектора
-- __y__ `<number>` __*Default:*__ `x` - y координата вектора
+- __v__ `<object>` (`<Vector2>`) - vector
+- __x__ `<number>` __*Default:*__ `0` - x coordinate
+- __y__ `<number>` __*Default:*__ `x` - y coordinate
 
-Возвращает скалярное произведение векторов в виде числа.
+Returns a dot product of the vectors.
 
 ### Vector2.norm()
 
-Возвращает нормализованый вектор.
+Returns the normalized vector.
 
 ### Vector2.rot(a)
 
-- __a__ `<number>` - угол в градусах
+- __a__ `<number>` - angle in degrees
 
-Возвращает вектор повёрнутый на заданный угол в виде вектора.
+Returns the source vector rotated on a given angle.
 
 ### Vector2.abs()
 
-Возвращает возвращает вектор с положительными значениями `x` и `y`
+Returns the vector with positive values of `x` and `y`
 
 ### vec2([x, y])
 
-Создание двухмерного вектора. Возвращает __new RectJS.Vector2(x, y)__.
+2D vector creation. Returns __new RectJS.Vector2(x, y)__.
 
 ### rgb(r, g, b)
 
-- __r__ `<number>` - красный канал (0-255)
-- __g__ `<number>` - зелёный канал (0-255)
-- __b__ `<number>` - синий канал (0-255)
+- __r__ `<number>` - red channel (0-255)
+- __g__ `<number>` - green channel (0-255)
+- __b__ `<number>` - blue channel (0-255)
 
-Создание цвета. Возвращает объект цвета.
+Returns the colorRGB object.
 
 ### rgba(r, g, b[, a])
 
-- __r__ `<number>` - красный канал (0-255)
-- __g__ `<number>` - зелёный канал (0-255)
-- __b__ `<number>` - синий канал (0-255)
-- __a__ `<number>` __*Default:*__ `255` - альфа канал (0-255)
+- __r__ `<number>` - red channel (0-255)
+- __g__ `<number>` - green channel (0-255)
+- __b__ `<number>` - blue channel (0-255)
+- __a__ `<number>` __*Default:*__ `255` - alpha channel (0-255)
 
-Создание цвета. Возвращает объект цвета.
+Returns the colorRGBA object.
 
 ### colorRGB.toString()
 ### colorRGBA.toString()
 
-Возвращает цвет в виде строки.
+Returns the color as a string.
 
 ```javascript
-var color = rgb(255, 255, 255);
+const color = rgb(255, 255, 255);
 console.log(color.toString());
-// получим в консоли "rgb(255, 255, 255)"
+// "rgb(255, 255, 255)"
 ```
 
 ```javascript
-var color = rgba(255, 255, 255, 255);
+const color = rgba(255, 255, 255, 255);
 console.log(color.toString());
-// получим в консоли "rgba(255, 255, 255, 255)"
+// "rgba(255, 255, 255, 255)"
 ```
 
 ### colorRGBA.toStringCSS()
 
-Возвращает цвет в виде строки в формате CSS, где альфа канал в пределах от 0 до 1.
+Returns the color converted to a string in CSS color type, where alpha channel is between 0 and 1.
 
 ```javascript
-var color = rgba(255, 255, 255, 255);
+const color = rgba(255, 255, 255, 255);
 console.log(color.toStringCSS());
-// получим в консоли "rgba(255, 255, 255, 1)"
+// "rgba(255, 255, 255, 1)"
 ```
 
 ### count(object)
 
-- __object__ `<array> | <object>` - массив или объект
+- __object__ `<array> | <object>` - an array or an object
 
-Возвращает количество запоненых ячеек в объекте или массиве в виде числа.
+Returns the amount of filled slots in the given object.
 
 ### copy(object)
 
-- __object__ `<object>` - JavaScript-объект
+- __object__ `<object>` (`<object> | <RectJS.Vector2>`) - JavaScript-object
 
-Возвращает копию одномерного JavaScript-объекта (ассоциативного массива).
+Returns the copy of a 1D JavaScript-object or RectJS.Vector2.
 
 ### log()
 
-То же что и __console.log()__.
+THe reference to __console.log()__.
 
 ### RectJS.isObject(object)
 
-- __object__ `<object>` - JavaScript-объект
+- __object__ `<object>` - JavaScript-object
 
-Возвращает `true` если аргумент является игровым объектом.
+Returns `true` if the argument is a game object.
 
 ### RectJS.checkSourceLoaded()
 
-В режиме ожидания загрузки ресурсов `RectJS.LOADER_MODE` проверяет наличие незагруженых ресурсов. Если таковы имеются `RectJS.sourceLoaded` устанавливается на `false`, если нет - `true`.
+In loader mode `RectJS.LOADER_MODE` checks for sources that wasn't loaded yet. If they are - `RectJS.sourceLoaded` sets to `false`, otherwise - `true`.
 
-## Камеры и слои
+## Cameras and layers
 
 ### new RectJS.Camera(options)
 
-- __options__ `<object>` - обязательный параметр!!!
-	- __pos__ `<object>` (`<RectJS.Vector2` | `<RectJS.vec2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - позиция камеры на сцене
-	- __id__ `<string>` __*Default:*__ `"camera_{номер камеры}"` - идентификатор камеры
+- __options__ `<object>` __*Default:*__ `new Object()`
+	- __pos__ `<object>` (`<RectJS.Vector2` | `<RectJS.vec2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - a camera position on a scene
+	- __id__ `<string>` __*Default:*__ `"camera_{camera number}"` - camera identifier
 
-Создание камеры. Возвращает объект камеры.
+Returns the Camera object.
 
 ### Camera.set()
 
-Переключение на кмеру.
+Switching to the camera.
 
 ### new RectJS.Layer(scene[, parallax[, scale[, id[, options]]]])
 
-- __scene__ `<object>` (`<RectJS.Scene>`) - сцена слоя
-- __paralalx__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(100, 100)` - проценты параллакса слоя по осям виде вектора
-- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг слоя по осям виде вектора
-- __id__ `<string>` __*Default:*__ `"layer_{номер слоя}"` - идентификатор слоя
+- __scene__ `<object>` (`<RectJS.Scene>`) - the layer scene
+- __paralalx__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(100, 100)` - percentage of the layer parallax
+- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - the layer scaling
+- __id__ `<string>` __*Default:*__ `"layer_{номер слоя}"` - layer identifier
 - __options__ `<object>` __*Default:*__ `new Object()`
-	- __visible__ `<boolean>` __*Default:*__ `true` - видимость слоя
+	- __visible__ `<boolean>` __*Default:*__ `true` - layer visibility
 	
-Создание слоя.
-__ВНИМАНИЕ!__ Слои отрисовываются в порядке инициализации.
+Returns a Layer object.
+__WARNING!__ The RE-5 renderer draw all the layers in order of their initialization.
 
 ### new RectJS.Group(layer[, id])
 
-- __layer__ - слой на котором находятся объекты группы
-- __id__ __*Default:*__ `"group_{номер группы}"`
+- __layer__ - the layer of the group
+- __id__ __*Default:*__ `"group_{group number}"`
 
-Возвращает группу отрисовки. Группы отрисовки помогают повысить оптимизацию и сократить кол-во вызовов отрисовки. Если у вас на одном слое есть много разных объектов, добавьте объекты с похожими свойствами в свои группы отрисовки, чтобы упорядочить рендеринг. Нужно обратить внимание на такие свойства объекта как:
+Returns a rendering group. Rendering groups can help you to increase the performance by reducing unnecessary draw calls. If you have lost of different object on the layer you can add the objects with similar appearences to the render group, to optimize the rendering order. Pay attention to the following properties:
 
-- Текстура
-- Шейдер
-- Вершины
-- Цвет
-- Режим наложения цвета
+- Textures
+- Shaders
+- Vertices
+- Colors
+- Color modes
 
-__!!!ВНИМАНИЕ!!!__ Если вы в коде переносите объект с одного слоя на другой убедитесь что вы удалили его из всех групп предыдущего слоя, во избежании багов отрисовки.
+__!!!WARNING!!!__ If you move the object from one layer to another in runtime, make sure that you've removed it from all of the render groups. Mistakes like that can couse serious rendering bugs.
 
 ### Group.isset(o)
 
-- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - игровой объект
+- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - a game object
 
-Возвращает `true` если данный объект есть в группе, иначе возвращает `false`.
+Returns `true` if the game object is apart of the group, otherwise it returns `false`.
 
 ### Group.add(o)
 
-- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - игровой объект
+- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - a game object
 
-Добавляет объект в группу.
+Adds an object to the group.
 
+__!!!WARNING!!!__ Use this method only if you want object to be rendered several times on a single frame. Make sure you know what are you doing.
 __!!!ВНИМАНИЕ!!!__ Не стоит использовать этот метод если вы не хотите чтобы объект рисовался несколько раз. Убедитесь что вы знаете что делаете.
 
 ### Group.set(o)
 
-- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - игровой объект
+- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - a game object
 
-Добавляет объект в данную группу и удаляет из всех остальных.
+Adds an object to the group and removes it from all of its current groups.
 
 ### Group.remove(o)
 
-- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - игровой объект
+- __o__ `<object>` (`<RectJS.Sprite> | <RectJS.Polygon>`) - a game object
 
-Удаляет объект из группы.
+Removes an object from the group.
 
-## Игровые объекты
+## Game objects
 
 ### new RectJS.Polygon(options)
 
 - __options__ `<object>`
-	- __pos__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - позиция объекта на сцене в виде вектора
-	- __vertices__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - массив с вершинами многоугольника в виде векторов
-	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг объекта
-	- __angle__ `<number>` __*Default:*__ `0` - поворот объекта в градусах
-	- __origin__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - смещение центра обекта
-	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - точки привязки
-	- __texture__ `<object>` (`RectJS.Texture`) __*Default:*__ `null` - текстура объекта
-	- __color__ `<arrat>` (`<rgb> | <rgba>`) __*Default:*__ `rgb(255, 255, 255)` - цвет объекта
-	- __colors__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `[...this.color]` - массив с цветами вершин многоугольника в формате `rgb` или `rgba`. Работает только если __colorMode__ = `"VERTEX"`!
-	- __colorMode__ `<string>` __*Default:*__ `SINGLE` - режим отрисовки цвета. Есть три режима:
-		- `"SINGLE"` - объект полностью залит цветом. При этом наличие разноцветных объектов не влияет на производительность.
-		- `"UNIFORM"` - применяется если у большого количества однотипных объектов одинаковый цвет, на больших масштабах повышает производительность.
-		- `"VERTEX"` - работает как "SINGLE", но позволяет задать цвет каждой вершине (цвета задаются в свойстве __colors__)
-	- __filters__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `new Array()` - массив с фильтрами цвета объекта в формате `rgb` или `rgba`
-	- __opacity__ `<number>` __*Default:*__ `100` - проценты непрозрачности объекта
-	- __render__ `<boolean>` __*Default:*__ `true` - видимость объекта
-	- __enable_chunks__ `<boolean>` __*Default:*__ `true` - привязка объекта к чанку в чанковом режиме
-	- __layer__ `<object>` (`<RectJS.Layer>`) - слой объекта
-	- __id__ `<string>` __*Default:*__ `"object_{номер объекта}"` - индентификатор объекта
-	- __textOverlap__ `<boolean>` __*Default:*__ `false` - перекрыте текстов объектом
-	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - семьи к которым принадлежит объект
-	- __program__ `<object>` (`<RectJS.Program>`) __*Default:*__ `RectJS.renderer.programs["DEFAULT"]` - шейдерная программа (большое их количество понижает производительность)
-	- __private__ `<object>` __*Default:*__ `new Object()` - объект с дополнительными параметрами объекта и методами.
-		- __init__ `<function>` __*Default:*__ `undefined` - срабатывает после создания объекта
+	- __pos__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - position on the scene
+	- __vertices__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - array of the vertices
+	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - object scaling
+	- __angle__ `<number>` __*Default:*__ `0` - angle (degrees)
+	- __origin__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - origin offset
+	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - bounding points
+	- __texture__ `<object>` (`RectJS.Texture`) __*Default:*__ `null` - texture
+	- __color__ `<arrat>` (`<rgb> | <rgba>`) __*Default:*__ `rgb(255, 255, 255)` - color
+	- __colors__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `[...this.color]` - Array with color of every single vertex. Works only if __colorMode__ = `"VERTEX"`!
+	- __colorMode__ `<string>` __*Default:*__ `SINGLE` - Color mode. Theres're 3 modes:
+		- `"SINGLE"` - the object is entirely filled with one single color. Amount of objects with different colors doesn't affect on the performance.
+		- `"UNIFORM"` - useful in case when there are a lot of objects with the same color, on a large scale increases the performance.
+		- `"VERTEX"` - works almost like "SINGLE", but allows to color every single vertex (colors set in the __colors__ property)
+	- __filters__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `new Array()` - array with color filters
+	- __opacity__ `<number>` __*Default:*__ `100` - percentage of the opacity
+	- __render__ `<boolean>` __*Default:*__ `true` - object visibility
+	- __layer__ `<object>` (`<RectJS.Layer>`) - object layer
+	- __id__ `<string>` __*Default:*__ `"object_{object number}"` - object unique identifier
+	- __textOverlap__ `<boolean>` __*Default:*__ `false` - texts overlapping
+	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - object families
+	- __program__ `<object>` (`<RectJS.Program>`) __*Default:*__ `RectJS.renderer.programs["DEFAULT"]` - shader program (large amount of different shaders on the scene decreases the performane)
+	- __private__ `<object>` __*Default:*__ `new Object()` - object with custom properties and methods.
+		- __init__ `<function>` __*Default:*__ `undefined` - runs after the object created
 
-Создание многоугольника. Возвращает игровой объект.
+Polygon object creation. Returns the game Object.
 
 ```javascript
 var object = new rjs.Polygon({
@@ -630,90 +634,84 @@ var object = new rjs.Polygon({
 		test: 123,
 		init: function () {
 			console.log(this.text);
-			// в консоли получим "123"
+			// "123"
 		}
 	}
 });
 
 console.log(object.test);
-// в консоли получим "123"
+// "123"
 ```
 
-Ко всем параметрам объекта кроме __private__ можно обратиться как к его свойствам. Те же что были в свойстве __private__ становятся свойствами и методаим самого объекта (как показано выше).
+You can access any parameter of an object (except of __private__) as it's property using point. Parameters and methods from __private__ object become regular object properties (check the code above).
 
 ### new RectJS.Sprite(options)
 
 - __options__ `<object>`
-	- __pos__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - позиция объекта на сцене в виде вектора
-	- __size__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - размеры спрайта
-	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг объекта
-	- __angle__ `<number>` __*Default:*__ `0` - поворот объекта в градусах
-	- __origin__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - смещение центра обекта
-	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - точки привязки
-	- __texture__ `<object>` (`RectJS.Texture`) __*Default:*__ `null` - текстура объекта
-	- __color__ `<object>` (`<rgb> | <rgba>`) __*Default:*__ `rgb(255, 255, 255)` - цвет объекта
-	- __colors__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `[...this.color]` - массив с цветами вершин многоугольника в формате `rgb` или `rgba`. Работает только если __colorMode__ = `"VERTEX"`!
-	- __colorMode__ `<string>` __*Default:*__ `SINGLE` - режим отрисовки цвета. Есть три режима:
-		- `"SINGLE"` - объект полностью залит цветом. При этом наличие разноцветных объектов не влияет на производительность.
-		- `"UNIFORM"` - применяется если у большого количества однотипных объектов одинаковый цвет, на больших масштабах повышает производительность.
-		- `"VERTEX"` - работает как "SINGLE", но позволяет задать цвет каждой вершине (цвета задаются в свойстве __colors__)
-	- __filters__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `new Array()` - массив с фильтрами цвета объекта в формате `rgb`
-	- __opacity__ `<number>` __*Default:*__ `100` - проценты непрозрачности объекта
-	- __render__ `<boolean>` __*Default:*__ `true` - видимость объекта
-	- __enable_chunks__ `<boolean>` __*Default:*__ `true` - привязка объекта к чанку в чанковом режиме
-	- __layer__ `<object>` (`<RectJS.Layer>`) - слой объекта
-	- __id__ `<string>` __*Default:*__ `"object_{номер объекта}"` - индентификатор объекта
-	- __textOverlap__ `<boolean>` __*Default:*__ `false` - перекрыте текстов объектом
-	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - семьи к которым принадлежит объект
-	- __program__ `<object>` (`<RectJS.Program>`) __*Default:*__ `RectJS.renderer.programs["DEFAULT"]` - шейдерная программа (большое их количество понижает производительность)
-	- __private__ `<object>` __*Default:*__ `new Object()` - объект с дополнительными параметрами объекта и методами.
-		- __init__ `<function>` __*Default:*__ `undefined` - срабатывает после создания объекта
+	- __pos__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - position on the scene
+	- __size__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - size of the sprite
+	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - object scaling
+	- __angle__ `<number>` __*Default:*__ `0` - angle (degrees)
+	- __origin__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - origin offset
+	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - bounding points
+	- __texture__ `<object>` (`RectJS.Texture`) __*Default:*__ `null` - texture
+	- __color__ `<arrat>` (`<rgb> | <rgba>`) __*Default:*__ `rgb(255, 255, 255)` - color
+	- __colors__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `[...this.color]` - Array with color of every single vertex. Works only if __colorMode__ = `"VERTEX"`!
+	- __colorMode__ `<string>` __*Default:*__ `SINGLE` - Color mode. Theres're 3 modes:
+		- `"SINGLE"` - the object is entirely filled with one single color. Amount of objects with different colors doesn't affect on the performance.
+		- `"UNIFORM"` - useful in case when there are a lot of objects with the same color, on a large scale increases the performance.
+		- `"VERTEX"` - works almost like "SINGLE", but allows to color every single vertex (colors set in the __colors__ property)
+	- __filters__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `new Array()` - array with color filters
+	- __opacity__ `<number>` __*Default:*__ `100` - percentage of the opacity
+	- __render__ `<boolean>` __*Default:*__ `true` - object visibility
+	- __layer__ `<object>` (`<RectJS.Layer>`) - object layer
+	- __id__ `<string>` __*Default:*__ `"object_{object number}"` - object unique identifier
+	- __textOverlap__ `<boolean>` __*Default:*__ `false` - texts overlapping
+	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - object families
+	- __program__ `<object>` (`<RectJS.Program>`) __*Default:*__ `RectJS.renderer.programs["DEFAULT"]` - shader program (large amount of different shaders on the scene decreases the performane)
+	- __private__ `<object>` __*Default:*__ `new Object()` - object with custom properties and methods.
+		- __init__ `<function>` __*Default:*__ `undefined` - runs after the object created
 		
-Создание прямоугольного объекта. Возвращает игровой объект.
+Rectangle shaped object (Sprite) creation. Returns a game Object.
 
 ### new RectJS.Text(options)
 
-- __options__ `<object>`
-	- __pos__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - позиция объекта на сцене в виде вектора
-	- __size__ `<number>` - размер текста
-	- __font__ `<string>` - шрифт текста
-	- __text__ `<string>` - текст
-	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - скейлинг объекта
-	- __angle__ `<number>` __*Default:*__ `0` - поворот объекта в градусах
-	- __origin__ `<string>` __*Default:*__ `"center-middle"` - выравнивание текста
-	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - точки привязки
-	- __color__ `<object>` (`<rgb> | <rgba>`) __*Default:*__ `rgb(255, 255, 255)` - цвет текста
-	- __filters__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `new Array()` - массив с фильтрами цвета текста в формате `rgb` или `rgba`
-	- __opacity__ `<number>` __*Default:*__ `100` - проценты непрозрачности объекта
-	- __render__ `<boolean>` __*Default:*__ `true` - видимость объекта
-	- __enable_chunks__ `<boolean>` __*Default:*__ `true` - привязка объекта к чанку в чанковом режиме
-	- __layer__ `<object>` (`<RectJS.Layer>`) - слой объекта
-	- __id__ `<string>` __*Default:*__ `"object_{номер объекта}"` - индентификатор объекта
-	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - семьи к которым принадлежит объект
-	- __private__ `<object>` __*Default:*__ `new Object()` - объект с дополнительными параметрами объекта и методами.
-		- __init__ `<function>` __*Default:*__ `undefined` - срабатывает после создания объекта
+- __options__ `<object>`	
+	- __pos__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - position on the scene
+	- __size__ `<number>` - text size
+	- __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - object scaling
+	- __angle__ `<number>` __*Default:*__ `0` - angle (degrees)
+	- __origin__ `<string>` __*Default:*__ `"center-middle"` - text align
+	- __points__ `<array>` [`<RectJS.Vector2>`, ...] __*Default:*__ `new Array()` - bounding points
+	- __font__ `<string>` - text font
+	- __text__ `<string>` - text content
+	- __color__ `<arrat>` (`<rgb> | <rgba>`) __*Default:*__ `rgb(255, 255, 255)` - color
+	- __filters__ `<array>` [`<rgb> | <rgba>`, ...] __*Default:*__ `new Array()` - array with color filters
+	- __opacity__ `<number>` __*Default:*__ `100` - percentage of the opacity
+	- __render__ `<boolean>` __*Default:*__ `true` - object visibility
+	- __layer__ `<object>` (`<RectJS.Layer>`) - object layer
+	- __id__ `<string>` __*Default:*__ `"object_{object number}"` - object unique identifier
+	- __families__ `<array>` [`<RectJS.Family>`, ...] __*Default:*__ `new Array()` - object families
+	- __private__ `<object>` __*Default:*__ `new Object()` - object with custom properties and methods.
+		- __init__ `<function>` __*Default:*__ `undefined` - runs after the object created
 		
-Создание текста. Возвращает игровой объект.
+Text creation. Returns a game Object.
 
 ### Object.destroy()
 
-Удаление объекта.
+Destroying the object.
 
 ### Object.setLayer(layer)
 
-- __layer__ `<object>` (`<RectJS.Layer>`) - новый слой объекта
+- __layer__ `<object>` (`<RectJS.Layer>`) - new object layer
 
-Перенос объекта на другой слой.
+Changing a layer of the object
 
 ### Object.getPoint(id)
 
-- __id__ `<number>` - индекс точки в массиве `Object.points`
+- __id__ `<number>` - bounding point index in the array `Object.points`
 
-Возвращает координаты привязаной к объекту точки в виде вектора (с учётом его смещения, угла наклона и прочего).
-
-### Object.update()
-
-Обновляет объект. Применяется в случае изменения позиций вершин многоугольника, изменения слоя через свойство __layer__ или изменение текстуры.
+Returns the vector of bounding point position on the scene (according to it's transformations).
 
 ## Циклы
 
