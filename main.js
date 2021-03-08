@@ -6,7 +6,7 @@ window.addEventListener('load', (e) => {
 	rjs = new RectJS(rjs => {
 
 		// code runs right before the game engine initializtion
-		// usually this is the place for inmplement some plugins
+		// usually this is the place for implement some plugins
 
 	});
 
