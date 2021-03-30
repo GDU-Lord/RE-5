@@ -101,7 +101,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			return new this.constructor(this.x/v.x, this.y/v.y);
 		}
 
-		dot (x = 0, y = x) {
+		dot () {
 			const v = new this.constructor(x, y);
 			return this.x*v.x+this.y*v.y;
 		}
@@ -523,9 +523,9 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return require(rjs.jsonPath+src, 'json');
 	};
 
-	this.imagePath = "Sources/images/";
+	this.imagesPath = "Sources/images/";
 	this.Image = function (src, ...params) {
-		return new rjs.Texture(rjs.imagePath+src, ...params);
+		return new rjs.Texture(rjs.imagesPath+src, ...params);
 	};
 
 	this.audioPath = "Sources/audio/";
@@ -533,7 +533,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return new rjs.Sound(rjs.audioPath+src);
 	};
 
-	this.fontPath = "Sources/fonts/";
+	this.fontPath = "Sources/font/";
 	this.Font = function (name, src) {
 		return rjs.loadFont(name, rjs.fontPath+src);
 	};
@@ -1792,17 +1792,17 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		}
 	};
 	
-	this.Family.prototype.forNearTo = function (_pos, fnc, dist = 100) {
+	this.Family.prototype.forNearTo = function (pos, fnc, dist = 100) {
 		const family = this;
 		if(true) {
 			family.for(o => {
 				if(o.scene != rjs.currentScene)
 					return;
-				let scale = rjs.currentScene.layers[o.layer.id].scale;
-				let cam = rjs.currentCamera;
-				let pos = vec2();
-				pos.x = _pos.x/scale.x+cam.pos.x;
-				pos.y = _pos.y/scale.y+cam.pos.y;
+				// let scale = rjs.currentScene.layers[o.layer.id].scale;
+				// let cam = rjs.currentCamera;
+				// let pos = vec2();
+				// pos.x = _pos.x/scale.x+cam.pos.x;
+				// pos.y = _pos.y/scale.y+cam.pos.y;
 				if(Math.pow(pos.x-o.pos.x, 2) + Math.pow(pos.y-o.pos.y, 2) <= Math.pow(dist, 2))
 					fnc(o);
 			});
