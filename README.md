@@ -1391,7 +1391,7 @@ For compatibility with old plugins there's an old reference: __RectJS.renderTool
 
 # Plugins
 
-## Устройство плагина
+## What plugin consist of?
 
 To work correctly the plugin should be in __*Plugins/*__*plugin_name*__*.rjs*__ folder. Plugin consist at least of 2 files:
 
