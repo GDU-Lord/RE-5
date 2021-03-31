@@ -6,7 +6,7 @@ __Rect Engine 5__ (RE-5) - is the object-oriented engine-framework made by Black
 
 - Install any local server or just use our small local [server on Node.js](https://github.com/BSS-Lord/local-server)
 - Create project directory on the server
-- Anpack this repository into that folder
+- Unpack this repository into that folder
 - When you just open it in browser you sould see the tinged square rotating around and the caption "Rect Engine 5"
 
 __WARNING!__ You can use any comfortable to you code editor, cause there's no native IDE for the engine yet.
