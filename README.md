@@ -582,7 +582,6 @@ Returns `true` if the game object is apart of the group, otherwise it returns `f
 Adds an object to the group.
 
 __!!!WARNING!!!__ Use this method only if you want object to be rendered several times on a single frame. Make sure you know what are you doing.
-__!!!ВНИМАНИЕ!!!__ Не стоит использовать этот метод если вы не хотите чтобы объект рисовался несколько раз. Убедитесь что вы знаете что делаете.
 
 ### Group.set(o)
 
