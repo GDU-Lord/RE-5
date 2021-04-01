@@ -762,7 +762,6 @@ Texture loading. Returns a source texture object.
 
 ### RectJS.Image(src[, scale[, custom_size]])
 
-- __src__ `<string>` - путь к изображению относительно папки с изображениями (`RectJS.imagePath`, по стандарту `Sources/images/`)
 - __src__ `<string>` - relative path from the images directory (`RectJS.imagePath`, `Sources/images/` by default) to the image file
 - __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - source texture scaling, affects on the resolution of the texture
 - __custom_size__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - absolute size of source texture, affects on the resolution of the texture. If = 0 - size will be set to the source image size automatically
