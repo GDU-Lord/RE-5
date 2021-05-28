@@ -6,7 +6,7 @@ __Rect Engine 5__ (RE-5) - is the object-oriented engine-framework made by Black
 
 - Install any local server or just use our small local [server on Node.js](https://github.com/BSS-Lord/local-server)
 - Create project directory on the server
-- Anpack this repository into that folder
+- Unpack this repository into that folder
 - When you just open it in browser you sould see the tinged square rotating around and the caption "Rect Engine 5"
 
 __WARNING!__ You can use any comfortable to you code editor, cause there's no native IDE for the engine yet.
@@ -582,7 +582,6 @@ Returns `true` if the game object is apart of the group, otherwise it returns `f
 Adds an object to the group.
 
 __!!!WARNING!!!__ Use this method only if you want object to be rendered several times on a single frame. Make sure you know what are you doing.
-__!!!ВНИМАНИЕ!!!__ Не стоит использовать этот метод если вы не хотите чтобы объект рисовался несколько раз. Убедитесь что вы знаете что делаете.
 
 ### Group.set(o)
 
@@ -763,7 +762,6 @@ Texture loading. Returns a source texture object.
 
 ### RectJS.Image(src[, scale[, custom_size]])
 
-- __src__ `<string>` - путь к изображению относительно папки с изображениями (`RectJS.imagePath`, по стандарту `Sources/images/`)
 - __src__ `<string>` - relative path from the images directory (`RectJS.imagePath`, `Sources/images/` by default) to the image file
 - __scale__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(1, 1)` - source texture scaling, affects on the resolution of the texture
 - __custom_size__ `<object>` (`<RectJS.Vector2>`) __*Default:*__ `new RectJS.Vector2(0, 0)` - absolute size of source texture, affects on the resolution of the texture. If = 0 - size will be set to the source image size automatically
@@ -1392,7 +1390,7 @@ For compatibility with old plugins there's an old reference: __RectJS.renderTool
 
 # Plugins
 
-## Устройство плагина
+## What plugin consist of?
 
 To work correctly the plugin should be in __*Plugins/*__*plugin_name*__*.rjs*__ folder. Plugin consist at least of 2 files:
 
