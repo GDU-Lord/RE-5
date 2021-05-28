@@ -199,8 +199,6 @@
 
         setTexture (o) {
 
-            
-
             let t = this.getTexture(o);
             let buffer = 0;
 
@@ -213,15 +211,19 @@
                 t = t.tex;
             }
 
+            
+
             if(TEXTURE != t) {
                 
                 if(!DRAWN)
                     RENDERER.draw();
 
                 if(t == null || !t.image.loaded) {
-
+                    
                     Core.setEmptyTexture(buffer, STANDART_TEXTURE);
-                    _DRAWN = Core.setTextureUniform(buffer, TEXTURE_BUFFER, _DRAWN);
+                    const res = Core.setTextureUniform(buffer, TEXTURE_BUFFER, _DRAWN);
+                    _DRAWN = res[0];
+                    TEXTURE_BUFFER = res[1];
 
                     TEXTURE = t;
 
@@ -233,7 +235,9 @@
                     Core.activeTexture(buffer);
                     this.useTexture(t);
                     
-                    _DRAWN = Core.setTextureUniform(buffer, TEXTURE_BUFFER, _DRAWN);
+                    const res = Core.setTextureUniform(buffer, TEXTURE_BUFFER, _DRAWN);
+                    _DRAWN = res[0];
+                    TEXTURE_BUFFER = res[1];
 
                     TEXTURE = t;
 
@@ -246,15 +250,18 @@
                     Core.setTexture(t, buffer);
                     Core.setTexFilters(RENDERER.DRAWING_MODE, type == 'tiled');
 
-                    _DRAWN = Core.setTextureUniform(buffer, TEXTURE_BUFFER, _DRAWN);
+                    const res = Core.setTextureUniform(buffer, TEXTURE_BUFFER, _DRAWN);
+                    _DRAWN = res[0];
+                    TEXTURE_BUFFER = res[1];
 
                     TEXTURE = t;
                 }
+                
                 return {buffer: buffer, texture: t};
             }
             else {
                 _DRAWN = false;
-                return {buffer: TEXTURE_BUFFER, texture: TEXTURE};
+                return {buffer: TEXTURE_BUFFER || 0, texture: TEXTURE};
             }
 
         }
@@ -264,9 +271,12 @@
             const program = Core.Program;
 
             let texture_type = "plain";
+            let tiled = false;
 
             if(texture != null)
                 texture_type = texture.type || "plain";
+            if(texture_type == "tiled")
+                tiled = true;
             if(texture_type == "tiled" || texture_type == "cropped")
                 texture_type = "complex";
 
@@ -276,7 +286,9 @@
                 complex = texture.id == COMPLEX_TEXTURE.id;
             }
 
-            if(TEXTURE_TYPE == texture_type && complex && (VERTEX_TYPE == o.type || ae(VERTICES, (o.vertices || null)))) {
+            if(TEXTURE_TYPE == texture_type && complex && (VERTEX_TYPE == o.type || ae(VERTICES, (o.vertices || null))) && !tiled) {
+                // if(o.type == "sprite")
+                    // log(o.size+"");
                 return;
             }
 
@@ -348,8 +360,9 @@
                     RENDERER.draw();
             }
             else if(program.id != Core.Program.id) {
-                if(!DRAWN)
+                if(!DRAWN) {
                     RENDERER.draw();
+                }
             }
 
             Core.useProgram(program.id);

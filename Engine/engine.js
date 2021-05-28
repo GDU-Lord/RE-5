@@ -533,7 +533,7 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 		return new rjs.Sound(rjs.audioPath+src);
 	};
 
-	this.fontPath = "Sources/font/";
+	this.fontPath = "Sources/fonts/";
 	this.Font = function (name, src) {
 		return rjs.loadFont(name, rjs.fontPath+src);
 	};
@@ -805,6 +805,12 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 			rjs.timeStep = 0;
 			for(let i in rjs.sources) {
 				if(!rjs.sources[i].image.loaded) {
+					rjs.sourceLoaded = false;
+					break;
+				}
+			}
+			for(let i in rjs.sounds) {
+				if(!rjs.sounds[i].audio.loaded) {
 					rjs.sourceLoaded = false;
 					break;
 				}
@@ -1220,7 +1226,12 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 					}
 				}
 			}
-			return new rjs[type]({
+			let constructor = null;
+			if(typeof type == "text")
+				constructor = rjs[type];
+			else
+				constructor = type;
+			return new constructor({
 				pos: typeof p.pos != 'undefined' ? p.pos : pos,
 				size: typeof p.size != 'undefined' ? p.size : size,
 				scale: typeof p.scale != 'undefined' ? p.scale : scale,
@@ -1870,6 +1881,13 @@ const RectJS = function (fnc = () => {}, sourceHOST = '', engineSource = 'Engine
 	this.Sound = function (src) {
 		this.audio = new Audio();
 		this.audio.src = rjs.src(src);
+		this.audio.setAttribute("muted", "muted");
+		this.audio.loaded = false;
+		this.audio.load();
+		this.audio.addEventListener("canplaythrough", () => {
+			th2.audio.loaded = true;
+			rjs.checkSourceLoaded();
+		});
 		this.id = rjs.sounds.length;
 		this.object = 'none';
 		this.volume = 100;

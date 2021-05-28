@@ -265,10 +265,10 @@
             if(TEXTURE_BUFFER != buffer) {
                 this.setUniform("tex", "1i", buffer);
                 TEXTURE_BUFFER = buffer;
-                return false;
+                return [false, TEXTURE_BUFFER];
             }
 
-            return _DRAWN;
+            return [_DRAWN, TEXTURE_BUFFER];
         }
 
         setBlendMode (mode) {

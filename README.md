@@ -304,7 +304,7 @@ __WARNING!__ If you want variable to be accessible form all of the scripts it ne
 `window.variable = 1;`
 - declare the variable beyound the "onload" event listener in the __*main.js*__ script
 ```javascript
-var variable = 1;
+let variable = 1;
 
 window.addEventListener('load', e => {
 ...
@@ -1119,10 +1119,11 @@ Removes an object from the family
 ### new RectJS.Asset(options)
 
 - __options__ `<obejct>` - settings
-	- __type__ `<string>` - object type
-		- `"Polygon"` - polygon
-		- `"Sprite"` - tinged rectangle or sprite
-		- `"Text"` - text object
+	- __type__ `<string>` - object type (constructor)
+		- `"Polygon" || rjs.Polygon` - polygon
+		- `"Sprite || rjs.Sprite"` - tinged rectangle or sprite
+		- `"Text" || rjs.Text` - text object
+		- `<rjs.Asset>` - you can make an asset based on the other one
 	- __the rest of parameters are the same as in object constructor with the given type__
 
 Returns the object constructor with the given settings:
@@ -1139,7 +1140,7 @@ Asset using example
 ```javascript
 // creation of an asset
 const BOX = new rjs.Asset({
-	type: "Sprite",
+	type: rjs.Sprite,
 	size: vec2(256, 256),
 	color: rgb(100, 50, 255),
 	private: {
