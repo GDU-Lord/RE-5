@@ -1,6 +1,6 @@
 # Introduction
 
-__Rect Engine 5__ (RE-5) - is the object-oriented engine-framework made by Black Square Studios for 2D games development with JavaScript. Graphic engine in RE-5 is based on [WebGL2](https://webgl2fundamentals.org) (browser adaptation of [OpenGL3.0](https://www.opengl.org)). Engine is suitable for small and big multiplayer games development as well. Engine has a flexible plugin system that expands its functionality. More lessons and guides to RE-5 you can find following [this link](http://bss.epizy.com/page/?f=re5lessons&lang=en).
+__Rect Engine 5__ (RE-5) - is the object-oriented engine-framework made for 2D games development with JavaScript. Graphic engine in RE-5 is based on [WebGL2](https://webgl2fundamentals.org) (browser adaptation of [OpenGL3.0](https://www.opengl.org)). Engine is suitable for small and big multiplayer games development as well. Engine has a flexible plugin system that expands its functionality. More lessons and guides to RE-5 you can find following [this link](http://bss.epizy.com/page/?f=re5lessons&lang=en).
 
 # Setting up the project
 
